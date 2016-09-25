@@ -65,7 +65,7 @@ var Example = (function (_super) {
             _this.currentKey = itemAt(_this.items, path).key;
             _this.forceUpdate();
         };
-        return (React.createElement(MyTree, {items: this.items.map(function (i) { return _this.treeItem(i); }), draggable: true, itemHeight: 32, childOffset: 16, renderItem: function (item) { return React.createElement(ExampleCell, {item: item}); }, treeClassName: "", itemClassName: "", changeCurrent: changeCurrent}));
+        return (React.createElement(MyTree, {items: this.items.map(function (i) { return _this.treeItem(i); }), draggable: true, itemHeight: 32, childOffset: 16, renderItem: function (item) { return React.createElement(ExampleCell, {item: item}); }, changeCurrent: changeCurrent}));
     };
     return Example;
 }(React.Component));

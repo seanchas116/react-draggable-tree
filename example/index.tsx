@@ -66,8 +66,6 @@ class Example extends React.Component<{}, {}> {
         itemHeight={32}
         childOffset={16}
         renderItem={item => <ExampleCell item={item} />}
-        treeClassName=""
-        itemClassName=""
         changeCurrent={changeCurrent}
       />
     )

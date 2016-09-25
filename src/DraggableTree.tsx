@@ -17,8 +17,6 @@ interface DraggableTreeProps<T> {
   itemHeight: number
   childOffset: number
   renderItem: (item: DraggableItem<T>) => JSX.Element
-  treeClassName: string
-  itemClassName: string
   //move: (src: number[][], dest: number[]) => void
   //copy: (src: number[][], dest: number[]) => void
   //toggleCollapsed: (path: number[], collapsed: boolean) => void
@@ -29,7 +27,7 @@ interface DraggableTreeProps<T> {
 export
 class DraggableTree<T> extends React.Component<DraggableTreeProps<T>, {}> {
   renderItems(items: DraggableItem<T>[], parentPath: number[]) {
-    const {itemHeight, itemClassName, childOffset, renderItem, changeCurrent} = this.props
+    const {itemHeight, childOffset, renderItem, changeCurrent} = this.props
     let elems: JSX.Element[] = []
     items.forEach((item, i) => {
       const path = [...parentPath, i]
@@ -45,7 +43,7 @@ class DraggableTree<T> extends React.Component<DraggableTreeProps<T>, {}> {
         changeCurrent(path)
       }
       elems.push(
-        <div className={itemClassName} style={style} key={item.key} onClick={onClick}>
+        <div className="ReactDraggableTree_Row" style={style} key={item.key} onClick={onClick}>
           {renderItem(item)}
         </div>
       )
@@ -57,14 +55,10 @@ class DraggableTree<T> extends React.Component<DraggableTreeProps<T>, {}> {
   }
 
   render() {
-    const {items, treeClassName} = this.props
+    const {items} = this.props
 
-    const treeStyle = {
-      display: "flex",
-      flexDirection: "column",
-    }
     return (
-      <div className={treeClassName} style={treeStyle}>
+      <div className="ReactDraggableTree">
         {this.renderItems(items, [])}
       </div>
     )
