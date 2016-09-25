@@ -1,11 +1,32 @@
 import React = require("react")
 import ReactDOM = require("react-dom")
-import {DraggableTree} from "../src/DraggableTree"
+import {DraggableTree, DraggableItem} from "../src/DraggableTree"
+const classNames = require("classnames")
 
 class MyTree extends DraggableTree<string> {}
 
+interface ExampleItem {
+  value: string
+  key: string
+  children?: ExampleItem[]
+}
+
+function itemAt(items: ExampleItem[], path: number[]): ExampleItem {
+  const at = items[path[0]]
+  if (path.length == 1) {
+    return at
+  } else {
+    return itemAt(at.children!, path.slice(1))
+  }
+}
+
+function ExampleCell(props: {item: DraggableItem<string>}) {
+  const {value, selected, current} = props.item
+  return <div className={classNames("example-cell", {selected, current})}>{value}</div>
+}
+
 class Example extends React.Component<{}, {}> {
-  data = [
+  items: ExampleItem[] = [
     {value: "Foo", key: "0"},
     {value: "Bar", key: "1"},
     {value: "Baz", key: "2", children: [
@@ -17,17 +38,37 @@ class Example extends React.Component<{}, {}> {
       ]},
     ]},
   ]
+  currentKey = "0"
+  selectedKeys = new Set<string>()
+  collapsedKeys = new Set<string>()
+
+  treeItem(item: ExampleItem): DraggableItem<string> {
+    return {
+      value: item.value,
+      key: item.key,
+      current: item.key == this.currentKey,
+      selected: this.selectedKeys.has(item.key),
+      collapsed: this.collapsedKeys.has(item.key),
+      children: item.children ? item.children.map(i => this.treeItem(i)) : undefined
+    }
+  }
 
   render() {
+    const changeCurrent = (path: number[]) => {
+      this.currentKey = itemAt(this.items, path).key
+      this.forceUpdate()
+    }
+
     return (
       <MyTree
-        items={this.data}
+        items={this.items.map(i => this.treeItem(i))}
         draggable={true}
         itemHeight={32}
         childOffset={16}
-        renderItem={item => <div>{item.value}</div>}
+        renderItem={item => <ExampleCell item={item} />}
         treeClassName=""
         itemClassName=""
+        changeCurrent={changeCurrent}
       />
     )
   }
