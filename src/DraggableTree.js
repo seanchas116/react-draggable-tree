@@ -15,7 +15,8 @@ var DraggableTree = (function (_super) {
         var renderItems = function (items, depth) {
             return items.map(function (item) {
                 var style = {
-                    paddingLeft: depth * childOffset + "px"
+                    paddingLeft: depth * childOffset + "px",
+                    height: itemHeight + "px",
                 };
                 var state = {
                     selected: false,
@@ -26,7 +27,11 @@ var DraggableTree = (function (_super) {
                 return [itemElem].concat(childElems);
             });
         };
-        return (React.createElement("div", {className: treeClassName}, renderItems(items, 0)));
+        var treeStyle = {
+            display: "flex",
+            flexDirection: "column",
+        };
+        return (React.createElement("div", {className: treeClassName, style: treeStyle}, renderItems(items, 0)));
     };
     return DraggableTree;
 }(React.Component));

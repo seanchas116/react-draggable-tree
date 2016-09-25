@@ -32,7 +32,8 @@ class DraggableTree<T> extends React.Component<DraggableTreeProps<T>, {}> {
     const renderItems = (items: DraggableItem<T>[], depth: number) => {
       return items.map(item => {
         const style = {
-          paddingLeft: depth * childOffset + "px"
+          paddingLeft: depth * childOffset + "px",
+          height: itemHeight + "px",
         }
         const state = {
           selected: false,
@@ -48,8 +49,13 @@ class DraggableTree<T> extends React.Component<DraggableTreeProps<T>, {}> {
       })
     }
 
+    const treeStyle = {
+      display: "flex",
+      flexDirection: "column",
+    }
+
     return (
-      <div className={treeClassName}>
+      <div className={treeClassName} style={treeStyle}>
         {renderItems(items, 0)}
       </div>
     )
