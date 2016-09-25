@@ -1,4 +1,5 @@
 import React = require("react")
+const classNames = require("classnames")
 
 export
 interface DraggableItem<T> {
@@ -14,7 +15,6 @@ export
 interface DraggableTreeProps<T> {
   items: DraggableItem<T>[]
   draggable: boolean
-  itemHeight: number
   childOffset: number
   renderItem: (item: DraggableItem<T>) => JSX.Element
   //move: (src: number[][], dest: number[]) => void
@@ -27,23 +27,25 @@ interface DraggableTreeProps<T> {
 export
 class DraggableTree<T> extends React.Component<DraggableTreeProps<T>, {}> {
   renderItems(items: DraggableItem<T>[], parentPath: number[]) {
-    const {itemHeight, childOffset, renderItem, changeCurrent} = this.props
+    const {childOffset, renderItem, changeCurrent} = this.props
     let elems: JSX.Element[] = []
     items.forEach((item, i) => {
       const path = [...parentPath, i]
       const style = {
         paddingLeft: parentPath.length * childOffset + "px",
-        height: itemHeight + "px",
-      }
-      const state = {
-        selected: false,
-        current: false,
       }
       const onClick = () => {
         changeCurrent(path)
       }
+      const className = classNames(
+        "ReactDraggableTree_Row",
+        {
+          "ReactDraggableTree_Row-selected": item.selected,
+          "ReactDraggableTree_Row-current": item.current,
+        }
+      )
       elems.push(
-        <div className="ReactDraggableTree_Row" style={style} key={item.key} onClick={onClick}>
+        <div className={className} style={style} key={item.key} onClick={onClick}>
           {renderItem(item)}
         </div>
       )

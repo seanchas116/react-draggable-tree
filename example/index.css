@@ -1,7 +1,7 @@
 
 .example-cell {
-  height: 32px;
+  padding: 8px;
 }
 .example-cell.current {
-  background-color: blue;
+  color: white;
 }

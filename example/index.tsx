@@ -63,7 +63,6 @@ class Example extends React.Component<{}, {}> {
       <MyTree
         items={this.items.map(i => this.treeItem(i))}
         draggable={true}
-        itemHeight={32}
         childOffset={16}
         renderItem={item => <ExampleCell item={item} />}
         changeCurrent={changeCurrent}

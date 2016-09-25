@@ -5,6 +5,7 @@ var __extends = (this && this.__extends) || function (d, b) {
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
 var React = require("react");
+var classNames = require("classnames");
 var DraggableTree = (function (_super) {
     __extends(DraggableTree, _super);
     function DraggableTree() {
@@ -12,22 +13,21 @@ var DraggableTree = (function (_super) {
     }
     DraggableTree.prototype.renderItems = function (items, parentPath) {
         var _this = this;
-        var _a = this.props, itemHeight = _a.itemHeight, childOffset = _a.childOffset, renderItem = _a.renderItem, changeCurrent = _a.changeCurrent;
+        var _a = this.props, childOffset = _a.childOffset, renderItem = _a.renderItem, changeCurrent = _a.changeCurrent;
         var elems = [];
         items.forEach(function (item, i) {
             var path = parentPath.concat([i]);
             var style = {
                 paddingLeft: parentPath.length * childOffset + "px",
-                height: itemHeight + "px",
-            };
-            var state = {
-                selected: false,
-                current: false,
             };
             var onClick = function () {
                 changeCurrent(path);
             };
-            elems.push(React.createElement("div", {className: "ReactDraggableTree_Row", style: style, key: item.key, onClick: onClick}, renderItem(item)));
+            var className = classNames("ReactDraggableTree_Row", {
+                "ReactDraggableTree_Row-selected": item.selected,
+                "ReactDraggableTree_Row-current": item.current,
+            });
+            elems.push(React.createElement("div", {className: className, style: style, key: item.key, onClick: onClick}, renderItem(item)));
             if (item.children) {
                 elems.push.apply(elems, _this.renderItems(item.children, path));
             }
