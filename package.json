@@ -1,7 +1,6 @@
 {
   "name": "react-draggable-tree",
   "version": "0.1.0",
-  "description": "",
   "main": "index.js",
   "scripts": {
     "example:build": "browserify example/index.js -o example/bundle.js",
@@ -20,5 +19,17 @@
   },
   "dependencies": {
     "classnames": "^2.2.5"
-  }
+  },
+  "directories": {
+    "example": "example"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/seanchas116/react-draggable-tree.git"
+  },
+  "bugs": {
+    "url": "https://github.com/seanchas116/react-draggable-tree/issues"
+  },
+  "homepage": "https://github.com/seanchas116/react-draggable-tree#readme",
+  "description": ""
 }
