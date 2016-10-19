@@ -34,7 +34,6 @@ var Example = (function (_super) {
         _super.apply(this, arguments);
         this.items = [
             { value: "Foo", key: "0" },
-            { value: "Bar", key: "1" },
             { value: "Baz", key: "2", children: [
                     { value: "Lorem", key: "3" },
                     { value: "ipsum", key: "4", children: [
@@ -43,6 +42,7 @@ var Example = (function (_super) {
                             { value: "amet", key: "7" },
                         ] },
                 ] },
+            { value: "Bar", key: "1" },
         ];
         this.currentKey = "0";
         this.selectedKeys = new Set();

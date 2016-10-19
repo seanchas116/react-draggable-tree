@@ -28,7 +28,6 @@ function ExampleCell(props: {item: DraggableItem<string>}) {
 class Example extends React.Component<{}, {}> {
   items: ExampleItem[] = [
     {value: "Foo", key: "0"},
-    {value: "Bar", key: "1"},
     {value: "Baz", key: "2", children: [
       {value: "Lorem", key: "3"},
       {value: "ipsum", key: "4", children: [
@@ -37,6 +36,7 @@ class Example extends React.Component<{}, {}> {
         {value: "amet", key: "7"},
       ]},
     ]},
+    {value: "Bar", key: "1"},
   ]
   currentKey = "0"
   selectedKeys = new Set<string>()

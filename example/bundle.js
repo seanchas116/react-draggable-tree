@@ -35,7 +35,6 @@ var Example = (function (_super) {
         _super.apply(this, arguments);
         this.items = [
             { value: "Foo", key: "0" },
-            { value: "Bar", key: "1" },
             { value: "Baz", key: "2", children: [
                     { value: "Lorem", key: "3" },
                     { value: "ipsum", key: "4", children: [
@@ -44,6 +43,7 @@ var Example = (function (_super) {
                             { value: "amet", key: "7" },
                         ] },
                 ] },
+            { value: "Bar", key: "1" },
         ];
         this.currentKey = "0";
         this.selectedKeys = new Set();
@@ -66,7 +66,7 @@ var Example = (function (_super) {
             _this.currentKey = itemAt(_this.items, path).key;
             _this.forceUpdate();
         };
-        return (React.createElement(MyTree, {items: this.items.map(function (i) { return _this.treeItem(i); }), draggable: true, itemHeight: 32, childOffset: 16, renderItem: function (item) { return React.createElement(ExampleCell, {item: item}); }, changeCurrent: changeCurrent}));
+        return (React.createElement(MyTree, {items: this.items.map(function (i) { return _this.treeItem(i); }), draggable: true, childOffset: 16, renderItem: function (item) { return React.createElement(ExampleCell, {item: item}); }, changeCurrent: changeCurrent}));
     };
     return Example;
 }(React.Component));
