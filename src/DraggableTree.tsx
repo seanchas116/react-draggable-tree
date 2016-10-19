@@ -2,9 +2,9 @@ import React = require("react")
 const classNames = require("classnames")
 
 export
-interface DraggableItem<T> {
+interface TreeNode<T> {
   value: T
-  children?: DraggableItem<T>[]
+  children?: TreeNode<T>[]
   key: string
   current: boolean
   selected: boolean
@@ -12,11 +12,11 @@ interface DraggableItem<T> {
 }
 
 export
-interface DraggableTreeProps<T> {
-  items: DraggableItem<T>[]
+interface TreeProps<T> {
+  nodes: TreeNode<T>[]
   draggable: boolean
   childOffset: number
-  renderItem: (item: DraggableItem<T>) => JSX.Element
+  renderNode: (node: TreeNode<T>) => JSX.Element
   //move: (src: number[][], dest: number[]) => void
   //copy: (src: number[][], dest: number[]) => void
   //toggleCollapsed: (path: number[], collapsed: boolean) => void
@@ -25,11 +25,11 @@ interface DraggableTreeProps<T> {
 }
 
 export
-class DraggableTree<T> extends React.Component<DraggableTreeProps<T>, {}> {
-  renderItems(items: DraggableItem<T>[], parentPath: number[]) {
-    const {childOffset, renderItem, changeCurrent} = this.props
+class Tree<T> extends React.Component<TreeProps<T>, {}> {
+  renderItems(nodes: TreeNode<T>[], parentPath: number[]) {
+    const {childOffset, renderNode, changeCurrent} = this.props
     let elems: JSX.Element[] = []
-    items.forEach((item, i) => {
+    nodes.forEach((node, i) => {
       const path = [...parentPath, i]
       const style = {
         paddingLeft: parentPath.length * childOffset + "px",
@@ -40,28 +40,28 @@ class DraggableTree<T> extends React.Component<DraggableTreeProps<T>, {}> {
       const className = classNames(
         "ReactDraggableTree_Row",
         {
-          "ReactDraggableTree_Row-selected": item.selected,
-          "ReactDraggableTree_Row-current": item.current,
+          "ReactDraggableTree_Row-selected": node.selected,
+          "ReactDraggableTree_Row-current": node.current,
         }
       )
       elems.push(
-        <div className={className} style={style} key={item.key} onClick={onClick}>
-          {renderItem(item)}
+        <div className={className} style={style} key={node.key} onClick={onClick}>
+          {renderNode(node)}
         </div>
       )
-      if (item.children) {
-        elems.push(...this.renderItems(item.children, path))
+      if (node.children) {
+        elems.push(...this.renderItems(node.children, path))
       }
     })
     return elems
   }
 
   render() {
-    const {items} = this.props
+    const {nodes} = this.props
 
     return (
       <div className="ReactDraggableTree">
-        {this.renderItems(items, [])}
+        {this.renderItems(nodes, [])}
       </div>
     )
   }

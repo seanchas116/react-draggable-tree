@@ -6,16 +6,16 @@ var __extends = (this && this.__extends) || function (d, b) {
 };
 var React = require("react");
 var classNames = require("classnames");
-var DraggableTree = (function (_super) {
-    __extends(DraggableTree, _super);
-    function DraggableTree() {
+var Tree = (function (_super) {
+    __extends(Tree, _super);
+    function Tree() {
         _super.apply(this, arguments);
     }
-    DraggableTree.prototype.renderItems = function (items, parentPath) {
+    Tree.prototype.renderItems = function (nodes, parentPath) {
         var _this = this;
-        var _a = this.props, childOffset = _a.childOffset, renderItem = _a.renderItem, changeCurrent = _a.changeCurrent;
+        var _a = this.props, childOffset = _a.childOffset, renderNode = _a.renderNode, changeCurrent = _a.changeCurrent;
         var elems = [];
-        items.forEach(function (item, i) {
+        nodes.forEach(function (node, i) {
             var path = parentPath.concat([i]);
             var style = {
                 paddingLeft: parentPath.length * childOffset + "px",
@@ -24,20 +24,20 @@ var DraggableTree = (function (_super) {
                 changeCurrent(path);
             };
             var className = classNames("ReactDraggableTree_Row", {
-                "ReactDraggableTree_Row-selected": item.selected,
-                "ReactDraggableTree_Row-current": item.current,
+                "ReactDraggableTree_Row-selected": node.selected,
+                "ReactDraggableTree_Row-current": node.current,
             });
-            elems.push(React.createElement("div", {className: className, style: style, key: item.key, onClick: onClick}, renderItem(item)));
-            if (item.children) {
-                elems.push.apply(elems, _this.renderItems(item.children, path));
+            elems.push(React.createElement("div", {className: className, style: style, key: node.key, onClick: onClick}, renderNode(node)));
+            if (node.children) {
+                elems.push.apply(elems, _this.renderItems(node.children, path));
             }
         });
         return elems;
     };
-    DraggableTree.prototype.render = function () {
-        var items = this.props.items;
-        return (React.createElement("div", {className: "ReactDraggableTree"}, this.renderItems(items, [])));
+    Tree.prototype.render = function () {
+        var nodes = this.props.nodes;
+        return (React.createElement("div", {className: "ReactDraggableTree"}, this.renderItems(nodes, [])));
     };
-    return DraggableTree;
+    return Tree;
 }(React.Component));
-exports.DraggableTree = DraggableTree;
+exports.Tree = Tree;

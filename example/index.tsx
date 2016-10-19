@@ -1,9 +1,9 @@
 import React = require("react")
 import ReactDOM = require("react-dom")
-import {DraggableTree, DraggableItem} from "../src/DraggableTree"
+import {Tree, TreeNode} from "../src/DraggableTree"
 const classNames = require("classnames")
 
-class MyTree extends DraggableTree<string> {}
+class MyTree extends Tree<string> {}
 
 interface ExampleItem {
   value: string
@@ -20,8 +20,8 @@ function itemAt(items: ExampleItem[], path: number[]): ExampleItem {
   }
 }
 
-function ExampleCell(props: {item: DraggableItem<string>}) {
-  const {value, selected, current} = props.item
+function ExampleCell(props: {node: TreeNode<string>}) {
+  const {value, selected, current} = props.node
   return <div className={classNames("example-cell", {selected, current})}>{value}</div>
 }
 
@@ -42,14 +42,14 @@ class Example extends React.Component<{}, {}> {
   selectedKeys = new Set<string>()
   collapsedKeys = new Set<string>()
 
-  treeItem(item: ExampleItem): DraggableItem<string> {
+  toNode(item: ExampleItem): TreeNode<string> {
     return {
       value: item.value,
       key: item.key,
       current: item.key == this.currentKey,
       selected: this.selectedKeys.has(item.key),
       collapsed: this.collapsedKeys.has(item.key),
-      children: item.children ? item.children.map(i => this.treeItem(i)) : undefined
+      children: item.children ? item.children.map(i => this.toNode(i)) : undefined
     }
   }
 
@@ -61,10 +61,10 @@ class Example extends React.Component<{}, {}> {
 
     return (
       <MyTree
-        items={this.items.map(i => this.treeItem(i))}
+        nodes={this.items.map(i => this.toNode(i))}
         draggable={true}
         childOffset={16}
-        renderItem={item => <ExampleCell item={item} />}
+        renderNode={node => <ExampleCell node={node} />}
         changeCurrent={changeCurrent}
       />
     )

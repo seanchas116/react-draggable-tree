@@ -14,7 +14,7 @@ var MyTree = (function (_super) {
         _super.apply(this, arguments);
     }
     return MyTree;
-}(DraggableTree_1.DraggableTree));
+}(DraggableTree_1.Tree));
 function itemAt(items, path) {
     var at = items[path[0]];
     if (path.length == 1) {
@@ -25,7 +25,7 @@ function itemAt(items, path) {
     }
 }
 function ExampleCell(props) {
-    var _a = props.item, value = _a.value, selected = _a.selected, current = _a.current;
+    var _a = props.node, value = _a.value, selected = _a.selected, current = _a.current;
     return React.createElement("div", {className: classNames("example-cell", { selected: selected, current: current })}, value);
 }
 var Example = (function (_super) {
@@ -48,7 +48,7 @@ var Example = (function (_super) {
         this.selectedKeys = new Set();
         this.collapsedKeys = new Set();
     }
-    Example.prototype.treeItem = function (item) {
+    Example.prototype.toNode = function (item) {
         var _this = this;
         return {
             value: item.value,
@@ -56,7 +56,7 @@ var Example = (function (_super) {
             current: item.key == this.currentKey,
             selected: this.selectedKeys.has(item.key),
             collapsed: this.collapsedKeys.has(item.key),
-            children: item.children ? item.children.map(function (i) { return _this.treeItem(i); }) : undefined
+            children: item.children ? item.children.map(function (i) { return _this.toNode(i); }) : undefined
         };
     };
     Example.prototype.render = function () {
@@ -65,7 +65,7 @@ var Example = (function (_super) {
             _this.currentKey = itemAt(_this.items, path).key;
             _this.forceUpdate();
         };
-        return (React.createElement(MyTree, {items: this.items.map(function (i) { return _this.treeItem(i); }), draggable: true, childOffset: 16, renderItem: function (item) { return React.createElement(ExampleCell, {item: item}); }, changeCurrent: changeCurrent}));
+        return (React.createElement(MyTree, {nodes: this.items.map(function (i) { return _this.toNode(i); }), draggable: true, childOffset: 16, renderNode: function (node) { return React.createElement(ExampleCell, {node: node}); }, changeCurrent: changeCurrent}));
     };
     return Example;
 }(React.Component));
