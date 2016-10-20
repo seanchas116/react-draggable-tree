@@ -28,11 +28,11 @@
   box-sizing: border-box;
   border-right: 1px solid gray;
   border-bottom: 1px solid gray;
-  transform: rotate(45deg);
+  transform: rotate(45deg) translate(-2px, -2px);
 }
 .ReactDraggableTree_caret-hidden:before {
   visibility: hidden;
 }
 .ReactDraggableTree_caret-collapsed:before {
-  transform: rotate(-45deg);
+  transform: rotate(-45deg) translate(-2px, -2px);
 }
