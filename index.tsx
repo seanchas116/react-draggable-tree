@@ -86,8 +86,8 @@ class Tree<TValue, TKey> extends React.Component<TreeProps<TValue, TKey>, {}> {
     </div>
 
     let childrenContainer: JSX.Element|undefined = undefined
-    if (node.children && !node.collapsed) {
-      childrenContainer = <div className="ReactDraggableTree_childrenContainer">
+    if (node.children) {
+      childrenContainer = <div className="ReactDraggableTree_childrenContainer" hidden={node.collapsed}>
         {node.children.map((child, i) => this.renderNode(child, [...path, i]))}
       </div>
     }
