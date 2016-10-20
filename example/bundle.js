@@ -90,7 +90,13 @@ class Tree extends React.Component {
             "ReactDraggableTree_row-selected": isSelected,
             "ReactDraggableTree_row-current": isCurrent,
         });
-        this.elements.push(React.createElement("div", {className: className, style: style, key: String(node.key), onClick: onClick}, renderNode(node, { selected: isSelected, current: isCurrent })));
+        const caretClassName = classNames("ReactDraggableTree_caret", {
+            "ReactDraggableTree_caret-hidden": !node.children,
+            "ReactDraggableTree_caret-collapsed": node.collapsed
+        });
+        this.elements.push(React.createElement("div", {className: className, style: style, key: String(node.key), onClick: onClick}, 
+            React.createElement("div", {className: caretClassName}), 
+            renderNode(node, { selected: isSelected, current: isCurrent })));
         if (node.children) {
             for (const [i, child] of node.children.entries()) {
                 this.renderNode(child, [...path, i]);

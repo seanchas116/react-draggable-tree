@@ -64,16 +64,18 @@ class Tree<TValue, TKey> extends React.Component<TreeProps<TValue, TKey>, {}> {
     const isSelected = selected ? selected.has(key) : false
     const isCurrent = key == current
 
-    const className = classNames(
-      "ReactDraggableTree_row",
-      {
-        "ReactDraggableTree_row-selected": isSelected,
-        "ReactDraggableTree_row-current": isCurrent,
-      }
-    )
+    const className = classNames("ReactDraggableTree_row", {
+      "ReactDraggableTree_row-selected": isSelected,
+      "ReactDraggableTree_row-current": isCurrent,
+    })
+    const caretClassName = classNames("ReactDraggableTree_caret", {
+      "ReactDraggableTree_caret-hidden": !node.children,
+      "ReactDraggableTree_caret-collapsed": node.collapsed
+    })
 
     this.elements.push(
       <div className={className} style={style} key={String(node.key)} onClick={onClick}>
+       <div className={caretClassName} />
         {renderNode(node, {selected: isSelected, current: isCurrent})}
       </div>
     )

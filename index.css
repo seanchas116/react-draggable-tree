@@ -3,9 +3,36 @@
   display: flex;
   flex-direction: column;
 }
+.ReactDraggableTree_row {
+  display: flex;
+  align-items: center;
+}
 .ReactDraggableTree_row-selected {
   background-color: #eee;
 }
 .ReactDraggableTree_row-current {
   background-color: #ddd;
+}
+.ReactDraggableTree_caret {
+  width: 16px;
+  height: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.ReactDraggableTree_caret:before {
+  content: "";
+  display: block;
+  width: 8px;
+  height: 8px;
+  box-sizing: border-box;
+  border-right: 1px solid gray;
+  border-bottom: 1px solid gray;
+  transform: rotate(45deg);
+}
+.ReactDraggableTree_caret-hidden:before {
+  visibility: hidden;
+}
+.ReactDraggableTree_caret-collapsed:before {
+  transform: rotate(-45deg);
 }
