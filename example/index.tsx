@@ -40,13 +40,11 @@ class Example extends React.Component<{}, {}> {
   ]
   currentKey = "0"
   selectedKeys = new Set<string>()
-  collapsedKeys = new Set<string>()
 
   toNode(item: ExampleItem): TreeNode<string, string> {
     return {
       value: item.value,
       key: item.key,
-      collapsed: this.collapsedKeys.has(item.key),
       children: item.children ? item.children.map(i => this.toNode(i)) : undefined
     }
   }
