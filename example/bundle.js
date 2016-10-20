@@ -20911,9 +20911,9 @@ var Tree = (function (_super) {
             };
             var isSelected = selected ? selected.has(key) : false;
             var isCurrent = key == current;
-            var className = classNames("ReactDraggableTree_Row", {
-                "ReactDraggableTree_Row-selected": isSelected,
-                "ReactDraggableTree_Row-current": isCurrent,
+            var className = classNames("ReactDraggableTree_row", {
+                "ReactDraggableTree_row-selected": isSelected,
+                "ReactDraggableTree_row-current": isCurrent,
             });
             elems.push(React.createElement("div", {className: className, style: style, key: node.key, onClick: onClick}, renderNode(node, { selected: isSelected, current: isCurrent })));
             if (node.children) {

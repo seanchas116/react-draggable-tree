@@ -1,7 +1,9 @@
 
+#example {
+  width: 200px;
+  border: 1px solid grey;
+}
+
 .example-cell {
   padding: 8px;
-}
-.example-cell.current {
-  color: white;
 }

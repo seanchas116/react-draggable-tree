@@ -3,6 +3,6 @@
   display: flex;
   flex-direction: column;
 }
-.ReactDraggableTree_Row-selected, .ReactDraggableTree_Row-current {
-  background-color: #1b6bce;
+.ReactDraggableTree_row-selected, .ReactDraggableTree_row-current {
+  background-color: #eee;
 }

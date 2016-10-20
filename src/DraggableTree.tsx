@@ -44,10 +44,10 @@ class Tree<T> extends React.Component<TreeProps<T>, {}> {
       const isSelected = selected ? selected.has(key) : false
       const isCurrent = key == current
       const className = classNames(
-        "ReactDraggableTree_Row",
+        "ReactDraggableTree_row",
         {
-          "ReactDraggableTree_Row-selected": isSelected,
-          "ReactDraggableTree_Row-current": isCurrent,
+          "ReactDraggableTree_row-selected": isSelected,
+          "ReactDraggableTree_row-current": isCurrent,
         }
       )
       elems.push(
