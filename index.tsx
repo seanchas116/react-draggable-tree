@@ -101,7 +101,7 @@ class Tree<TValue, TKey> extends React.Component<TreeProps<TValue, TKey>, {}> {
     }
 
     return (
-      <div className="ReactDraggableTree_subtree">
+      <div className="ReactDraggableTree_subtree" key={String(key)}>
         {row}
         {childrenContainer}
       </div>

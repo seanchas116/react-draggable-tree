@@ -124,7 +124,7 @@ class Tree extends React.Component {
         if (node.children) {
             childrenContainer = React.createElement("div", {className: "ReactDraggableTree_children", hidden: node.collapsed}, node.children.map((child, i) => this.renderNode(child, [...path, i])));
         }
-        return (React.createElement("div", {className: "ReactDraggableTree_subtree"}, 
+        return (React.createElement("div", {className: "ReactDraggableTree_subtree", key: String(key)}, 
             row, 
             childrenContainer));
     }
