@@ -15,9 +15,14 @@ class Example extends React.Component {
         super(...arguments);
         this.nodes = [
             { value: "Foo", key: "0" },
+            { value: "ipsum", key: "8", collapsed: true, children: [
+                    { value: "dolor", key: "9" },
+                    { value: "sit", key: "10" },
+                    { value: "amet", key: "11" },
+                ] },
             { value: "Baz", key: "2", children: [
                     { value: "Lorem", key: "3" },
-                    { value: "ipsum", key: "4", children: [
+                    { value: "ipsum", key: "4", collapsed: true, children: [
                             { value: "dolor", key: "5" },
                             { value: "sit", key: "6" },
                             { value: "amet", key: "7" },
@@ -97,7 +102,7 @@ class Tree extends React.Component {
         this.elements.push(React.createElement("div", {className: className, style: style, key: String(node.key), onClick: onClick}, 
             React.createElement("div", {className: caretClassName}), 
             renderNode(node, { selected: isSelected, current: isCurrent })));
-        if (node.children) {
+        if (node.children && !node.collapsed) {
             for (const [i, child] of node.children.entries()) {
                 this.renderNode(child, [...path, i]);
             }

@@ -14,9 +14,14 @@ function ExampleCell(props: {value: string, selected: boolean, current: boolean}
 class Example extends React.Component<{}, {}> {
   nodes: MyNode[] = [
     {value: "Foo", key: "0"},
+    {value: "ipsum", key: "8", collapsed: true, children: [
+      {value: "dolor", key: "9"},
+      {value: "sit", key: "10"},
+      {value: "amet", key: "11"},
+    ]},
     {value: "Baz", key: "2", children: [
       {value: "Lorem", key: "3"},
-      {value: "ipsum", key: "4", children: [
+      {value: "ipsum", key: "4", collapsed: true, children: [
         {value: "dolor", key: "5"},
         {value: "sit", key: "6"},
         {value: "amet", key: "7"},

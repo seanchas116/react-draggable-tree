@@ -79,7 +79,7 @@ class Tree<TValue, TKey> extends React.Component<TreeProps<TValue, TKey>, {}> {
         {renderNode(node, {selected: isSelected, current: isCurrent})}
       </div>
     )
-    if (node.children) {
+    if (node.children && !node.collapsed) {
       for (const [i, child] of node.children.entries()) {
         this.renderNode(child, [...path, i])
       }
