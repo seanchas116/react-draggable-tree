@@ -9,6 +9,15 @@ function ExampleCell(props) {
     const { value, selected, current } = props;
     return React.createElement("div", {className: classNames("example-cell", { selected, current })}, value);
 }
+function nodeForPath(nodes, path) {
+    const child = nodes[path[0]];
+    if (path.length == 1) {
+        return child;
+    }
+    else {
+        return nodeForPath(child.children, path.slice(1));
+    }
+}
 class Example extends React.Component {
     constructor() {
         super(...arguments);
@@ -41,7 +50,11 @@ class Example extends React.Component {
             this.selectedKeys = keys;
             this.forceUpdate();
         };
-        return (React.createElement(MyTree, {nodes: this.nodes, current: this.currentKey, selected: this.selectedKeys, draggable: true, childOffset: 16, renderNode: ({ node, selected, current }) => React.createElement(ExampleCell, {value: node.value, selected: selected, current: current}), onSelectedChange: changeSelected, onCurrentChange: changeCurrent}));
+        const onCollapsedChange = (info, collapsed) => {
+            nodeForPath(this.nodes, info.path).collapsed = collapsed;
+            this.forceUpdate();
+        };
+        return (React.createElement(MyTree, {nodes: this.nodes, current: this.currentKey, selected: this.selectedKeys, draggable: true, childOffset: 16, renderNode: ({ node, selected, current }) => React.createElement(ExampleCell, {value: node.value, selected: selected, current: current}), onSelectedChange: changeSelected, onCurrentChange: changeCurrent, onCollapsedChange: onCollapsedChange}));
     }
 }
 window.addEventListener("DOMContentLoaded", () => {

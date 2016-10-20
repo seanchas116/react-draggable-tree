@@ -7,9 +7,12 @@ class Tree extends React.Component {
         this.keys = [];
     }
     renderNode(node, path) {
-        const { childOffset, renderNode, onCurrentChange, onSelectedChange, current, selected } = this.props;
+        const { childOffset, renderNode, onCurrentChange, onSelectedChange, onCollapsedChange, current, selected } = this.props;
         const { key } = node;
         this.keys.push(key);
+        const isSelected = selected ? selected.has(key) : false;
+        const isCurrent = key == current;
+        const nodeInfo = { node, selected: isSelected, current: isCurrent, path };
         const style = {
             paddingLeft: (path.length - 1) * childOffset + "px",
         };
@@ -36,8 +39,11 @@ class Tree extends React.Component {
             }
             onCurrentChange(key);
         };
-        const isSelected = selected ? selected.has(key) : false;
-        const isCurrent = key == current;
+        const onCaretClick = () => {
+            if (node.children) {
+                onCollapsedChange(nodeInfo, !node.collapsed);
+            }
+        };
         const className = classNames("ReactDraggableTree_row", {
             "ReactDraggableTree_row-selected": isSelected,
             "ReactDraggableTree_row-current": isCurrent,
@@ -47,7 +53,7 @@ class Tree extends React.Component {
             "ReactDraggableTree_caret-collapsed": node.collapsed
         });
         let row = React.createElement("div", {className: className, style: style, onClick: onClick}, 
-            React.createElement("div", {className: caretClassName}), 
+            React.createElement("div", {className: caretClassName, onClick: onCaretClick}), 
             renderNode({ node, selected: isSelected, current: isCurrent, path }));
         let childrenContainer = undefined;
         if (node.children) {

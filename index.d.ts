@@ -19,6 +19,7 @@ export interface TreeProps<TValue, TKey> {
     renderNode: (nodeInfo: NodeInfo<TValue, TKey>) => JSX.Element;
     current?: TKey;
     selected?: Set<TKey>;
+    onCollapsedChange: (nodeInfo: NodeInfo<TValue, TKey>, collapsed: boolean) => void;
     onSelectedChange: (keys: Set<TKey>) => void;
     onCurrentChange: (key: TKey) => void;
 }

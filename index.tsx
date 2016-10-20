@@ -29,6 +29,7 @@ interface TreeProps<TValue, TKey> {
   //copy: (src: number[][], dest: number[]) => void
   //toggleCollapsed: (path: number[], collapsed: boolean) => void
   //toggleSelected: (path: number[], selected: boolean) => void
+  onCollapsedChange: (nodeInfo: NodeInfo<TValue, TKey>, collapsed: boolean) => void
   onSelectedChange: (keys: Set<TKey>) => void
   onCurrentChange: (key: TKey) => void
 }
@@ -38,9 +39,13 @@ class Tree<TValue, TKey> extends React.Component<TreeProps<TValue, TKey>, {}> {
   keys: TKey[] = []
 
   renderNode(node: TreeNode<TValue, TKey>, path: number[]): JSX.Element {
-    const {childOffset, renderNode, onCurrentChange, onSelectedChange, current, selected} = this.props
+    const {childOffset, renderNode, onCurrentChange, onSelectedChange, onCollapsedChange, current, selected} = this.props
     const {key} = node
     this.keys.push(key)
+
+    const isSelected = selected ? selected.has(key) : false
+    const isCurrent = key == current
+    const nodeInfo = {node, selected: isSelected, current: isCurrent, path}
 
     const style = {
       paddingLeft: (path.length - 1) * childOffset + "px",
@@ -68,8 +73,11 @@ class Tree<TValue, TKey> extends React.Component<TreeProps<TValue, TKey>, {}> {
       onCurrentChange(key)
     }
 
-    const isSelected = selected ? selected.has(key) : false
-    const isCurrent = key == current
+    const onCaretClick = () => {
+      if (node.children) {
+        onCollapsedChange(nodeInfo, !node.collapsed)
+      }
+    }
 
     const className = classNames("ReactDraggableTree_row", {
       "ReactDraggableTree_row-selected": isSelected,
@@ -81,7 +89,7 @@ class Tree<TValue, TKey> extends React.Component<TreeProps<TValue, TKey>, {}> {
     })
 
     let row = <div className={className} style={style} onClick={onClick}>
-      <div className={caretClassName} />
+      <div className={caretClassName} onClick={onCaretClick}/>
       {renderNode({node, selected: isSelected, current: isCurrent, path})}
     </div>
 

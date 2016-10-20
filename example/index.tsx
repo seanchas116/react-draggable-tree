@@ -1,6 +1,6 @@
 import React = require("react")
 import ReactDOM = require("react-dom")
-import {Tree, TreeNode} from ".."
+import {Tree, TreeNode, NodeInfo} from ".."
 const classNames = require("classnames")
 
 interface MyNode extends TreeNode<string, string> {}
@@ -9,6 +9,15 @@ class MyTree extends Tree<string, string> {}
 function ExampleCell(props: {value: string, selected: boolean, current: boolean}) {
   const {value, selected, current} = props
   return <div className={classNames("example-cell", {selected, current})}>{value}</div>
+}
+
+function nodeForPath(nodes: MyNode[], path: number[]): MyNode {
+  const child = nodes[path[0]]
+  if (path.length == 1) {
+    return child
+  } else {
+    return nodeForPath(child.children!, path.slice(1))
+  }
 }
 
 class Example extends React.Component<{}, {}> {
@@ -32,6 +41,7 @@ class Example extends React.Component<{}, {}> {
   currentKey = "0"
   selectedKeys = new Set<string>()
 
+
   render() {
     const changeCurrent = (key: string) => {
       this.currentKey = key
@@ -39,6 +49,10 @@ class Example extends React.Component<{}, {}> {
     }
     const changeSelected = (keys: Set<string>) => {
       this.selectedKeys = keys
+      this.forceUpdate()
+    }
+    const onCollapsedChange = (info: NodeInfo<string, string>, collapsed: boolean) => {
+      nodeForPath(this.nodes, info.path).collapsed = collapsed
       this.forceUpdate()
     }
 
@@ -52,6 +66,7 @@ class Example extends React.Component<{}, {}> {
         renderNode={({node, selected, current}) => <ExampleCell value={node.value} selected={selected} current={current} />}
         onSelectedChange={changeSelected}
         onCurrentChange={changeCurrent}
+        onCollapsedChange={onCollapsedChange}
       />
     )
   }
