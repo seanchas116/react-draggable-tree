@@ -21,6 +21,7 @@ export interface TreeProps<TValue, TKey> {
 }
 export declare class Tree<TValue, TKey> extends React.Component<TreeProps<TValue, TKey>, {}> {
     keys: TKey[];
-    renderItems(nodes: TreeNode<TValue, TKey>[], parentPath: number[]): JSX.Element[];
+    elements: JSX.Element[];
+    renderNode(node: TreeNode<TValue, TKey>, path: number[]): void;
     render(): JSX.Element;
 }
