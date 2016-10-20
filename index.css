@@ -3,15 +3,15 @@
   display: flex;
   flex-direction: column;
 }
+.ReactDraggableTree_row {
+  display: flex;
+  align-items: center;
+}
 .ReactDraggableTree_row-selected {
   background-color: #eee;
 }
 .ReactDraggableTree_row-current {
   background-color: #ddd;
-}
-.ReactDraggableTree_cell {
-  display: flex;
-  align-items: center;
 }
 .ReactDraggableTree_caret {
   width: 16px;

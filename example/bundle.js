@@ -98,15 +98,15 @@ class Tree extends React.Component {
             "ReactDraggableTree_caret-hidden": !node.children,
             "ReactDraggableTree_caret-collapsed": node.collapsed
         });
-        let cell = React.createElement("div", {className: "ReactDraggableTree_cell", onClick: onClick}, 
+        let row = React.createElement("div", {className: className, style: style, onClick: onClick}, 
             React.createElement("div", {className: caretClassName}), 
             renderNode({ node, selected: isSelected, current: isCurrent, path }));
         let childrenContainer = undefined;
         if (node.children) {
-            childrenContainer = React.createElement("div", {className: "ReactDraggableTree_childrenContainer", hidden: node.collapsed}, node.children.map((child, i) => this.renderNode(child, [...path, i])));
+            childrenContainer = React.createElement("div", {className: "ReactDraggableTree_children", hidden: node.collapsed}, node.children.map((child, i) => this.renderNode(child, [...path, i])));
         }
-        return (React.createElement("div", {className: className, style: style, key: String(node.key)}, 
-            cell, 
+        return (React.createElement("div", {className: "ReactDraggableTree_subtree"}, 
+            row, 
             childrenContainer));
     }
     render() {

@@ -80,21 +80,21 @@ class Tree<TValue, TKey> extends React.Component<TreeProps<TValue, TKey>, {}> {
       "ReactDraggableTree_caret-collapsed": node.collapsed
     })
 
-    let cell = <div className="ReactDraggableTree_cell" onClick={onClick}>
+    let row = <div className={className} style={style} onClick={onClick}>
       <div className={caretClassName} />
       {renderNode({node, selected: isSelected, current: isCurrent, path})}
     </div>
 
     let childrenContainer: JSX.Element|undefined = undefined
     if (node.children) {
-      childrenContainer = <div className="ReactDraggableTree_childrenContainer" hidden={node.collapsed}>
+      childrenContainer = <div className="ReactDraggableTree_children" hidden={node.collapsed}>
         {node.children.map((child, i) => this.renderNode(child, [...path, i]))}
       </div>
     }
 
     return (
-      <div className={className} style={style} key={String(node.key)}>
-        {cell}
+      <div className="ReactDraggableTree_subtree">
+        {row}
         {childrenContainer}
       </div>
     )
