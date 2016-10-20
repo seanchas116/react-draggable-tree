@@ -20915,7 +20915,7 @@ var Tree = (function (_super) {
                 "ReactDraggableTree_row-selected": isSelected,
                 "ReactDraggableTree_row-current": isCurrent,
             });
-            elems.push(React.createElement("div", {className: className, style: style, key: node.key, onClick: onClick}, renderNode(node, { selected: isSelected, current: isCurrent })));
+            elems.push(React.createElement("div", {className: className, style: style, key: String(node.key), onClick: onClick}, renderNode(node, { selected: isSelected, current: isCurrent })));
             if (node.children) {
                 elems.push.apply(elems, _this.renderItems(node.children, path));
             }

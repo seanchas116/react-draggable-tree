@@ -3,7 +3,7 @@ import ReactDOM = require("react-dom")
 import {Tree, TreeNode} from "../src/DraggableTree"
 const classNames = require("classnames")
 
-class MyTree extends Tree<string> {}
+class MyTree extends Tree<string, string> {}
 
 interface ExampleItem {
   value: string
@@ -42,7 +42,7 @@ class Example extends React.Component<{}, {}> {
   selectedKeys = new Set<string>()
   collapsedKeys = new Set<string>()
 
-  toNode(item: ExampleItem): TreeNode<string> {
+  toNode(item: ExampleItem): TreeNode<string, string> {
     return {
       value: item.value,
       key: item.key,
@@ -52,7 +52,7 @@ class Example extends React.Component<{}, {}> {
   }
 
   render() {
-    const changeCurrent = (key: number|string) => {
+    const changeCurrent = (key: string) => {
       this.currentKey = key.toString()
       this.forceUpdate()
     }

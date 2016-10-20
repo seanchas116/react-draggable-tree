@@ -2,34 +2,31 @@ import React = require("react")
 const classNames = require("classnames")
 
 export
-type Key = number|string
-
-export
-interface TreeNode<T> {
-  value: T
-  children?: TreeNode<T>[]
-  key: Key
+interface TreeNode<TValue, TKey> {
+  value: TValue
+  children?: TreeNode<TValue, TKey>[]
+  key: TKey
   collapsed?: boolean
 }
 
 export
-interface TreeProps<T> {
-  nodes: TreeNode<T>[]
+interface TreeProps<TValue, TKey> {
+  nodes: TreeNode<TValue, TKey>[]
   draggable: boolean
   childOffset: number
-  renderNode: (node: TreeNode<T>, options: {selected: boolean, current: boolean}) => JSX.Element
-  current?: Key
-  selected?: Set<Key>
+  renderNode: (node: TreeNode<TValue, TKey>, options: {selected: boolean, current: boolean}) => JSX.Element
+  current?: TKey
+  selected?: Set<TKey>
   //move: (src: number[][], dest: number[]) => void
   //copy: (src: number[][], dest: number[]) => void
   //toggleCollapsed: (path: number[], collapsed: boolean) => void
   //toggleSelected: (path: number[], selected: boolean) => void
-  onCurrentChange: (key: Key) => void
+  onCurrentChange: (key: TKey) => void
 }
 
 export
-class Tree<T> extends React.Component<TreeProps<T>, {}> {
-  renderItems(nodes: TreeNode<T>[], parentPath: number[]) {
+class Tree<TValue, TKey> extends React.Component<TreeProps<TValue, TKey>, {}> {
+  renderItems(nodes: TreeNode<TValue, TKey>[], parentPath: number[]) {
     const {childOffset, renderNode, onCurrentChange, current, selected} = this.props
     let elems: JSX.Element[] = []
     nodes.forEach((node, i) => {
@@ -51,7 +48,7 @@ class Tree<T> extends React.Component<TreeProps<T>, {}> {
         }
       )
       elems.push(
-        <div className={className} style={style} key={node.key} onClick={onClick}>
+        <div className={className} style={style} key={String(node.key)} onClick={onClick}>
           {renderNode(node, {selected: isSelected, current: isCurrent})}
         </div>
       )
