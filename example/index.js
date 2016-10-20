@@ -60,13 +60,17 @@ var Example = (function (_super) {
     Example.prototype.render = function () {
         var _this = this;
         var changeCurrent = function (key) {
-            _this.currentKey = key.toString();
+            _this.currentKey = key;
+            _this.forceUpdate();
+        };
+        var changeSelected = function (keys) {
+            _this.selectedKeys = keys;
             _this.forceUpdate();
         };
         return (React.createElement(MyTree, {nodes: this.items.map(function (i) { return _this.toNode(i); }), current: this.currentKey, selected: this.selectedKeys, draggable: true, childOffset: 16, renderNode: function (node, _a) {
             var selected = _a.selected, current = _a.current;
             return React.createElement(ExampleCell, {value: node.value, selected: selected, current: current});
-        }, onCurrentChange: changeCurrent}));
+        }, onSelectedChange: changeSelected, onCurrentChange: changeCurrent}));
     };
     return Example;
 }(React.Component));

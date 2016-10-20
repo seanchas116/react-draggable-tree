@@ -53,7 +53,11 @@ class Example extends React.Component<{}, {}> {
 
   render() {
     const changeCurrent = (key: string) => {
-      this.currentKey = key.toString()
+      this.currentKey = key
+      this.forceUpdate()
+    }
+    const changeSelected = (keys: Set<string>) => {
+      this.selectedKeys = keys
       this.forceUpdate()
     }
 
@@ -65,6 +69,7 @@ class Example extends React.Component<{}, {}> {
         draggable={true}
         childOffset={16}
         renderNode={(node, {selected, current}) => <ExampleCell value={node.value} selected={selected} current={current} />}
+        onSelectedChange={changeSelected}
         onCurrentChange={changeCurrent}
       />
     )

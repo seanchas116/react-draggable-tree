@@ -21,21 +21,43 @@ interface TreeProps<TValue, TKey> {
   //copy: (src: number[][], dest: number[]) => void
   //toggleCollapsed: (path: number[], collapsed: boolean) => void
   //toggleSelected: (path: number[], selected: boolean) => void
+  onSelectedChange: (keys: Set<TKey>) => void
   onCurrentChange: (key: TKey) => void
 }
 
 export
 class Tree<TValue, TKey> extends React.Component<TreeProps<TValue, TKey>, {}> {
+  keys: TKey[] = []
+
   renderItems(nodes: TreeNode<TValue, TKey>[], parentPath: number[]) {
-    const {childOffset, renderNode, onCurrentChange, current, selected} = this.props
+    const {childOffset, renderNode, onCurrentChange, onSelectedChange, current, selected} = this.props
     let elems: JSX.Element[] = []
     nodes.forEach((node, i) => {
       const {key} = node
+      this.keys.push(key)
       const path = [...parentPath, i]
       const style = {
         paddingLeft: parentPath.length * childOffset + "px",
       }
-      const onClick = () => {
+      const onClick = (ev: React.MouseEvent<Element>) => {
+        if (ev.ctrlKey || ev.metaKey) {
+          const newSelected = new Set(selected || [])
+          newSelected.add(key)
+          onSelectedChange(newSelected)
+        } else if (ev.shiftKey && current != undefined) {
+          const currentIndex = this.keys.indexOf(current)
+          const thisIndex = this.keys.indexOf(key)
+          const min = Math.min(thisIndex, currentIndex)
+          const max = Math.max(thisIndex, currentIndex)
+          const keysToAdd = this.keys.slice(min, max + 1)
+          const newSelected = new Set(selected || [])
+          for (const k of keysToAdd) {
+            newSelected.add(k)
+          }
+          onSelectedChange(newSelected)
+        } else {
+          onSelectedChange(new Set([key]))
+        }
         onCurrentChange(key)
       }
       const isSelected = selected ? selected.has(key) : false
@@ -61,6 +83,7 @@ class Tree<TValue, TKey> extends React.Component<TreeProps<TValue, TKey>, {}> {
 
   render() {
     const {nodes} = this.props
+    this.keys = []
 
     return (
       <div className="ReactDraggableTree">
