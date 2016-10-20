@@ -3,22 +3,8 @@ import ReactDOM = require("react-dom")
 import {Tree, TreeNode} from ".."
 const classNames = require("classnames")
 
+interface MyNode extends TreeNode<string, string> {}
 class MyTree extends Tree<string, string> {}
-
-interface ExampleItem {
-  value: string
-  key: string
-  children?: ExampleItem[]
-}
-
-function itemAt(items: ExampleItem[], path: number[]): ExampleItem {
-  const at = items[path[0]]
-  if (path.length == 1) {
-    return at
-  } else {
-    return itemAt(at.children!, path.slice(1))
-  }
-}
 
 function ExampleCell(props: {value: string, selected: boolean, current: boolean}) {
   const {value, selected, current} = props
@@ -26,7 +12,7 @@ function ExampleCell(props: {value: string, selected: boolean, current: boolean}
 }
 
 class Example extends React.Component<{}, {}> {
-  items: ExampleItem[] = [
+  nodes: MyNode[] = [
     {value: "Foo", key: "0"},
     {value: "Baz", key: "2", children: [
       {value: "Lorem", key: "3"},
@@ -41,14 +27,6 @@ class Example extends React.Component<{}, {}> {
   currentKey = "0"
   selectedKeys = new Set<string>()
 
-  toNode(item: ExampleItem): TreeNode<string, string> {
-    return {
-      value: item.value,
-      key: item.key,
-      children: item.children ? item.children.map(i => this.toNode(i)) : undefined
-    }
-  }
-
   render() {
     const changeCurrent = (key: string) => {
       this.currentKey = key
@@ -61,7 +39,7 @@ class Example extends React.Component<{}, {}> {
 
     return (
       <MyTree
-        nodes={this.items.map(i => this.toNode(i))}
+        nodes={this.nodes}
         current={this.currentKey}
         selected={this.selectedKeys}
         draggable={true}

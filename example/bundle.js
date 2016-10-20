@@ -6,15 +6,6 @@ const __1 = require("..");
 const classNames = require("classnames");
 class MyTree extends __1.Tree {
 }
-function itemAt(items, path) {
-    const at = items[path[0]];
-    if (path.length == 1) {
-        return at;
-    }
-    else {
-        return itemAt(at.children, path.slice(1));
-    }
-}
 function ExampleCell(props) {
     const { value, selected, current } = props;
     return React.createElement("div", {className: classNames("example-cell", { selected, current })}, value);
@@ -22,7 +13,7 @@ function ExampleCell(props) {
 class Example extends React.Component {
     constructor() {
         super(...arguments);
-        this.items = [
+        this.nodes = [
             { value: "Foo", key: "0" },
             { value: "Baz", key: "2", children: [
                     { value: "Lorem", key: "3" },
@@ -37,13 +28,6 @@ class Example extends React.Component {
         this.currentKey = "0";
         this.selectedKeys = new Set();
     }
-    toNode(item) {
-        return {
-            value: item.value,
-            key: item.key,
-            children: item.children ? item.children.map(i => this.toNode(i)) : undefined
-        };
-    }
     render() {
         const changeCurrent = (key) => {
             this.currentKey = key;
@@ -53,7 +37,7 @@ class Example extends React.Component {
             this.selectedKeys = keys;
             this.forceUpdate();
         };
-        return (React.createElement(MyTree, {nodes: this.items.map(i => this.toNode(i)), current: this.currentKey, selected: this.selectedKeys, draggable: true, childOffset: 16, renderNode: (node, { selected, current }) => React.createElement(ExampleCell, {value: node.value, selected: selected, current: current}), onSelectedChange: changeSelected, onCurrentChange: changeCurrent}));
+        return (React.createElement(MyTree, {nodes: this.nodes, current: this.currentKey, selected: this.selectedKeys, draggable: true, childOffset: 16, renderNode: (node, { selected, current }) => React.createElement(ExampleCell, {value: node.value, selected: selected, current: current}), onSelectedChange: changeSelected, onCurrentChange: changeCurrent}));
     }
 }
 window.addEventListener("DOMContentLoaded", () => {
