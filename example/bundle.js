@@ -26,7 +26,7 @@ function itemAt(items, path) {
     }
 }
 function ExampleCell(props) {
-    var _a = props.node, value = _a.value, selected = _a.selected, current = _a.current;
+    var value = props.value, selected = props.selected, current = props.current;
     return React.createElement("div", {className: classNames("example-cell", { selected: selected, current: current })}, value);
 }
 var Example = (function (_super) {
@@ -54,19 +54,20 @@ var Example = (function (_super) {
         return {
             value: item.value,
             key: item.key,
-            current: item.key == this.currentKey,
-            selected: this.selectedKeys.has(item.key),
             collapsed: this.collapsedKeys.has(item.key),
             children: item.children ? item.children.map(function (i) { return _this.toNode(i); }) : undefined
         };
     };
     Example.prototype.render = function () {
         var _this = this;
-        var changeCurrent = function (path) {
-            _this.currentKey = itemAt(_this.items, path).key;
+        var changeCurrent = function (key) {
+            _this.currentKey = key.toString();
             _this.forceUpdate();
         };
-        return (React.createElement(MyTree, {nodes: this.items.map(function (i) { return _this.toNode(i); }), draggable: true, childOffset: 16, renderNode: function (node) { return React.createElement(ExampleCell, {node: node}); }, changeCurrent: changeCurrent}));
+        return (React.createElement(MyTree, {nodes: this.items.map(function (i) { return _this.toNode(i); }), current: this.currentKey, selected: this.selectedKeys, draggable: true, childOffset: 16, renderNode: function (node, _a) {
+            var selected = _a.selected, current = _a.current;
+            return React.createElement(ExampleCell, {value: node.value, selected: selected, current: current});
+        }, onCurrentChange: changeCurrent}));
     };
     return Example;
 }(React.Component));
@@ -20897,21 +20898,24 @@ var Tree = (function (_super) {
     }
     Tree.prototype.renderItems = function (nodes, parentPath) {
         var _this = this;
-        var _a = this.props, childOffset = _a.childOffset, renderNode = _a.renderNode, changeCurrent = _a.changeCurrent;
+        var _a = this.props, childOffset = _a.childOffset, renderNode = _a.renderNode, onCurrentChange = _a.onCurrentChange, current = _a.current, selected = _a.selected;
         var elems = [];
         nodes.forEach(function (node, i) {
+            var key = node.key;
             var path = parentPath.concat([i]);
             var style = {
                 paddingLeft: parentPath.length * childOffset + "px",
             };
             var onClick = function () {
-                changeCurrent(path);
+                onCurrentChange(key);
             };
+            var isSelected = selected ? selected.has(key) : false;
+            var isCurrent = key == current;
             var className = classNames("ReactDraggableTree_Row", {
-                "ReactDraggableTree_Row-selected": node.selected,
-                "ReactDraggableTree_Row-current": node.current,
+                "ReactDraggableTree_Row-selected": isSelected,
+                "ReactDraggableTree_Row-current": isCurrent,
             });
-            elems.push(React.createElement("div", {className: className, style: style, key: node.key, onClick: onClick}, renderNode(node)));
+            elems.push(React.createElement("div", {className: className, style: style, key: node.key, onClick: onClick}, renderNode(node, { selected: isSelected, current: isCurrent })));
             if (node.children) {
                 elems.push.apply(elems, _this.renderItems(node.children, path));
             }

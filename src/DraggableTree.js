@@ -13,21 +13,24 @@ var Tree = (function (_super) {
     }
     Tree.prototype.renderItems = function (nodes, parentPath) {
         var _this = this;
-        var _a = this.props, childOffset = _a.childOffset, renderNode = _a.renderNode, changeCurrent = _a.changeCurrent;
+        var _a = this.props, childOffset = _a.childOffset, renderNode = _a.renderNode, onCurrentChange = _a.onCurrentChange, current = _a.current, selected = _a.selected;
         var elems = [];
         nodes.forEach(function (node, i) {
+            var key = node.key;
             var path = parentPath.concat([i]);
             var style = {
                 paddingLeft: parentPath.length * childOffset + "px",
             };
             var onClick = function () {
-                changeCurrent(path);
+                onCurrentChange(key);
             };
+            var isSelected = selected ? selected.has(key) : false;
+            var isCurrent = key == current;
             var className = classNames("ReactDraggableTree_Row", {
-                "ReactDraggableTree_Row-selected": node.selected,
-                "ReactDraggableTree_Row-current": node.current,
+                "ReactDraggableTree_Row-selected": isSelected,
+                "ReactDraggableTree_Row-current": isCurrent,
             });
-            elems.push(React.createElement("div", {className: className, style: style, key: node.key, onClick: onClick}, renderNode(node)));
+            elems.push(React.createElement("div", {className: className, style: style, key: node.key, onClick: onClick}, renderNode(node, { selected: isSelected, current: isCurrent })));
             if (node.children) {
                 elems.push.apply(elems, _this.renderItems(node.children, path));
             }

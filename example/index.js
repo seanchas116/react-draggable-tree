@@ -25,7 +25,7 @@ function itemAt(items, path) {
     }
 }
 function ExampleCell(props) {
-    var _a = props.node, value = _a.value, selected = _a.selected, current = _a.current;
+    var value = props.value, selected = props.selected, current = props.current;
     return React.createElement("div", {className: classNames("example-cell", { selected: selected, current: current })}, value);
 }
 var Example = (function (_super) {
@@ -53,19 +53,20 @@ var Example = (function (_super) {
         return {
             value: item.value,
             key: item.key,
-            current: item.key == this.currentKey,
-            selected: this.selectedKeys.has(item.key),
             collapsed: this.collapsedKeys.has(item.key),
             children: item.children ? item.children.map(function (i) { return _this.toNode(i); }) : undefined
         };
     };
     Example.prototype.render = function () {
         var _this = this;
-        var changeCurrent = function (path) {
-            _this.currentKey = itemAt(_this.items, path).key;
+        var changeCurrent = function (key) {
+            _this.currentKey = key.toString();
             _this.forceUpdate();
         };
-        return (React.createElement(MyTree, {nodes: this.items.map(function (i) { return _this.toNode(i); }), draggable: true, childOffset: 16, renderNode: function (node) { return React.createElement(ExampleCell, {node: node}); }, changeCurrent: changeCurrent}));
+        return (React.createElement(MyTree, {nodes: this.items.map(function (i) { return _this.toNode(i); }), current: this.currentKey, selected: this.selectedKeys, draggable: true, childOffset: 16, renderNode: function (node, _a) {
+            var selected = _a.selected, current = _a.current;
+            return React.createElement(ExampleCell, {value: node.value, selected: selected, current: current});
+        }, onCurrentChange: changeCurrent}));
     };
     return Example;
 }(React.Component));

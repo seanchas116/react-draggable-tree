@@ -20,8 +20,8 @@ function itemAt(items: ExampleItem[], path: number[]): ExampleItem {
   }
 }
 
-function ExampleCell(props: {node: TreeNode<string>}) {
-  const {value, selected, current} = props.node
+function ExampleCell(props: {value: string, selected: boolean, current: boolean}) {
+  const {value, selected, current} = props
   return <div className={classNames("example-cell", {selected, current})}>{value}</div>
 }
 
@@ -46,26 +46,26 @@ class Example extends React.Component<{}, {}> {
     return {
       value: item.value,
       key: item.key,
-      current: item.key == this.currentKey,
-      selected: this.selectedKeys.has(item.key),
       collapsed: this.collapsedKeys.has(item.key),
       children: item.children ? item.children.map(i => this.toNode(i)) : undefined
     }
   }
 
   render() {
-    const changeCurrent = (path: number[]) => {
-      this.currentKey = itemAt(this.items, path).key
+    const changeCurrent = (key: number|string) => {
+      this.currentKey = key.toString()
       this.forceUpdate()
     }
 
     return (
       <MyTree
         nodes={this.items.map(i => this.toNode(i))}
+        current={this.currentKey}
+        selected={this.selectedKeys}
         draggable={true}
         childOffset={16}
-        renderNode={node => <ExampleCell node={node} />}
-        changeCurrent={changeCurrent}
+        renderNode={(node, {selected, current}) => <ExampleCell value={node.value} selected={selected} current={current} />}
+        onCurrentChange={changeCurrent}
       />
     )
   }
