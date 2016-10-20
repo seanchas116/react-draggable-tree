@@ -3,7 +3,8 @@
   "version": "0.1.0",
   "main": "index.js",
   "scripts": {
-    "example:build": "browserify example/index.js -o example/bundle.js",
+    "build": "tsc",
+    "example:build": "npm run build && browserify example/index.js -o example/bundle.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",

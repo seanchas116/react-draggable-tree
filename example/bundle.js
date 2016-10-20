@@ -1,23 +1,13 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 "use strict";
-var __extends = (this && this.__extends) || function (d, b) {
-    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-    function __() { this.constructor = d; }
-    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-};
-var React = require("react");
-var ReactDOM = require("react-dom");
-var DraggableTree_1 = require("../src/DraggableTree");
-var classNames = require("classnames");
-var MyTree = (function (_super) {
-    __extends(MyTree, _super);
-    function MyTree() {
-        _super.apply(this, arguments);
-    }
-    return MyTree;
-}(DraggableTree_1.Tree));
+const React = require("react");
+const ReactDOM = require("react-dom");
+const DraggableTree_1 = require("../src/DraggableTree");
+const classNames = require("classnames");
+class MyTree extends DraggableTree_1.Tree {
+}
 function itemAt(items, path) {
-    var at = items[path[0]];
+    const at = items[path[0]];
     if (path.length == 1) {
         return at;
     }
@@ -26,13 +16,12 @@ function itemAt(items, path) {
     }
 }
 function ExampleCell(props) {
-    var value = props.value, selected = props.selected, current = props.current;
-    return React.createElement("div", {className: classNames("example-cell", { selected: selected, current: current })}, value);
+    const { value, selected, current } = props;
+    return React.createElement("div", {className: classNames("example-cell", { selected, current })}, value);
 }
-var Example = (function (_super) {
-    __extends(Example, _super);
-    function Example() {
-        _super.apply(this, arguments);
+class Example extends React.Component {
+    constructor() {
+        super(...arguments);
         this.items = [
             { value: "Foo", key: "0" },
             { value: "Baz", key: "2", children: [
@@ -49,33 +38,27 @@ var Example = (function (_super) {
         this.selectedKeys = new Set();
         this.collapsedKeys = new Set();
     }
-    Example.prototype.toNode = function (item) {
-        var _this = this;
+    toNode(item) {
         return {
             value: item.value,
             key: item.key,
             collapsed: this.collapsedKeys.has(item.key),
-            children: item.children ? item.children.map(function (i) { return _this.toNode(i); }) : undefined
+            children: item.children ? item.children.map(i => this.toNode(i)) : undefined
         };
-    };
-    Example.prototype.render = function () {
-        var _this = this;
-        var changeCurrent = function (key) {
-            _this.currentKey = key;
-            _this.forceUpdate();
+    }
+    render() {
+        const changeCurrent = (key) => {
+            this.currentKey = key;
+            this.forceUpdate();
         };
-        var changeSelected = function (keys) {
-            _this.selectedKeys = keys;
-            _this.forceUpdate();
+        const changeSelected = (keys) => {
+            this.selectedKeys = keys;
+            this.forceUpdate();
         };
-        return (React.createElement(MyTree, {nodes: this.items.map(function (i) { return _this.toNode(i); }), current: this.currentKey, selected: this.selectedKeys, draggable: true, childOffset: 16, renderNode: function (node, _a) {
-            var selected = _a.selected, current = _a.current;
-            return React.createElement(ExampleCell, {value: node.value, selected: selected, current: current});
-        }, onSelectedChange: changeSelected, onCurrentChange: changeCurrent}));
-    };
-    return Example;
-}(React.Component));
-window.addEventListener("DOMContentLoaded", function () {
+        return (React.createElement(MyTree, {nodes: this.items.map(i => this.toNode(i)), current: this.currentKey, selected: this.selectedKeys, draggable: true, childOffset: 16, renderNode: (node, { selected, current }) => React.createElement(ExampleCell, {value: node.value, selected: selected, current: current}), onSelectedChange: changeSelected, onCurrentChange: changeCurrent}));
+    }
+}
+window.addEventListener("DOMContentLoaded", () => {
     ReactDOM.render(React.createElement(Example, null), document.getElementById("example"));
 });
 
@@ -20888,46 +20871,37 @@ module.exports = require('./lib/React');
 
 },{"./lib/React":56}],174:[function(require,module,exports){
 "use strict";
-var __extends = (this && this.__extends) || function (d, b) {
-    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-    function __() { this.constructor = d; }
-    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-};
-var React = require("react");
-var classNames = require("classnames");
-var Tree = (function (_super) {
-    __extends(Tree, _super);
-    function Tree() {
-        _super.apply(this, arguments);
+const React = require("react");
+const classNames = require("classnames");
+class Tree extends React.Component {
+    constructor() {
+        super(...arguments);
         this.keys = [];
     }
-    Tree.prototype.renderItems = function (nodes, parentPath) {
-        var _this = this;
-        var _a = this.props, childOffset = _a.childOffset, renderNode = _a.renderNode, onCurrentChange = _a.onCurrentChange, onSelectedChange = _a.onSelectedChange, current = _a.current, selected = _a.selected;
-        var elems = [];
-        nodes.forEach(function (node, i) {
-            var key = node.key;
-            _this.keys.push(key);
-            var path = parentPath.concat([i]);
-            var style = {
+    renderItems(nodes, parentPath) {
+        const { childOffset, renderNode, onCurrentChange, onSelectedChange, current, selected } = this.props;
+        let elems = [];
+        nodes.forEach((node, i) => {
+            const { key } = node;
+            this.keys.push(key);
+            const path = [...parentPath, i];
+            const style = {
                 paddingLeft: parentPath.length * childOffset + "px",
             };
-            var onClick = function (ev) {
+            const onClick = (ev) => {
                 if (ev.ctrlKey || ev.metaKey) {
-                    var newSelected = new Set(selected || []);
+                    const newSelected = new Set(selected || []);
                     newSelected.add(key);
                     onSelectedChange(newSelected);
                 }
                 else if (ev.shiftKey && current != undefined) {
-                    var currentIndex = _this.keys.indexOf(current);
-                    var thisIndex = _this.keys.indexOf(key);
-                    var min = Math.min(thisIndex, currentIndex);
-                    var max = Math.max(thisIndex, currentIndex);
-                    var keysToAdd = _this.keys.slice(min, max + 1);
-                    console.log(_this.keys, current, key, min, max, keysToAdd);
-                    var newSelected = new Set(selected || []);
-                    for (var _i = 0, keysToAdd_1 = keysToAdd; _i < keysToAdd_1.length; _i++) {
-                        var k = keysToAdd_1[_i];
+                    const currentIndex = this.keys.indexOf(current);
+                    const thisIndex = this.keys.indexOf(key);
+                    const min = Math.min(thisIndex, currentIndex);
+                    const max = Math.max(thisIndex, currentIndex);
+                    const keysToAdd = this.keys.slice(min, max + 1);
+                    const newSelected = new Set(selected || []);
+                    for (const k of keysToAdd) {
                         newSelected.add(k);
                     }
                     onSelectedChange(newSelected);
@@ -20937,26 +20911,25 @@ var Tree = (function (_super) {
                 }
                 onCurrentChange(key);
             };
-            var isSelected = selected ? selected.has(key) : false;
-            var isCurrent = key == current;
-            var className = classNames("ReactDraggableTree_row", {
+            const isSelected = selected ? selected.has(key) : false;
+            const isCurrent = key == current;
+            const className = classNames("ReactDraggableTree_row", {
                 "ReactDraggableTree_row-selected": isSelected,
                 "ReactDraggableTree_row-current": isCurrent,
             });
             elems.push(React.createElement("div", {className: className, style: style, key: String(node.key), onClick: onClick}, renderNode(node, { selected: isSelected, current: isCurrent })));
             if (node.children) {
-                elems.push.apply(elems, _this.renderItems(node.children, path));
+                elems.push(...this.renderItems(node.children, path));
             }
         });
         return elems;
-    };
-    Tree.prototype.render = function () {
-        var nodes = this.props.nodes;
+    }
+    render() {
+        const { nodes } = this.props;
         this.keys = [];
         return (React.createElement("div", {className: "ReactDraggableTree"}, this.renderItems(nodes, [])));
-    };
-    return Tree;
-}(React.Component));
+    }
+}
 exports.Tree = Tree;
 
 },{"classnames":2,"react":173}]},{},[1]);

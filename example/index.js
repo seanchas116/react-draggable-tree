@@ -1,22 +1,12 @@
 "use strict";
-var __extends = (this && this.__extends) || function (d, b) {
-    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-    function __() { this.constructor = d; }
-    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-};
-var React = require("react");
-var ReactDOM = require("react-dom");
-var DraggableTree_1 = require("../src/DraggableTree");
-var classNames = require("classnames");
-var MyTree = (function (_super) {
-    __extends(MyTree, _super);
-    function MyTree() {
-        _super.apply(this, arguments);
-    }
-    return MyTree;
-}(DraggableTree_1.Tree));
+const React = require("react");
+const ReactDOM = require("react-dom");
+const DraggableTree_1 = require("../src/DraggableTree");
+const classNames = require("classnames");
+class MyTree extends DraggableTree_1.Tree {
+}
 function itemAt(items, path) {
-    var at = items[path[0]];
+    const at = items[path[0]];
     if (path.length == 1) {
         return at;
     }
@@ -25,13 +15,12 @@ function itemAt(items, path) {
     }
 }
 function ExampleCell(props) {
-    var value = props.value, selected = props.selected, current = props.current;
-    return React.createElement("div", {className: classNames("example-cell", { selected: selected, current: current })}, value);
+    const { value, selected, current } = props;
+    return React.createElement("div", {className: classNames("example-cell", { selected, current })}, value);
 }
-var Example = (function (_super) {
-    __extends(Example, _super);
-    function Example() {
-        _super.apply(this, arguments);
+class Example extends React.Component {
+    constructor() {
+        super(...arguments);
         this.items = [
             { value: "Foo", key: "0" },
             { value: "Baz", key: "2", children: [
@@ -48,32 +37,26 @@ var Example = (function (_super) {
         this.selectedKeys = new Set();
         this.collapsedKeys = new Set();
     }
-    Example.prototype.toNode = function (item) {
-        var _this = this;
+    toNode(item) {
         return {
             value: item.value,
             key: item.key,
             collapsed: this.collapsedKeys.has(item.key),
-            children: item.children ? item.children.map(function (i) { return _this.toNode(i); }) : undefined
+            children: item.children ? item.children.map(i => this.toNode(i)) : undefined
         };
-    };
-    Example.prototype.render = function () {
-        var _this = this;
-        var changeCurrent = function (key) {
-            _this.currentKey = key;
-            _this.forceUpdate();
+    }
+    render() {
+        const changeCurrent = (key) => {
+            this.currentKey = key;
+            this.forceUpdate();
         };
-        var changeSelected = function (keys) {
-            _this.selectedKeys = keys;
-            _this.forceUpdate();
+        const changeSelected = (keys) => {
+            this.selectedKeys = keys;
+            this.forceUpdate();
         };
-        return (React.createElement(MyTree, {nodes: this.items.map(function (i) { return _this.toNode(i); }), current: this.currentKey, selected: this.selectedKeys, draggable: true, childOffset: 16, renderNode: function (node, _a) {
-            var selected = _a.selected, current = _a.current;
-            return React.createElement(ExampleCell, {value: node.value, selected: selected, current: current});
-        }, onSelectedChange: changeSelected, onCurrentChange: changeCurrent}));
-    };
-    return Example;
-}(React.Component));
-window.addEventListener("DOMContentLoaded", function () {
+        return (React.createElement(MyTree, {nodes: this.items.map(i => this.toNode(i)), current: this.currentKey, selected: this.selectedKeys, draggable: true, childOffset: 16, renderNode: (node, { selected, current }) => React.createElement(ExampleCell, {value: node.value, selected: selected, current: current}), onSelectedChange: changeSelected, onCurrentChange: changeCurrent}));
+    }
+}
+window.addEventListener("DOMContentLoaded", () => {
     ReactDOM.render(React.createElement(Example, null), document.getElementById("example"));
 });
