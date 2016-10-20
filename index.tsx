@@ -36,9 +36,8 @@ interface TreeProps<TValue, TKey> {
 export
 class Tree<TValue, TKey> extends React.Component<TreeProps<TValue, TKey>, {}> {
   keys: TKey[] = []
-  elements: JSX.Element[] = []
 
-  renderNode(node: TreeNode<TValue, TKey>, path: number[]) {
+  renderNode(node: TreeNode<TValue, TKey>, path: number[]): JSX.Element {
     const {childOffset, renderNode, onCurrentChange, onSelectedChange, current, selected} = this.props
     const {key} = node
     this.keys.push(key)
@@ -81,32 +80,33 @@ class Tree<TValue, TKey> extends React.Component<TreeProps<TValue, TKey>, {}> {
       "ReactDraggableTree_caret-collapsed": node.collapsed
     })
 
-    this.elements.push(
-      <div className={className} style={style} key={String(node.key)} onClick={onClick}>
-       <div className={caretClassName} />
-        {renderNode({node, selected: isSelected, current: isCurrent, path})}
+    let cell = <div className="ReactDraggableTree_cell" onClick={onClick}>
+      <div className={caretClassName} />
+      {renderNode({node, selected: isSelected, current: isCurrent, path})}
+    </div>
+
+    let childrenContainer: JSX.Element|undefined = undefined
+    if (node.children && !node.collapsed) {
+      childrenContainer = <div className="ReactDraggableTree_childrenContainer">
+        {node.children.map((child, i) => this.renderNode(child, [...path, i]))}
+      </div>
+    }
+
+    return (
+      <div className={className} style={style} key={String(node.key)}>
+        {cell}
+        {childrenContainer}
       </div>
     )
-    if (node.children && !node.collapsed) {
-      for (const [i, child] of node.children.entries()) {
-        this.renderNode(child, [...path, i])
-      }
-    }
   }
 
   render() {
     const {nodes} = this.props
     this.keys = []
-    this.elements = []
-
-    const elements: JSX.Element[] = []
-    for (const [i, node] of nodes.entries()) {
-      this.renderNode(node, [i])
-    }
 
     return (
       <div className="ReactDraggableTree">
-        {this.elements}
+        {nodes.map((child, i) => this.renderNode(child, [i]))}
       </div>
     )
   }

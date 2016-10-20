@@ -5,7 +5,6 @@ class Tree extends React.Component {
     constructor() {
         super(...arguments);
         this.keys = [];
-        this.elements = [];
     }
     renderNode(node, path) {
         const { childOffset, renderNode, onCurrentChange, onSelectedChange, current, selected } = this.props;
@@ -47,24 +46,21 @@ class Tree extends React.Component {
             "ReactDraggableTree_caret-hidden": !node.children,
             "ReactDraggableTree_caret-collapsed": node.collapsed
         });
-        this.elements.push(React.createElement("div", {className: className, style: style, key: String(node.key), onClick: onClick}, 
+        let cell = React.createElement("div", {className: "ReactDraggableTree_cell", onClick: onClick}, 
             React.createElement("div", {className: caretClassName}), 
-            renderNode({ node, selected: isSelected, current: isCurrent, path })));
+            renderNode({ node, selected: isSelected, current: isCurrent, path }));
+        let childrenContainer = undefined;
         if (node.children && !node.collapsed) {
-            for (const [i, child] of node.children.entries()) {
-                this.renderNode(child, [...path, i]);
-            }
+            childrenContainer = React.createElement("div", {className: "ReactDraggableTree_childrenContainer"}, node.children.map((child, i) => this.renderNode(child, [...path, i])));
         }
+        return (React.createElement("div", {className: className, style: style, key: String(node.key)}, 
+            cell, 
+            childrenContainer));
     }
     render() {
         const { nodes } = this.props;
         this.keys = [];
-        this.elements = [];
-        const elements = [];
-        for (const [i, node] of nodes.entries()) {
-            this.renderNode(node, [i]);
-        }
-        return (React.createElement("div", {className: "ReactDraggableTree"}, this.elements));
+        return (React.createElement("div", {className: "ReactDraggableTree"}, nodes.map((child, i) => this.renderNode(child, [i]))));
     }
 }
 exports.Tree = Tree;
