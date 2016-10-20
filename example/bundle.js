@@ -113,9 +113,9 @@ class Tree extends React.Component {
             "ReactDraggableTree_row-selected": isSelected,
             "ReactDraggableTree_row-current": isCurrent,
         });
-        const caretClassName = classNames("ReactDraggableTree_caret", {
-            "ReactDraggableTree_caret-hidden": !node.children,
-            "ReactDraggableTree_caret-collapsed": node.collapsed
+        const caretClassName = classNames("ReactDraggableTree_toggler", {
+            "ReactDraggableTree_toggler-hidden": !node.children,
+            "ReactDraggableTree_toggler-collapsed": node.collapsed
         });
         let row = React.createElement("div", {className: className, style: style, onClick: onClick}, 
             React.createElement("div", {className: caretClassName, onClick: onCaretClick}), 

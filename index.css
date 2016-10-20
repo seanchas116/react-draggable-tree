@@ -13,14 +13,14 @@
 .ReactDraggableTree_row-current {
   background-color: #ddd;
 }
-.ReactDraggableTree_caret {
+.ReactDraggableTree_toggler {
   width: 16px;
   height: 16px;
   display: flex;
   align-items: center;
   justify-content: center;
 }
-.ReactDraggableTree_caret:before {
+.ReactDraggableTree_toggler:before {
   content: "";
   display: block;
   width: 8px;
@@ -30,9 +30,9 @@
   border-bottom: 1px solid gray;
   transform: rotate(45deg) translate(-2px, -2px);
 }
-.ReactDraggableTree_caret-hidden:before {
+.ReactDraggableTree_toggler-hidden:before {
   visibility: hidden;
 }
-.ReactDraggableTree_caret-collapsed:before {
+.ReactDraggableTree_toggler-collapsed:before {
   transform: rotate(-45deg) translate(-2px, -2px);
 }
