@@ -49,7 +49,7 @@ class Example extends React.Component<{}, {}> {
         selected={this.selectedKeys}
         draggable={true}
         childOffset={16}
-        renderNode={(node, {selected, current}) => <ExampleCell value={node.value} selected={selected} current={current} />}
+        renderNode={({node, selected, current}) => <ExampleCell value={node.value} selected={selected} current={current} />}
         onSelectedChange={changeSelected}
         onCurrentChange={changeCurrent}
       />

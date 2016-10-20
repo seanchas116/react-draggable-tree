@@ -10,11 +10,19 @@ interface TreeNode<TValue, TKey> {
 }
 
 export
+interface NodeInfo<TValue, TKey> {
+  node: TreeNode<TValue, TKey>
+  current: boolean
+  selected: boolean
+  path: number[]
+}
+
+export
 interface TreeProps<TValue, TKey> {
   nodes: TreeNode<TValue, TKey>[]
   draggable: boolean
   childOffset: number
-  renderNode: (node: TreeNode<TValue, TKey>, options: {selected: boolean, current: boolean}) => JSX.Element
+  renderNode: (nodeInfo: NodeInfo<TValue, TKey>) => JSX.Element
   current?: TKey
   selected?: Set<TKey>
   //move: (src: number[][], dest: number[]) => void
@@ -76,7 +84,7 @@ class Tree<TValue, TKey> extends React.Component<TreeProps<TValue, TKey>, {}> {
     this.elements.push(
       <div className={className} style={style} key={String(node.key)} onClick={onClick}>
        <div className={caretClassName} />
-        {renderNode(node, {selected: isSelected, current: isCurrent})}
+        {renderNode({node, selected: isSelected, current: isCurrent, path})}
       </div>
     )
     if (node.children && !node.collapsed) {

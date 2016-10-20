@@ -42,7 +42,7 @@ class Example extends React.Component {
             this.selectedKeys = keys;
             this.forceUpdate();
         };
-        return (React.createElement(MyTree, {nodes: this.nodes, current: this.currentKey, selected: this.selectedKeys, draggable: true, childOffset: 16, renderNode: (node, { selected, current }) => React.createElement(ExampleCell, {value: node.value, selected: selected, current: current}), onSelectedChange: changeSelected, onCurrentChange: changeCurrent}));
+        return (React.createElement(MyTree, {nodes: this.nodes, current: this.currentKey, selected: this.selectedKeys, draggable: true, childOffset: 16, renderNode: ({ node, selected, current }) => React.createElement(ExampleCell, {value: node.value, selected: selected, current: current}), onSelectedChange: changeSelected, onCurrentChange: changeCurrent}));
     }
 }
 window.addEventListener("DOMContentLoaded", () => {
@@ -101,7 +101,7 @@ class Tree extends React.Component {
         });
         this.elements.push(React.createElement("div", {className: className, style: style, key: String(node.key), onClick: onClick}, 
             React.createElement("div", {className: caretClassName}), 
-            renderNode(node, { selected: isSelected, current: isCurrent })));
+            renderNode({ node, selected: isSelected, current: isCurrent, path })));
         if (node.children && !node.collapsed) {
             for (const [i, child] of node.children.entries()) {
                 this.renderNode(child, [...path, i]);
