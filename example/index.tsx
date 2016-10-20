@@ -1,6 +1,6 @@
 import React = require("react")
 import ReactDOM = require("react-dom")
-import {Tree, TreeNode} from "../src/DraggableTree"
+import {Tree, TreeNode} from ".."
 const classNames = require("classnames")
 
 class MyTree extends Tree<string, string> {}

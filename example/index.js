@@ -1,9 +1,9 @@
 "use strict";
 const React = require("react");
 const ReactDOM = require("react-dom");
-const DraggableTree_1 = require("../src/DraggableTree");
+const __1 = require("..");
 const classNames = require("classnames");
-class MyTree extends DraggableTree_1.Tree {
+class MyTree extends __1.Tree {
 }
 function itemAt(items, path) {
     const at = items[path[0]];
@@ -35,13 +35,11 @@ class Example extends React.Component {
         ];
         this.currentKey = "0";
         this.selectedKeys = new Set();
-        this.collapsedKeys = new Set();
     }
     toNode(item) {
         return {
             value: item.value,
             key: item.key,
-            collapsed: this.collapsedKeys.has(item.key),
             children: item.children ? item.children.map(i => this.toNode(i)) : undefined
         };
     }
