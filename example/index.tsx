@@ -53,13 +53,13 @@ class Example extends React.Component<{}, {}> {
       this.selectedKeys = keys
       this.forceUpdate()
     }
-    const onCollapsedChange = (path: number[], collapsed: boolean) => {
-      nodeForPath(this.nodes, path).collapsed = collapsed
+    const onCollapsedChange = (info: NodeInfo<string, string>, collapsed: boolean) => {
+      nodeForPath(this.nodes, info.path).collapsed = collapsed
       this.forceUpdate()
     }
-    const onMove = (src: number[][], dest: number[]) => {
+    const onMove = (src: NodeInfo<string, string>[], dest: NodeInfo<string, string>, index: number) => {
     }
-    const onCopy = (src: number[][], dest: number[]) => {
+    const onCopy = (src: NodeInfo<string, string>[], dest: NodeInfo<string, string>, index: number) => {
     }
 
     return (
