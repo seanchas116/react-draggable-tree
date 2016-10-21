@@ -21,23 +21,42 @@ export
 interface TreeProps<TValue, TKey> {
   nodes: TreeNode<TValue, TKey>[]
   draggable: boolean
-  childOffset: number
+  rowHeight: number
+  indent: number
   renderNode: (nodeInfo: NodeInfo<TValue, TKey>) => JSX.Element
   current?: TKey
   selected?: Set<TKey>
-  onCollapsedChange: (nodeInfo: NodeInfo<TValue, TKey>, collapsed: boolean) => void
+  onMove: (src: number[][], dest: number[]) => void
+  onCopy: (src: number[][], dest: number[]) => void
+  onCollapsedChange: (path: number[], collapsed: boolean) => void
   onSelectedChange: (keys: Set<TKey>) => void
   onCurrentChange: (key: TKey) => void
 }
 
-const MIME_MOVE = "x-react-draggable-tree-move"
+const DRAG_MIME = "x-react-draggable-tree-drag"
+
+function compareNumberArrays(a: number[], b: number[]) {
+  for (let i = 0; true; ++i) {
+    if (a.length == i && b.length == i) {
+      return 0
+    }
+    if (a.length == i || a[i] < b[i]) {
+      return -1
+    }
+    if (b.length == i || b[i] < a[i]) {
+      return 1
+    }
+  }
+}
 
 export
 class Tree<TValue, TKey> extends React.Component<TreeProps<TValue, TKey>, {}> {
+  element: HTMLElement
   keys: TKey[] = []
   visibleKeys: TKey[] = []
   keyToPath = new Map<TKey, number[]>()
   pathToKey = new Map<string, TKey>() // using joined path as key string
+  nodeInfos = new Map<TKey, NodeInfo<TValue, TKey>>()
 
   removeAncestorsFromSelection(selection: Set<TKey>) {
     const newSelection = new Set(selection)
@@ -57,7 +76,7 @@ class Tree<TValue, TKey> extends React.Component<TreeProps<TValue, TKey>, {}> {
   }
 
   renderNode(node: TreeNode<TValue, TKey>, path: number[], visible: boolean): JSX.Element {
-    const {childOffset, renderNode, onCurrentChange, onSelectedChange, onCollapsedChange, current, selected} = this.props
+    const {indent, rowHeight, renderNode, onCurrentChange, onSelectedChange, onCollapsedChange, current, selected} = this.props
     const {key} = node
     this.keys.push(key)
     if (visible) {
@@ -69,9 +88,11 @@ class Tree<TValue, TKey> extends React.Component<TreeProps<TValue, TKey>, {}> {
     const isSelected = selected ? selected.has(key) : false
     const isCurrent = key == current
     const nodeInfo = {node, selected: isSelected, current: isCurrent, path}
+    this.nodeInfos.set(key, nodeInfo)
 
     const style = {
-      paddingLeft: (path.length - 1) * childOffset + "px",
+      paddingLeft: (path.length - 1) * indent + "px",
+      height: rowHeight + "px",
     }
 
     const onClick = (ev: React.MouseEvent<Element>) => {
@@ -97,12 +118,12 @@ class Tree<TValue, TKey> extends React.Component<TreeProps<TValue, TKey>, {}> {
     }
 
     const onDragStart = (ev: React.DragEvent<Element>) => {
-      ev.dataTransfer.setData(MIME_MOVE, JSON.stringify(key))
+      ev.dataTransfer.setData(DRAG_MIME, "move")
     }
 
     const onCaretClick = () => {
       if (node.children) {
-        onCollapsedChange(nodeInfo, !node.collapsed)
+        onCollapsedChange(nodeInfo.path, !node.collapsed)
       }
     }
 
@@ -135,15 +156,60 @@ class Tree<TValue, TKey> extends React.Component<TreeProps<TValue, TKey>, {}> {
     )
   }
 
+  keysToPaths(keys: TKey[]) {
+    const paths = keys.map(k => this.nodeInfos.get(k)!.path)
+    paths.sort(compareNumberArrays)
+    return paths
+  }
+
   render() {
-    const {nodes} = this.props
+    const {nodes, rowHeight} = this.props
     this.keys = []
     this.visibleKeys = []
     this.keyToPath.clear()
     this.pathToKey.clear()
+    this.nodeInfos.clear()
+
+    const onDragOver = (ev: React.DragEvent<Element>) => {
+      ev.preventDefault()
+    }
+
+    const onDrop = (ev: React.DragEvent<Element>) => {
+      const type = ev.dataTransfer.getData(DRAG_MIME)
+      if (!type) {
+        return
+      }
+
+      const rect = this.element.getBoundingClientRect()
+      const x = ev.clientX - rect.left + this.element.scrollTop
+      const y = ev.clientY - rect.top + this.element.scrollLeft
+      const visibleIndex = Math.floor(y / rowHeight)
+      if (this.visibleKeys.length <= visibleIndex) {
+        return
+      }
+      const parentKey = this.visibleKeys[visibleIndex]
+      const parentNodeInfo = this.nodeInfos.get(parentKey)
+      if (!parentNodeInfo || !parentNodeInfo.node.children) {
+        return
+      }
+      const srcKeys = this.props.selected || new Set()
+      if (srcKeys.has(parentKey)) {
+        return
+      }
+      const srcPaths = this.keysToPaths(Array.from(srcKeys))
+      const destPath = [...parentNodeInfo.path, 0]
+      console.log("drop", srcPaths, destPath)
+
+      if (type == "move") {
+        this.props.onMove(srcPaths, destPath)
+      } else {
+        this.props.onCopy(srcPaths, destPath)
+      }
+      ev.preventDefault()
+    }
 
     return (
-      <div className="ReactDraggableTree">
+      <div ref={e => this.element = e} className="ReactDraggableTree" onDragOver={onDragOver} onDrop={onDrop}>
         {nodes.map((child, i) => this.renderNode(child, [i], true))}
       </div>
     )

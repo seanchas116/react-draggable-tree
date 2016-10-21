@@ -41,7 +41,7 @@ class Example extends React.Component<{}, {}> {
     {value: "Bar", key: "1"},
   ]
   currentKey = "0"
-  selectedKeys = new Set<string>()
+  selectedKeys = new Set<string>(["0"])
 
 
   render() {
@@ -53,9 +53,13 @@ class Example extends React.Component<{}, {}> {
       this.selectedKeys = keys
       this.forceUpdate()
     }
-    const onCollapsedChange = (info: NodeInfo<string, string>, collapsed: boolean) => {
-      nodeForPath(this.nodes, info.path).collapsed = collapsed
+    const onCollapsedChange = (path: number[], collapsed: boolean) => {
+      nodeForPath(this.nodes, path).collapsed = collapsed
       this.forceUpdate()
+    }
+    const onMove = (src: number[][], dest: number[]) => {
+    }
+    const onCopy = (src: number[][], dest: number[]) => {
     }
 
     return (
@@ -64,11 +68,14 @@ class Example extends React.Component<{}, {}> {
         current={this.currentKey}
         selected={this.selectedKeys}
         draggable={true}
-        childOffset={16}
+        rowHeight={40}
+        indent={16}
         renderNode={({node, selected, current}) => <ExampleCell value={node.value} selected={selected} current={current} />}
         onSelectedChange={changeSelected}
         onCurrentChange={changeCurrent}
         onCollapsedChange={onCollapsedChange}
+        onMove={onMove}
+        onCopy={onCopy}
       />
     )
   }
