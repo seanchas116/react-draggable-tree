@@ -2,35 +2,38 @@ import React = require("react")
 const classNames = require("classnames")
 
 export
-interface TreeNode<TValue, TKey> {
+type Key = string | number
+
+export
+interface TreeNode<TValue> {
   value: TValue
-  children?: TreeNode<TValue, TKey>[]
-  key: TKey
+  children?: TreeNode<TValue>[]
+  key: Key
   collapsed?: boolean
 }
 
 export
-interface NodeInfo<TValue, TKey> {
-  node: TreeNode<TValue, TKey>
+interface NodeInfo<TValue> {
+  node: TreeNode<TValue>
   current: boolean
   selected: boolean
   path: number[]
 }
 
 export
-interface TreeProps<TValue, TKey> {
-  nodes: TreeNode<TValue, TKey>[]
+interface TreeProps<TValue> {
+  nodes: TreeNode<TValue>[]
   draggable: boolean
   rowHeight: number
   indent: number
-  renderNode: (nodeInfo: NodeInfo<TValue, TKey>) => JSX.Element
-  current?: TKey
-  selected?: Set<TKey>
-  onMove: (src: number[][], dest: number[]) => void
-  onCopy: (src: number[][], dest: number[]) => void
-  onCollapsedChange: (path: number[], collapsed: boolean) => void
-  onSelectedChange: (keys: Set<TKey>) => void
-  onCurrentChange: (key: TKey) => void
+  renderNode: (nodeInfo: NodeInfo<TValue>) => JSX.Element
+  current?: Key
+  selected?: Set<Key>
+  onMove: (src: NodeInfo<TValue>[], dest: NodeInfo<TValue>, destIndex: number) => void
+  onCopy: (src: NodeInfo<TValue>[], dest: NodeInfo<TValue>, destIndex: number) => void
+  onCollapsedChange: (nodeInfo: NodeInfo<TValue>, collapsed: boolean) => void
+  onSelectedChange: (keys: Set<Key>) => void
+  onCurrentChange: (key: Key) => void
 }
 
 const DRAG_MIME = "x-react-draggable-tree-drag"
@@ -50,15 +53,15 @@ function compareNumberArrays(a: number[], b: number[]) {
 }
 
 export
-class Tree<TValue, TKey> extends React.Component<TreeProps<TValue, TKey>, {}> {
+class Tree<TValue> extends React.Component<TreeProps<TValue>, {}> {
   element: HTMLElement
-  keys: TKey[] = []
-  visibleKeys: TKey[] = []
-  keyToPath = new Map<TKey, number[]>()
-  pathToKey = new Map<string, TKey>() // using joined path as key string
-  nodeInfos = new Map<TKey, NodeInfo<TValue, TKey>>()
+  keys: Key[] = []
+  visibleKeys: Key[] = []
+  keyToPath = new Map<Key, number[]>()
+  pathToKey = new Map<string, Key>() // using joined path as key string
+  nodeInfos = new Map<Key, NodeInfo<TValue>>()
 
-  removeAncestorsFromSelection(selection: Set<TKey>) {
+  removeAncestorsFromSelection(selection: Set<Key>) {
     const newSelection = new Set(selection)
     for (const key of selection) {
       const path = this.keyToPath.get(key)
@@ -75,7 +78,7 @@ class Tree<TValue, TKey> extends React.Component<TreeProps<TValue, TKey>, {}> {
     return newSelection
   }
 
-  renderNode(node: TreeNode<TValue, TKey>, path: number[], visible: boolean): JSX.Element {
+  renderNode(node: TreeNode<TValue>, path: number[], visible: boolean): JSX.Element {
     const {indent, rowHeight, renderNode, onCurrentChange, onSelectedChange, onCollapsedChange, current, selected} = this.props
     const {key} = node
     this.keys.push(key)
@@ -123,7 +126,7 @@ class Tree<TValue, TKey> extends React.Component<TreeProps<TValue, TKey>, {}> {
 
     const onCaretClick = () => {
       if (node.children) {
-        onCollapsedChange(nodeInfo.path, !node.collapsed)
+        onCollapsedChange(nodeInfo, !node.collapsed)
       }
     }
 
@@ -156,10 +159,10 @@ class Tree<TValue, TKey> extends React.Component<TreeProps<TValue, TKey>, {}> {
     )
   }
 
-  keysToPaths(keys: TKey[]) {
-    const paths = keys.map(k => this.nodeInfos.get(k)!.path)
-    paths.sort(compareNumberArrays)
-    return paths
+  keysToInfos(keys: Key[]) {
+    const infos = keys.map(k => this.nodeInfos.get(k)!)
+    infos.sort((a, b) => compareNumberArrays(a.path, b.path))
+    return infos
   }
 
   render() {
@@ -187,23 +190,21 @@ class Tree<TValue, TKey> extends React.Component<TreeProps<TValue, TKey>, {}> {
       if (this.visibleKeys.length <= visibleIndex) {
         return
       }
-      const parentKey = this.visibleKeys[visibleIndex]
-      const parentNodeInfo = this.nodeInfos.get(parentKey)
-      if (!parentNodeInfo || !parentNodeInfo.node.children) {
+      const destKey = this.visibleKeys[visibleIndex]
+      const destInfo = this.nodeInfos.get(destKey)
+      if (!destInfo || !destInfo.node.children) {
         return
       }
       const srcKeys = this.props.selected || new Set()
-      if (srcKeys.has(parentKey)) {
+      if (srcKeys.has(destKey)) {
         return
       }
-      const srcPaths = this.keysToPaths(Array.from(srcKeys))
-      const destPath = [...parentNodeInfo.path, 0]
-      console.log("drop", srcPaths, destPath)
+      const srcInfos = this.keysToInfos(Array.from(srcKeys))
 
       if (type == "move") {
-        this.props.onMove(srcPaths, destPath)
+        this.props.onMove(srcInfos, destInfo, 0)
       } else {
-        this.props.onCopy(srcPaths, destPath)
+        this.props.onCopy(srcInfos, destInfo, 0)
       }
       ev.preventDefault()
     }

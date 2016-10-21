@@ -5,8 +5,8 @@ import ReactDOM = require("react-dom")
 import {Tree, TreeNode, NodeInfo} from "../src"
 const classNames = require("classnames")
 
-interface MyNode extends TreeNode<string, string> {}
-class MyTree extends Tree<string, string> {}
+interface MyNode extends TreeNode<string> {}
+class MyTree extends Tree<string> {}
 
 function ExampleCell(props: {value: string, selected: boolean, current: boolean}) {
   const {value, selected, current} = props
@@ -53,13 +53,13 @@ class Example extends React.Component<{}, {}> {
       this.selectedKeys = keys
       this.forceUpdate()
     }
-    const onCollapsedChange = (info: NodeInfo<string, string>, collapsed: boolean) => {
+    const onCollapsedChange = (info: NodeInfo<string>, collapsed: boolean) => {
       nodeForPath(this.nodes, info.path).collapsed = collapsed
       this.forceUpdate()
     }
-    const onMove = (src: NodeInfo<string, string>[], dest: NodeInfo<string, string>, index: number) => {
+    const onMove = (src: NodeInfo<string>[], dest: NodeInfo<string>, index: number) => {
     }
-    const onCopy = (src: NodeInfo<string, string>[], dest: NodeInfo<string, string>, index: number) => {
+    const onCopy = (src: NodeInfo<string>[], dest: NodeInfo<string>, index: number) => {
     }
 
     return (
