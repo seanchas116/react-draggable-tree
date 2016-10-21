@@ -25,10 +25,6 @@ interface TreeProps<TValue, TKey> {
   renderNode: (nodeInfo: NodeInfo<TValue, TKey>) => JSX.Element
   current?: TKey
   selected?: Set<TKey>
-  //move: (src: number[][], dest: number[]) => void
-  //copy: (src: number[][], dest: number[]) => void
-  //toggleCollapsed: (path: number[], collapsed: boolean) => void
-  //toggleSelected: (path: number[], selected: boolean) => void
   onCollapsedChange: (nodeInfo: NodeInfo<TValue, TKey>, collapsed: boolean) => void
   onSelectedChange: (keys: Set<TKey>) => void
   onCurrentChange: (key: TKey) => void
