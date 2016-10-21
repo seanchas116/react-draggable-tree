@@ -25,6 +25,10 @@ export interface TreeProps<TValue, TKey> {
 }
 export declare class Tree<TValue, TKey> extends React.Component<TreeProps<TValue, TKey>, {}> {
     keys: TKey[];
-    renderNode(node: TreeNode<TValue, TKey>, path: number[]): JSX.Element;
+    visibleKeys: TKey[];
+    keyToPath: Map<TKey, number[]>;
+    pathToKey: Map<string, TKey>;
+    removeAncestorsFromSelection(selection: Set<TKey>): Set<TKey>;
+    renderNode(node: TreeNode<TValue, TKey>, path: number[], visible: boolean): JSX.Element;
     render(): JSX.Element;
 }
