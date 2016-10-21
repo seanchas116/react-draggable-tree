@@ -5,6 +5,7 @@
   "scripts": {
     "build": "tsc",
     "example:build": "browserify example/index.tsx -p tsify -o example/bundle.js",
+    "example:watch": "watchify example/index.tsx -p tsify -o example/bundle.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
@@ -17,7 +18,8 @@
     "react": "^15.3.2",
     "react-dom": "^15.3.2",
     "tsify": "^2.0.2",
-    "typescript": "^2.0.3"
+    "typescript": "^2.0.3",
+    "watchify": "^3.7.0"
   },
   "dependencies": {
     "classnames": "^2.2.5"
