@@ -1,6 +1,6 @@
 import React = require("react")
 import ReactDOM = require("react-dom")
-import {Tree, TreeNode, NodeInfo} from ".."
+import {Tree, TreeNode, NodeInfo} from "../src"
 const classNames = require("classnames")
 
 interface MyNode extends TreeNode<string, string> {}
