@@ -63,7 +63,18 @@ class Example extends React.Component<{}, {}> {
       info.node.collapsed = collapsed
       this.forceUpdate()
     }
-    const onMove = (src: NodeInfo<MyNode>[], dest: NodeInfo<MyNode>, index: number) => {
+    const onMove = (src: NodeInfo<MyNode>[], dest: NodeInfo<MyNode>, destIndex: number) => {
+      const nodes: MyNode[] = []
+      for (let i = src.length - 1; i >= 0; --i) {
+        const {path} = src[i]
+        const index = path[path.length - 1]
+        const parent = nodeForPath(this.root, path.slice(0, -1))!
+        const [node] = parent.children!.splice(index, 1)
+        nodes.unshift(node)
+      }
+      dest.node.children!.splice(destIndex, 0, ...nodes)
+      dest.node.collapsed = false
+      this.forceUpdate()
     }
     const onCopy = (src: NodeInfo<MyNode>[], dest: NodeInfo<MyNode>, index: number) => {
     }
