@@ -51,11 +51,11 @@ class Example extends React.Component<{}, {}> {
   selectedKeys = new Set([this.currentKey])
 
   render() {
-    const changeCurrent = (key: string) => {
+    const changeCurrent = (key: number) => {
       this.currentKey = key
       this.forceUpdate()
     }
-    const changeSelected = (keys: Set<string>) => {
+    const changeSelected = (keys: Set<number>) => {
       this.selectedKeys = keys
       this.forceUpdate()
     }
