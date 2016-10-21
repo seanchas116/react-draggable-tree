@@ -15,36 +15,40 @@ function ExampleCell(props: {value: string, selected: boolean, current: boolean}
   return <div className={classNames("example-cell", {selected, current})}>{value}</div>
 }
 
-function nodeForPath(nodes: MyNode[], path: number[]): MyNode {
-  const child = nodes[path[0]]
-  if (path.length == 1) {
-    return child
-  } else {
-    return nodeForPath(child.children!, path.slice(1))
+function nodeForPath(node: MyNode, path: number[]): MyNode|undefined {
+  if (path.length == 0) {
+    return node
+  } else if (node.children) {
+    return nodeForPath(node.children[path[0]], path.slice(1))
   }
 }
 
-class Example extends React.Component<{}, {}> {
-  nodes: MyNode[] = [
-    {value: "Foo", key: "0"},
-    {value: "ipsum", key: "8", collapsed: true, children: [
-      {value: "dolor", key: "9"},
-      {value: "sit", key: "10"},
-      {value: "amet", key: "11"},
-    ]},
-    {value: "Baz", key: "2", children: [
-      {value: "Lorem", key: "3"},
-      {value: "ipsum", key: "4", collapsed: true, children: [
-        {value: "dolor", key: "5"},
-        {value: "sit", key: "6"},
-        {value: "amet", key: "7"},
-      ]},
-    ]},
-    {value: "Bar", key: "1"},
-  ]
-  currentKey = "0"
-  selectedKeys = new Set<string>(["0"])
+let currentKey = 0
 
+class Example extends React.Component<{}, {}> {
+  root: MyNode = {
+    value: "root",
+    key: currentKey++,
+    children: [
+      {value: "Foo", key: currentKey++},
+      {value: "ipsum", key: currentKey++, collapsed: true, children: [
+        {value: "dolor", key: currentKey++},
+        {value: "sit", key: currentKey++},
+        {value: "amet", key: currentKey++},
+      ]},
+      {value: "Baz", key: currentKey++, children: [
+        {value: "Lorem", key: currentKey++},
+        {value: "ipsum", key: currentKey++, collapsed: true, children: [
+          {value: "dolor", key: currentKey++},
+          {value: "sit", key: currentKey++},
+          {value: "amet", key: currentKey++},
+        ]},
+      ]},
+      {value: "Bar", key: currentKey++},
+    ],
+  }
+  currentKey = this.root.children![0].key
+  selectedKeys = new Set([this.currentKey])
 
   render() {
     const changeCurrent = (key: string) => {
@@ -56,7 +60,7 @@ class Example extends React.Component<{}, {}> {
       this.forceUpdate()
     }
     const onCollapsedChange = (info: NodeInfo<MyNode>, collapsed: boolean) => {
-      nodeForPath(this.nodes, info.path).collapsed = collapsed
+      nodeForPath(this.root, info.path)!.collapsed = collapsed
       this.forceUpdate()
     }
     const onMove = (src: NodeInfo<MyNode>[], dest: NodeInfo<MyNode>, index: number) => {
@@ -66,7 +70,7 @@ class Example extends React.Component<{}, {}> {
 
     return (
       <MyTree
-        nodes={this.nodes}
+        root={this.root}
         current={this.currentKey}
         selected={this.selectedKeys}
         draggable={true}

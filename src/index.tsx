@@ -5,33 +5,32 @@ export
 type Key = string | number
 
 export
-interface TreeNode<TValue> {
-  value: TValue
-  children?: TreeNode<TValue>[]
+interface TreeNode {
+  children?: this[]
   key: Key
   collapsed?: boolean
 }
 
 export
-interface NodeInfo<TValue> {
-  node: TreeNode<TValue>
+interface NodeInfo<TNode extends TreeNode> {
+  node: TNode
   current: boolean
   selected: boolean
   path: number[]
 }
 
 export
-interface TreeProps<TValue> {
-  nodes: TreeNode<TValue>[]
+interface TreeProps<TNode extends TreeNode> {
+  root: TNode
   draggable: boolean
   rowHeight: number
   indent: number
-  renderNode: (nodeInfo: NodeInfo<TValue>) => JSX.Element
+  renderNode: (nodeInfo: NodeInfo<TNode>) => JSX.Element
   current?: Key
   selected?: Set<Key>
-  onMove: (src: NodeInfo<TValue>[], dest: NodeInfo<TValue>, destIndex: number) => void
-  onCopy: (src: NodeInfo<TValue>[], dest: NodeInfo<TValue>, destIndex: number) => void
-  onCollapsedChange: (nodeInfo: NodeInfo<TValue>, collapsed: boolean) => void
+  onMove: (src: NodeInfo<TNode>[], dest: NodeInfo<TNode>, destIndex: number) => void
+  onCopy: (src: NodeInfo<TNode>[], dest: NodeInfo<TNode>, destIndex: number) => void
+  onCollapsedChange: (nodeInfo: NodeInfo<TNode>, collapsed: boolean) => void
   onSelectedChange: (keys: Set<Key>) => void
   onCurrentChange: (key: Key) => void
 }
@@ -53,13 +52,13 @@ function compareNumberArrays(a: number[], b: number[]) {
 }
 
 export
-class Tree<TValue> extends React.Component<TreeProps<TValue>, {}> {
+class Tree<TNode extends TreeNode> extends React.Component<TreeProps<TNode>, {}> {
   element: HTMLElement
   keys: Key[] = []
   visibleKeys: Key[] = []
   keyToPath = new Map<Key, number[]>()
   pathToKey = new Map<string, Key>() // using joined path as key string
-  nodeInfos = new Map<Key, NodeInfo<TValue>>()
+  nodeInfos = new Map<Key, NodeInfo<TNode>>()
 
   removeAncestorsFromSelection(selection: Set<Key>) {
     const newSelection = new Set(selection)
@@ -78,7 +77,7 @@ class Tree<TValue> extends React.Component<TreeProps<TValue>, {}> {
     return newSelection
   }
 
-  renderNode(node: TreeNode<TValue>, path: number[], visible: boolean): JSX.Element {
+  renderNode(node: TNode, path: number[], visible: boolean): JSX.Element {
     const {indent, rowHeight, renderNode, onCurrentChange, onSelectedChange, onCollapsedChange, current, selected} = this.props
     const {key} = node
     this.keys.push(key)
@@ -166,7 +165,7 @@ class Tree<TValue> extends React.Component<TreeProps<TValue>, {}> {
   }
 
   render() {
-    const {nodes, rowHeight} = this.props
+    const {root, rowHeight} = this.props
     this.keys = []
     this.visibleKeys = []
     this.keyToPath.clear()
@@ -209,9 +208,11 @@ class Tree<TValue> extends React.Component<TreeProps<TValue>, {}> {
       ev.preventDefault()
     }
 
+    const children = root.children || []
+
     return (
       <div ref={e => this.element = e} className="ReactDraggableTree" onDragOver={onDragOver} onDrop={onDrop}>
-        {nodes.map((child, i) => this.renderNode(child, [i], true))}
+        {children.map((child, i) => this.renderNode(child, [i], true))}
       </div>
     )
   }
