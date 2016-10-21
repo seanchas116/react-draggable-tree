@@ -5,7 +5,7 @@
   "typings": "lib/index.d.ts",
   "scripts": {
     "build": "cd src && tsc",
-    "example": "cd example && webpack-dev-server",
+    "example": "cd example && webpack-dev-server --inline",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
