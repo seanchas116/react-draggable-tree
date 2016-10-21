@@ -4,7 +4,7 @@
   "main": "index.js",
   "scripts": {
     "build": "tsc",
-    "example:build": "npm run build && browserify example/index.js -o example/bundle.js",
+    "example:build": "browserify example/index.tsx -p tsify -o example/bundle.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
@@ -16,6 +16,7 @@
     "browserify": "^13.1.0",
     "react": "^15.3.2",
     "react-dom": "^15.3.2",
+    "tsify": "^2.0.2",
     "typescript": "^2.0.3"
   },
   "dependencies": {
