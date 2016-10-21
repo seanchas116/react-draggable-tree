@@ -60,7 +60,7 @@ class Example extends React.Component<{}, {}> {
       this.forceUpdate()
     }
     const onCollapsedChange = (info: NodeInfo<MyNode>, collapsed: boolean) => {
-      nodeForPath(this.root, info.path)!.collapsed = collapsed
+      info.node.collapsed = collapsed
       this.forceUpdate()
     }
     const onMove = (src: NodeInfo<MyNode>[], dest: NodeInfo<MyNode>, index: number) => {
