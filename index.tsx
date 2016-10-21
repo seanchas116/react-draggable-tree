@@ -30,6 +30,8 @@ interface TreeProps<TValue, TKey> {
   onCurrentChange: (key: TKey) => void
 }
 
+const MIME_MOVE = "x-react-draggable-tree-move"
+
 export
 class Tree<TValue, TKey> extends React.Component<TreeProps<TValue, TKey>, {}> {
   keys: TKey[] = []
@@ -94,6 +96,10 @@ class Tree<TValue, TKey> extends React.Component<TreeProps<TValue, TKey>, {}> {
       onCurrentChange(key)
     }
 
+    const onDragStart = (ev: React.DragEvent<Element>) => {
+      ev.dataTransfer.setData(MIME_MOVE, JSON.stringify(key))
+    }
+
     const onCaretClick = () => {
       if (node.children) {
         onCollapsedChange(nodeInfo, !node.collapsed)
@@ -109,7 +115,7 @@ class Tree<TValue, TKey> extends React.Component<TreeProps<TValue, TKey>, {}> {
       "ReactDraggableTree_toggler-collapsed": node.collapsed
     })
 
-    let row = <div className={className} style={style} onClick={onClick}>
+    let row = <div className={className} style={style} onClick={onClick} draggable={true} onDragStart={onDragStart}>
       <div className={caretClassName} onClick={onCaretClick}/>
       {renderNode({node, selected: isSelected, current: isCurrent, path})}
     </div>
