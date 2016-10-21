@@ -5,8 +5,7 @@
   "typings": "lib/index.d.ts",
   "scripts": {
     "build": "cd src && tsc",
-    "example:build": "cd example && browserify index.tsx -p tsify -o bundle.js",
-    "example:watch": "cd example && watchify index.tsx -p tsify -o bundle.js",
+    "example": "cd example && webpack-dev-server",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
@@ -15,12 +14,14 @@
     "@types/node": "^6.0.45",
     "@types/react": "^0.14.41",
     "@types/react-dom": "^0.14.18",
-    "browserify": "^13.1.0",
+    "css-loader": "^0.25.0",
     "react": "^15.3.2",
     "react-dom": "^15.3.2",
-    "tsify": "^2.0.2",
+    "style-loader": "^0.13.1",
+    "ts-loader": "^0.9.5",
     "typescript": "^2.0.3",
-    "watchify": "^3.7.0"
+    "webpack": "^1.13.2",
+    "webpack-dev-server": "^1.16.2"
   },
   "dependencies": {
     "classnames": "^2.2.5"

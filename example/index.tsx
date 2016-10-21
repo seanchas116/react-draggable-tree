@@ -1,3 +1,5 @@
+require("./index.css")
+require("../lib/index.css")
 import React = require("react")
 import ReactDOM = require("react-dom")
 import {Tree, TreeNode, NodeInfo} from "../src"
