@@ -2,9 +2,6 @@ import React = require("react")
 const classNames = require("classnames")
 
 export
-type Key = string | number
-
-export
 interface ClassNames {
   tree: string
   children: string
@@ -26,6 +23,11 @@ const defaultClassNames: ClassNames = {
   togglerExpanded: "ReactDraggableTree_toggler-expanded",
   togglerCollapsed: "ReactDraggableTree_toggler-collapsed",
 }
+
+const DRAG_MIME = "x-react-draggable-tree-drag"
+
+export
+type Key = string | number
 
 export
 interface TreeNode {
@@ -59,33 +61,6 @@ interface TreeProps<TNode extends TreeNode> {
   onCurrentChange: (key: Key) => void
 }
 
-const DRAG_MIME = "x-react-draggable-tree-drag"
-
-function comparePaths(a: number[], b: number[]) {
-  for (let i = 0; true; ++i) {
-    if (a.length == i && b.length == i) {
-      return 0
-    }
-    if (a.length == i || a[i] < b[i]) {
-      return -1
-    }
-    if (b.length == i || b[i] < a[i]) {
-      return 1
-    }
-  }
-}
-
-function isPathEqual(a: number[], b: number[]) {
-  if (a.length != b.length) {
-    return
-  }
-  for (let i = 0; i < a.length; ++i) {
-    if (a[i] != b[i]) {
-      return false
-    }
-  }
-  return true
-}
 
 export
 class Tree<TNode extends TreeNode> extends React.Component<TreeProps<TNode>, {}> {
@@ -314,4 +289,30 @@ class Tree<TNode extends TreeNode> extends React.Component<TreeProps<TNode>, {}>
     }
     ev.preventDefault()
   }
+}
+
+function comparePaths(a: number[], b: number[]) {
+  for (let i = 0; true; ++i) {
+    if (a.length == i && b.length == i) {
+      return 0
+    }
+    if (a.length == i || a[i] < b[i]) {
+      return -1
+    }
+    if (b.length == i || b[i] < a[i]) {
+      return 1
+    }
+  }
+}
+
+function isPathEqual(a: number[], b: number[]) {
+  if (a.length != b.length) {
+    return
+  }
+  for (let i = 0; i < a.length; ++i) {
+    if (a[i] != b[i]) {
+      return false
+    }
+  }
+  return true
 }
