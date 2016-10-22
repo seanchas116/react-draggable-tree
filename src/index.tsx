@@ -1,33 +1,6 @@
 import React = require("react")
 const classNames = require("classnames")
 
-export
-interface ClassNames {
-  tree: string
-  children: string
-  row: string
-  rowSelected: string
-  rowCurrent: string
-  toggler: string
-  togglerExpanded: string
-  togglerCollapsed: string
-  dropOver: string
-  dropBetween: string
-}
-
-const defaultClassNames: ClassNames = {
-  tree: "ReactDraggableTree",
-  children: "ReactDraggableTree_children",
-  row: "ReactDraggableTree_row",
-  rowSelected: "ReactDraggableTree_row-selected",
-  rowCurrent: "ReactDraggableTree_row-current",
-  toggler: "ReactDraggableTree_toggler",
-  togglerExpanded: "ReactDraggableTree_toggler-expanded",
-  togglerCollapsed: "ReactDraggableTree_toggler-collapsed",
-  dropOver: "ReactDraggableTree_dropOver",
-  dropBetween: "ReactDraggableTree_dropBetween",
-}
-
 const DRAG_MIME = "x-react-draggable-tree-drag"
 
 export
@@ -60,7 +33,6 @@ interface TreeProps<TNode extends TreeNode> {
   draggable: boolean
   rowHeight: number
   indent: number
-  classNames?: ClassNames
   renderNode: (nodeInfo: NodeInfo<TNode>) => JSX.Element
   current?: Key
   selected?: Set<Key>
@@ -99,7 +71,6 @@ class Tree<TNode extends TreeNode> extends React.Component<TreeProps<TNode>, {}>
   renderNode(node: TNode, path: number[], visible: boolean): JSX.Element[] {
     const {indent, rowHeight, renderNode, onCurrentChange, onSelectedChange, onCollapsedChange, current, selected} = this.props
     const {key} = node
-    const classes = this.props.classNames || defaultClassNames
 
     const isSelected = selected ? selected.has(key) : false
     const isCurrent = key == current
@@ -150,13 +121,13 @@ class Tree<TNode extends TreeNode> extends React.Component<TreeProps<TNode>, {}>
       }
     }
 
-    const className = classNames(classes.row, {
-      [classes.rowSelected]: isSelected,
-      [classes.rowCurrent]: isCurrent,
+    const className = classNames("ReactDraggableTree_row", {
+      "ReactDraggableTree_row-selected": isSelected,
+      "ReactDraggableTree_row-current": isCurrent,
     })
-    const caretClassName = classNames(classes.toggler, {
-      [classes.togglerExpanded]: !!node.children,
-      [classes.togglerCollapsed]: node.collapsed,
+    const caretClassName = classNames("ReactDraggableTree_toggler", {
+      "ReactDraggableTree_toggler-expanded": !!node.children,
+      "ReactDraggableTree_toggler-collapsed": node.collapsed,
     })
 
     let row = <div key={`row-${key}`} className={className} style={style} onClick={onClick} draggable={true} onDragStart={onDragStart}>
@@ -165,7 +136,7 @@ class Tree<TNode extends TreeNode> extends React.Component<TreeProps<TNode>, {}>
     </div>
 
     if (node.children) {
-      const children = <div key={`children-${key}`} className={classes.children} hidden={node.collapsed}>
+      const children = <div key={`children-${key}`} className="ReactDraggableTree_children" hidden={node.collapsed}>
         {node.children.map((child, i) => this.renderNode(child, [...path, i], !node.collapsed))}
       </div>
       return [row, children]
@@ -226,14 +197,13 @@ class Tree<TNode extends TreeNode> extends React.Component<TreeProps<TNode>, {}>
     this.keyToInfo.clear()
 
     const {root, rowHeight} = this.props
-    const classes = this.props.classNames || defaultClassNames
     const children = root.children || []
 
     return (
-      <div ref={e => this.element = e} className={classes.tree} onDragOver={this.onDragOver} onDrop={this.onDrop}>
+      <div ref={e => this.element = e} className="ReactDraggableTree" onDragOver={this.onDragOver} onDrop={this.onDrop}>
         {children.map((child, i) => this.renderNode(child, [i], true))}
-        <div ref={e => this.dropOverElement = e} className={classes.dropOver} hidden={true}/>
-        <div ref={e => this.dropBetweenElement = e} className={classes.dropBetween} hidden={true}/>
+        <div ref={e => this.dropOverElement = e} className="ReactDraggableTree_dropOver" hidden={true}/>
+        <div ref={e => this.dropBetweenElement = e} className="ReactDraggableTree_dropBetween" hidden={true}/>
       </div>
     )
   }
