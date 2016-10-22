@@ -32,11 +32,10 @@
   transform: rotate(45deg) translate(-2px, -2px);
   visibility: hidden;
 }
-.ReactDraggableTree_toggler-expanded:before {
+.ReactDraggableTree_toggler-visible:before {
   visibility: visible;
 }
 .ReactDraggableTree_toggler-collapsed:before {
-  visibility: visible;
   transform: rotate(-45deg) translate(-2px, -2px);
 }
 .ReactDraggableTree_dropOver {

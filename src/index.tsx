@@ -115,7 +115,7 @@ class Tree<TNode extends TreeNode> extends React.Component<TreeProps<TNode>, {}>
       ev.dataTransfer.setData(DRAG_MIME, "move")
     }
 
-    const onCaretClick = () => {
+    const onTogglerClick = () => {
       if (node.children) {
         onCollapsedChange(nodeInfo, !node.collapsed)
       }
@@ -125,13 +125,9 @@ class Tree<TNode extends TreeNode> extends React.Component<TreeProps<TNode>, {}>
       "ReactDraggableTree_row-selected": isSelected,
       "ReactDraggableTree_row-current": isCurrent,
     })
-    const caretClassName = classNames("ReactDraggableTree_toggler", {
-      "ReactDraggableTree_toggler-expanded": !!node.children,
-      "ReactDraggableTree_toggler-collapsed": node.collapsed,
-    })
 
     let row = <div key={`row-${key}`} className={className} style={style} onClick={onClick} draggable={true} onDragStart={onDragStart}>
-      <div className={caretClassName} onClick={onCaretClick}/>
+      <Toggler visible={!!node.children} collapsed={!!node.collapsed} onClick={onTogglerClick} />
       {renderNode({node, selected: isSelected, current: isCurrent, path})}
     </div>
 
@@ -334,4 +330,12 @@ function isPathEqual(a: number[], b: number[]) {
     }
   }
   return true
+}
+
+function Toggler<T extends TreeNode>(props: {visible: boolean, collapsed: boolean, onClick: () => void}) {
+  const claassName = classNames("ReactDraggableTree_toggler", {
+    "ReactDraggableTree_toggler-visible": props.visible,
+    "ReactDraggableTree_toggler-collapsed": props.collapsed,
+  })
+  return <div className={claassName} onClick={props.onClick}/>
 }
