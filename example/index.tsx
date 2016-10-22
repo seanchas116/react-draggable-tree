@@ -4,15 +4,16 @@ import React = require("react")
 import ReactDOM = require("react-dom")
 import {Tree, TreeNode, NodeInfo} from "../src"
 const classNames = require("classnames")
+const loremIpsum = require("lorem-ipsum")
 
 interface MyNode extends TreeNode {
-  value: string
+  text: string
 }
 class MyTree extends Tree<MyNode> {}
 
-function ExampleCell(props: {value: string, selected: boolean, current: boolean}) {
-  const {value, selected, current} = props
-  return <div className={classNames("example-cell", {selected, current})}>{value}</div>
+function ExampleCell(props: {text: string, selected: boolean, current: boolean}) {
+  const {text, selected, current} = props
+  return <div className={classNames("example-cell", {selected, current})}>{text}</div>
 }
 
 function nodeForPath(node: MyNode, path: number[]): MyNode|undefined {
@@ -25,28 +26,27 @@ function nodeForPath(node: MyNode, path: number[]): MyNode|undefined {
 
 let currentKey = 0
 
-class Example extends React.Component<{}, {}> {
-  root: MyNode = {
-    value: "root",
-    key: currentKey++,
-    children: [
-      {value: "Foo", key: currentKey++},
-      {value: "ipsum", key: currentKey++, collapsed: true, children: [
-        {value: "dolor", key: currentKey++},
-        {value: "sit", key: currentKey++},
-        {value: "amet", key: currentKey++},
-      ]},
-      {value: "Baz", key: currentKey++, children: [
-        {value: "Lorem", key: currentKey++},
-        {value: "ipsum", key: currentKey++, collapsed: true, children: [
-          {value: "dolor", key: currentKey++},
-          {value: "sit", key: currentKey++},
-          {value: "amet", key: currentKey++},
-        ]},
-      ]},
-      {value: "Bar", key: currentKey++},
-    ],
+function generateNode(depth: number, minChildCount: number, maxChildCount: number): MyNode {
+  const text: string = loremIpsum({sentenceLowerBound: 2, sentenceUpperBound: 4})
+  const hasChild = depth > 1
+  let children: MyNode[]|undefined = undefined
+  if (hasChild) {
+    children = []
+    const childCount = Math.round(Math.random() * (maxChildCount - minChildCount) + minChildCount)
+    for (let i = 0; i < childCount; ++i) {
+      children.push(generateNode(depth - 1, minChildCount, maxChildCount))
+    }
   }
+  const key = currentKey++
+  return {
+    text,
+    key,
+    children
+  }
+}
+
+class Example extends React.Component<{}, {}> {
+  root = generateNode(4, 2, 4)
   currentKey = this.root.children![0].key
   selectedKeys = new Set([this.currentKey])
 
@@ -87,7 +87,7 @@ class Example extends React.Component<{}, {}> {
         draggable={true}
         rowHeight={40}
         indent={16}
-        renderNode={({node, selected, current}) => <ExampleCell value={node.value} selected={selected} current={current} />}
+        renderNode={({node, selected, current}) => <ExampleCell text={node.text} selected={selected} current={current} />}
         onSelectedChange={changeSelected}
         onCurrentChange={changeCurrent}
         onCollapsedChange={onCollapsedChange}

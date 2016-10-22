@@ -15,6 +15,7 @@
     "@types/react": "^0.14.41",
     "@types/react-dom": "^0.14.18",
     "css-loader": "^0.25.0",
+    "lorem-ipsum": "^1.0.3",
     "react": "^15.3.2",
     "react-dom": "^15.3.2",
     "style-loader": "^0.13.1",
