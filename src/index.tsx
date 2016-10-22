@@ -135,7 +135,7 @@ class Tree<TNode extends TreeNode> extends React.Component<TreeProps<TNode>, {}>
 
     let row = <div key={`row-${key}`} className="ReactDraggableTree_row" style={style} onClick={onClick} draggable={true} onDragStart={onDragStart}>
       <RenderToggler visible={!!node.children} collapsed={!!node.collapsed} onClick={onTogglerClick} />
-      {renderNode({node, selected: isSelected, current: isCurrent, path})}
+      {renderNode(nodeInfo)}
     </div>
 
     if (node.children) {
