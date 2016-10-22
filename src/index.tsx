@@ -7,7 +7,6 @@ type Key = string | number
 export
 interface ClassNames {
   tree: string
-  subtree: string
   children: string
   row: string
   rowSelected: string
@@ -19,7 +18,6 @@ interface ClassNames {
 
 const defaultClassNames: ClassNames = {
   tree: "ReactDraggableTree",
-  subtree: "ReactDraggableTree_subtree",
   children: "ReactDraggableTree_children",
   row: "ReactDraggableTree_row",
   rowSelected: "ReactDraggableTree_row-selected",
@@ -112,7 +110,7 @@ class Tree<TNode extends TreeNode> extends React.Component<TreeProps<TNode>, {}>
     return newSelection
   }
 
-  renderNode(node: TNode, path: number[], visible: boolean): JSX.Element {
+  renderNode(node: TNode, path: number[], visible: boolean): JSX.Element[] {
     const {indent, rowHeight, renderNode, onCurrentChange, onSelectedChange, onCollapsedChange, current, selected} = this.props
     const {key} = node
     const classes = this.props.classNames || defaultClassNames
@@ -175,24 +173,19 @@ class Tree<TNode extends TreeNode> extends React.Component<TreeProps<TNode>, {}>
       [classes.togglerCollapsed]: node.collapsed,
     })
 
-    let row = <div className={className} style={style} onClick={onClick} draggable={true} onDragStart={onDragStart}>
+    let row = <div key={`row-${key}`} className={className} style={style} onClick={onClick} draggable={true} onDragStart={onDragStart}>
       <div className={caretClassName} onClick={onCaretClick}/>
       {renderNode({node, selected: isSelected, current: isCurrent, path})}
     </div>
 
-    let childrenContainer: JSX.Element|undefined = undefined
     if (node.children) {
-      childrenContainer = <div className={classes.children} hidden={node.collapsed}>
+      const children = <div key={`children-${key}`} className={classes.children} hidden={node.collapsed}>
         {node.children.map((child, i) => this.renderNode(child, [...path, i], !node.collapsed))}
       </div>
+      return [row, children]
+    } else {
+      return [row]
     }
-
-    return (
-      <div className={classes.subtree} key={String(key)}>
-        {row}
-        {childrenContainer}
-      </div>
-    )
   }
 
   keysToInfos(keys: Iterable<Key>) {
