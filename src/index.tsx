@@ -5,6 +5,31 @@ export
 type Key = string | number
 
 export
+interface ClassNames {
+  tree: string
+  subtree: string
+  children: string
+  row: string
+  rowSelected: string
+  rowCurrent: string
+  toggler: string
+  togglerExpanded: string
+  togglerCollapsed: string
+}
+
+const defaultClassNames: ClassNames = {
+  tree: "ReactDraggableTree",
+  subtree: "ReactDraggableTree_subtree",
+  children: "ReactDraggableTree_children",
+  row: "ReactDraggableTree_row",
+  rowSelected: "ReactDraggableTree_row-selected",
+  rowCurrent: "ReactDraggableTree_row-current",
+  toggler: "ReactDraggableTree_toggler",
+  togglerExpanded: "ReactDraggableTree_toggler-expanded",
+  togglerCollapsed: "ReactDraggableTree_toggler-collapsed",
+}
+
+export
 interface TreeNode {
   children?: this[]
   key: Key
@@ -25,6 +50,7 @@ interface TreeProps<TNode extends TreeNode> {
   draggable: boolean
   rowHeight: number
   indent: number
+  classNames?: ClassNames
   renderNode: (nodeInfo: NodeInfo<TNode>) => JSX.Element
   current?: Key
   selected?: Set<Key>
@@ -89,6 +115,7 @@ class Tree<TNode extends TreeNode> extends React.Component<TreeProps<TNode>, {}>
   renderNode(node: TNode, path: number[], visible: boolean): JSX.Element {
     const {indent, rowHeight, renderNode, onCurrentChange, onSelectedChange, onCollapsedChange, current, selected} = this.props
     const {key} = node
+    const classes = this.props.classNames || defaultClassNames
 
     const isSelected = selected ? selected.has(key) : false
     const isCurrent = key == current
@@ -139,13 +166,13 @@ class Tree<TNode extends TreeNode> extends React.Component<TreeProps<TNode>, {}>
       }
     }
 
-    const className = classNames("ReactDraggableTree_row", {
-      "ReactDraggableTree_row-selected": isSelected,
-      "ReactDraggableTree_row-current": isCurrent,
+    const className = classNames(classes.row, {
+      [classes.rowSelected]: isSelected,
+      [classes.rowCurrent]: isCurrent,
     })
-    const caretClassName = classNames("ReactDraggableTree_toggler", {
-      "ReactDraggableTree_toggler-hidden": !node.children,
-      "ReactDraggableTree_toggler-collapsed": node.collapsed
+    const caretClassName = classNames(classes.toggler, {
+      [classes.togglerExpanded]: !!node.children,
+      [classes.togglerCollapsed]: node.collapsed,
     })
 
     let row = <div className={className} style={style} onClick={onClick} draggable={true} onDragStart={onDragStart}>
@@ -155,13 +182,13 @@ class Tree<TNode extends TreeNode> extends React.Component<TreeProps<TNode>, {}>
 
     let childrenContainer: JSX.Element|undefined = undefined
     if (node.children) {
-      childrenContainer = <div className="ReactDraggableTree_children" hidden={node.collapsed}>
+      childrenContainer = <div className={classes.children} hidden={node.collapsed}>
         {node.children.map((child, i) => this.renderNode(child, [...path, i], !node.collapsed))}
       </div>
     }
 
     return (
-      <div className="ReactDraggableTree_subtree" key={String(key)}>
+      <div className={classes.subtree} key={String(key)}>
         {row}
         {childrenContainer}
       </div>
@@ -182,6 +209,7 @@ class Tree<TNode extends TreeNode> extends React.Component<TreeProps<TNode>, {}>
 
   render() {
     const {root} = this.props
+    const classes = this.props.classNames || defaultClassNames
     this.infos = []
     this.visibleInfos = []
     this.pathToInfo.clear()
@@ -191,7 +219,7 @@ class Tree<TNode extends TreeNode> extends React.Component<TreeProps<TNode>, {}>
     const children = root.children || []
 
     return (
-      <div ref={e => this.element = e} className="ReactDraggableTree" onDragOver={this.onDragOver} onDrop={this.onDrop}>
+      <div ref={e => this.element = e} className={classes.tree} onDragOver={this.onDragOver} onDrop={this.onDrop}>
         {children.map((child, i) => this.renderNode(child, [i], true))}
       </div>
     )
