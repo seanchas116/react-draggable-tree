@@ -28,8 +28,8 @@ interface TreeProps<TNode extends TreeNode> {
   renderNode: (nodeInfo: NodeInfo<TNode>) => JSX.Element
   current?: Key
   selected?: Set<Key>
-  onMove: (src: NodeInfo<TNode>[], dest: NodeInfo<TNode>, destIndex: number) => void
-  onCopy: (src: NodeInfo<TNode>[], dest: NodeInfo<TNode>, destIndex: number) => void
+  onMove: (src: NodeInfo<TNode>[], dest: NodeInfo<TNode>, destIndexBefore: number, destIndexAfter: number) => void
+  onCopy: (src: NodeInfo<TNode>[], dest: NodeInfo<TNode>, destIndexBefore: number) => void
   onCollapsedChange: (nodeInfo: NodeInfo<TNode>, collapsed: boolean) => void
   onSelectedChange: (keys: Set<Key>) => void
   onCurrentChange: (key: Key) => void
@@ -37,7 +37,7 @@ interface TreeProps<TNode extends TreeNode> {
 
 const DRAG_MIME = "x-react-draggable-tree-drag"
 
-function compareNumberArrays(a: number[], b: number[]) {
+function comparePaths(a: number[], b: number[]) {
   for (let i = 0; true; ++i) {
     if (a.length == i && b.length == i) {
       return 0
@@ -51,26 +51,35 @@ function compareNumberArrays(a: number[], b: number[]) {
   }
 }
 
+function isPathEqual(a: number[], b: number[]) {
+  if (a.length != b.length) {
+    return
+  }
+  for (let i = 0; i < a.length; ++i) {
+    if (a[i] != b[i]) {
+      return false
+    }
+  }
+  return true
+}
+
 export
 class Tree<TNode extends TreeNode> extends React.Component<TreeProps<TNode>, {}> {
   element: HTMLElement
-  keys: Key[] = []
-  visibleKeys: Key[] = []
-  keyToPath = new Map<Key, number[]>()
-  pathToKey = new Map<string, Key>() // using joined path as key string
-  nodeInfos = new Map<Key, NodeInfo<TNode>>()
+  infoToPath = new Map<NodeInfo<TNode>, number[]>()
+  pathToInfo = new Map<string, NodeInfo<TNode>>() // using joined path as key string
+  infos: NodeInfo<TNode>[] = []
+  visibleInfos: NodeInfo<TNode>[] = []
+  keyToInfo = new Map<Key, NodeInfo<TNode>>()
 
   removeAncestorsFromSelection(selection: Set<Key>) {
     const newSelection = new Set(selection)
-    for (const key of selection) {
-      const path = this.keyToPath.get(key)
-      if (path != undefined) {
-        for (let i = 1; i < path.length; ++i) {
-          const subpath = path.slice(0, i)
-          const ancestor = this.pathToKey.get(subpath.join())
-          if (ancestor != undefined) {
-            newSelection.delete(ancestor)
-          }
+    for (const {path} of this.keysToInfos(selection)) {
+      for (let i = 1; i < path.length; ++i) {
+        const subpath = path.slice(0, i)
+        const ancestor = this.pathToInfo.get(subpath.join())
+        if (ancestor) {
+          newSelection.delete(ancestor.node.key)
         }
       }
     }
@@ -80,17 +89,17 @@ class Tree<TNode extends TreeNode> extends React.Component<TreeProps<TNode>, {}>
   renderNode(node: TNode, path: number[], visible: boolean): JSX.Element {
     const {indent, rowHeight, renderNode, onCurrentChange, onSelectedChange, onCollapsedChange, current, selected} = this.props
     const {key} = node
-    this.keys.push(key)
-    if (visible) {
-      this.visibleKeys.push(key)
-    }
-    this.keyToPath.set(key, path)
-    this.pathToKey.set(path.join(), key)
 
     const isSelected = selected ? selected.has(key) : false
     const isCurrent = key == current
     const nodeInfo = {node, selected: isSelected, current: isCurrent, path}
-    this.nodeInfos.set(key, nodeInfo)
+    this.infoToPath.set(nodeInfo, path)
+    this.pathToInfo.set(path.join(), nodeInfo)
+    this.infos.push(nodeInfo)
+    if (visible) {
+      this.visibleInfos.push(nodeInfo)
+    }
+    this.keyToInfo.set(key, nodeInfo)
 
     const style = {
       paddingLeft: (path.length - 1) * indent + "px",
@@ -103,11 +112,12 @@ class Tree<TNode extends TreeNode> extends React.Component<TreeProps<TNode>, {}>
         newSelected.add(key)
         onSelectedChange(this.removeAncestorsFromSelection(newSelected))
       } else if (ev.shiftKey && current != undefined) {
-        const currentIndex = this.visibleKeys.indexOf(current)
-        const thisIndex = this.visibleKeys.indexOf(key)
+        const visibleKeys = this.visibleInfos.map(info => info.node.key)
+        const currentIndex = visibleKeys.indexOf(current)
+        const thisIndex = visibleKeys.indexOf(key)
         const min = Math.min(thisIndex, currentIndex)
         const max = Math.max(thisIndex, currentIndex)
-        const keysToAdd = this.visibleKeys.slice(min, max + 1)
+        const keysToAdd = visibleKeys.slice(min, max + 1)
         const newSelected = new Set(selected || [])
         for (const k of keysToAdd) {
           newSelected.add(k)
@@ -158,19 +168,25 @@ class Tree<TNode extends TreeNode> extends React.Component<TreeProps<TNode>, {}>
     )
   }
 
-  keysToInfos(keys: Key[]) {
-    const infos = keys.map(k => this.nodeInfos.get(k)!)
-    infos.sort((a, b) => compareNumberArrays(a.path, b.path))
+  keysToInfos(keys: Iterable<Key>) {
+    const infos: NodeInfo<TNode>[] = []
+    for (const key of keys) {
+      const info = this.keyToInfo.get(key)
+      if (info) {
+        infos.push(info)
+      }
+    }
+    infos.sort((a, b) => comparePaths(a.path, b.path))
     return infos
   }
 
   render() {
     const {root} = this.props
-    this.keys = []
-    this.visibleKeys = []
-    this.keyToPath.clear()
-    this.pathToKey.clear()
-    this.nodeInfos.clear()
+    this.infos = []
+    this.visibleInfos = []
+    this.pathToInfo.clear()
+    this.infoToPath.clear()
+    this.keyToInfo.clear()
 
     const children = root.children || []
 
@@ -185,6 +201,63 @@ class Tree<TNode extends TreeNode> extends React.Component<TreeProps<TNode>, {}>
     ev.preventDefault()
   }
 
+  getDropIndex(ev: React.DragEvent<Element>) {
+    const {rowHeight} = this.props
+    const rect = this.element.getBoundingClientRect()
+    const x = ev.clientX - rect.left + this.element.scrollTop
+    const y = ev.clientY - rect.top + this.element.scrollLeft
+    const index = Math.floor(y / rowHeight)
+    const offset = y - index * rowHeight
+
+    if (index < 0) {
+      return {type: "between", index: 0}
+    }
+    if (this.visibleInfos.length <= index) {
+      return {type: "between", index: this.visibleInfos.length}
+    }
+
+    const info = this.visibleInfos[index]
+    if (info.node.children) {
+      // can have children
+      if (rowHeight * 0.25 < offset && offset < rowHeight * 0.75) {
+        return {type: "over", index}
+      }
+    }
+    if (offset < rowHeight / 2) {
+      // drop before
+      return {type: "between", index}
+    } else {
+      // drop after
+      return {type: "between", index: index + 1}
+    }
+  }
+
+  getDropDestination(ev: React.DragEvent<Element>) {
+    const target = this.getDropIndex(ev)
+    if (target.type == "over") {
+      const info = this.visibleInfos[target.index]
+      if (info) {
+        return {info, index: 0}
+      }
+    } else {
+      let path: number[]
+      if (target.index < this.visibleInfos.length) {
+        path = this.visibleInfos[target.index].path
+      } else {
+        const {root} = this.props
+        if (!root.children) {
+          return
+        }
+        path = [root.children.length]
+      }
+      const destPath = path.slice(0, -1)
+      const info = this.pathToInfo.get(destPath.join())
+      if (info) {
+        return {info, index: path[path.length - 1]}
+      }
+    }
+  }
+
   onDrop = (ev: React.DragEvent<Element>) => {
     const {rowHeight} = this.props
 
@@ -192,29 +265,31 @@ class Tree<TNode extends TreeNode> extends React.Component<TreeProps<TNode>, {}>
     if (!type) {
       return
     }
+    const dest = this.getDropDestination(ev)
+    if (!dest) {
+      return
+    }
+    const {info: destInfo, index: destIndex} = dest
 
-    const rect = this.element.getBoundingClientRect()
-    const x = ev.clientX - rect.left + this.element.scrollTop
-    const y = ev.clientY - rect.top + this.element.scrollLeft
-    const visibleIndex = Math.floor(y / rowHeight)
-    if (this.visibleKeys.length <= visibleIndex) {
-      return
-    }
-    const destKey = this.visibleKeys[visibleIndex]
-    const destInfo = this.nodeInfos.get(destKey)
-    if (!destInfo || !destInfo.node.children) {
-      return
-    }
     const srcKeys = this.props.selected || new Set()
-    if (srcKeys.has(destKey)) {
+    if (srcKeys.has(destInfo.node.key)) {
       return
     }
-    const srcInfos = this.keysToInfos(Array.from(srcKeys))
+    const srcInfos = this.keysToInfos(srcKeys)
 
     if (type == "move") {
-      this.props.onMove(srcInfos, destInfo, 0)
+      let destIndexAfter = destIndex
+      for (let info of srcInfos) {
+        if (isPathEqual(info.path.slice(0, -1), destInfo.path)) {
+          const srcIndex = info.path[info.path.length - 1]
+          if (srcIndex < destIndex) {
+            destIndexAfter--
+          }
+        }
+      }
+      this.props.onMove(srcInfos, destInfo, destIndex, destIndexAfter)
     } else {
-      this.props.onCopy(srcInfos, destInfo, 0)
+      this.props.onCopy(srcInfos, destInfo, destIndex)
     }
     ev.preventDefault()
   }
