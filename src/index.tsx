@@ -210,7 +210,7 @@ class Tree<TNode extends TreeNode> extends React.Component<TreeProps<TNode>, {}>
         position: "absolute",
         boxSizing: "border-box",
         left: "0px",
-        top: `${dropIndex.index * rowHeight}px`,
+        top: `${dropIndex.index * rowHeight - 1}px`,
         width: "100%",
         height: "2px",
         backgroundColor: "blue",
