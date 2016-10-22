@@ -3,6 +3,9 @@ const classNames = require("classnames")
 
 const DRAG_MIME = "x-react-draggable-tree-drag"
 
+const defaultSelectedColor = "lightgrey"
+const defaultCurrentColor = "lightgrey"
+
 export
 type Key = string | number
 
@@ -33,6 +36,8 @@ interface TreeProps<TNode extends TreeNode> {
   draggable: boolean
   rowHeight: number
   indent: number
+  selectedColor?: string
+  currentColor?: string
   renderNode: (nodeInfo: NodeInfo<TNode>) => JSX.Element
   current?: Key
   selected?: Set<Key>
@@ -83,9 +88,13 @@ class Tree<TNode extends TreeNode> extends React.Component<TreeProps<TNode>, {}>
     }
     this.keyToInfo.set(key, nodeInfo)
 
+    const selectedColor = this.props.selectedColor || defaultSelectedColor
+    const currentColor = this.props.currentColor || defaultCurrentColor
+
     const style = {
       paddingLeft: (path.length - 1) * indent + "px",
       height: rowHeight + "px",
+      backgroundColor: isCurrent ? currentColor : (isSelected ? selectedColor : "transparent")
     }
 
     const onClick = (ev: React.MouseEvent<Element>) => {
@@ -121,12 +130,7 @@ class Tree<TNode extends TreeNode> extends React.Component<TreeProps<TNode>, {}>
       }
     }
 
-    const className = classNames("ReactDraggableTree_row", {
-      "ReactDraggableTree_row-selected": isSelected,
-      "ReactDraggableTree_row-current": isCurrent,
-    })
-
-    let row = <div key={`row-${key}`} className={className} style={style} onClick={onClick} draggable={true} onDragStart={onDragStart}>
+    let row = <div key={`row-${key}`} className="ReactDraggableTree_row" style={style} onClick={onClick} draggable={true} onDragStart={onDragStart}>
       <Toggler visible={!!node.children} collapsed={!!node.collapsed} onClick={onTogglerClick} />
       {renderNode({node, selected: isSelected, current: isCurrent, path})}
     </div>
