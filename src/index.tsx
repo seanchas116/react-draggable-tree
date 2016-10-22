@@ -165,55 +165,57 @@ class Tree<TNode extends TreeNode> extends React.Component<TreeProps<TNode>, {}>
   }
 
   render() {
-    const {root, rowHeight} = this.props
+    const {root} = this.props
     this.keys = []
     this.visibleKeys = []
     this.keyToPath.clear()
     this.pathToKey.clear()
     this.nodeInfos.clear()
 
-    const onDragOver = (ev: React.DragEvent<Element>) => {
-      ev.preventDefault()
-    }
-
-    const onDrop = (ev: React.DragEvent<Element>) => {
-      const type = ev.dataTransfer.getData(DRAG_MIME)
-      if (!type) {
-        return
-      }
-
-      const rect = this.element.getBoundingClientRect()
-      const x = ev.clientX - rect.left + this.element.scrollTop
-      const y = ev.clientY - rect.top + this.element.scrollLeft
-      const visibleIndex = Math.floor(y / rowHeight)
-      if (this.visibleKeys.length <= visibleIndex) {
-        return
-      }
-      const destKey = this.visibleKeys[visibleIndex]
-      const destInfo = this.nodeInfos.get(destKey)
-      if (!destInfo || !destInfo.node.children) {
-        return
-      }
-      const srcKeys = this.props.selected || new Set()
-      if (srcKeys.has(destKey)) {
-        return
-      }
-      const srcInfos = this.keysToInfos(Array.from(srcKeys))
-
-      if (type == "move") {
-        this.props.onMove(srcInfos, destInfo, 0)
-      } else {
-        this.props.onCopy(srcInfos, destInfo, 0)
-      }
-      ev.preventDefault()
-    }
-
     const children = root.children || []
 
     return (
-      <div ref={e => this.element = e} className="ReactDraggableTree" onDragOver={onDragOver} onDrop={onDrop}>
+      <div ref={e => this.element = e} className="ReactDraggableTree" onDragOver={this.onDragOver} onDrop={this.onDrop}>
         {children.map((child, i) => this.renderNode(child, [i], true))}
       </div>
     )
+  }
+
+  onDragOver = (ev: React.DragEvent<Element>) => {
+    ev.preventDefault()
+  }
+
+  onDrop = (ev: React.DragEvent<Element>) => {
+    const {rowHeight} = this.props
+
+    const type = ev.dataTransfer.getData(DRAG_MIME)
+    if (!type) {
+      return
+    }
+
+    const rect = this.element.getBoundingClientRect()
+    const x = ev.clientX - rect.left + this.element.scrollTop
+    const y = ev.clientY - rect.top + this.element.scrollLeft
+    const visibleIndex = Math.floor(y / rowHeight)
+    if (this.visibleKeys.length <= visibleIndex) {
+      return
+    }
+    const destKey = this.visibleKeys[visibleIndex]
+    const destInfo = this.nodeInfos.get(destKey)
+    if (!destInfo || !destInfo.node.children) {
+      return
+    }
+    const srcKeys = this.props.selected || new Set()
+    if (srcKeys.has(destKey)) {
+      return
+    }
+    const srcInfos = this.keysToInfos(Array.from(srcKeys))
+
+    if (type == "move") {
+      this.props.onMove(srcInfos, destInfo, 0)
+    } else {
+      this.props.onCopy(srcInfos, destInfo, 0)
+    }
+    ev.preventDefault()
   }
 }
