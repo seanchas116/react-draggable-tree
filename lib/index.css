@@ -2,6 +2,7 @@
 .ReactDraggableTree {
   display: flex;
   flex-direction: column;
+  position: relative;
 }
 .ReactDraggableTree_row {
   display: flex;
@@ -37,4 +38,7 @@
 .ReactDraggableTree_toggler-collapsed:before {
   visibility: visible;
   transform: rotate(-45deg) translate(-2px, -2px);
+}
+.ReactDraggableTree_dropOver {
+  border: 2px solid blue;
 }

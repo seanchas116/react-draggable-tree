@@ -11,6 +11,8 @@ interface ClassNames {
   toggler: string
   togglerExpanded: string
   togglerCollapsed: string
+  dropOver: string
+  dropBetween: string
 }
 
 const defaultClassNames: ClassNames = {
@@ -22,6 +24,8 @@ const defaultClassNames: ClassNames = {
   toggler: "ReactDraggableTree_toggler",
   togglerExpanded: "ReactDraggableTree_toggler-expanded",
   togglerCollapsed: "ReactDraggableTree_toggler-collapsed",
+  dropOver: "ReactDraggableTree_dropOver",
+  dropBetween: "ReactDraggableTree_dropBetween",
 }
 
 const DRAG_MIME = "x-react-draggable-tree-drag"
@@ -45,6 +49,12 @@ interface NodeInfo<TNode extends TreeNode> {
 }
 
 export
+interface DropIndex {
+  type: "between" | "over"
+  index: number
+}
+
+export
 interface TreeProps<TNode extends TreeNode> {
   root: TNode
   draggable: boolean
@@ -61,10 +71,11 @@ interface TreeProps<TNode extends TreeNode> {
   onCurrentChange: (key: Key) => void
 }
 
-
 export
 class Tree<TNode extends TreeNode> extends React.Component<TreeProps<TNode>, {}> {
   element: HTMLElement
+  dropOverElement: HTMLElement
+  dropBetweenElement: HTMLElement
   infoToPath = new Map<NodeInfo<TNode>, number[]>()
   pathToInfo = new Map<string, NodeInfo<TNode>>() // using joined path as key string
   infos: NodeInfo<TNode>[] = []
@@ -175,29 +186,64 @@ class Tree<TNode extends TreeNode> extends React.Component<TreeProps<TNode>, {}>
     return infos
   }
 
+  updateDropIndicator(dropIndex: DropIndex|undefined) {
+    if (!dropIndex) {
+      this.dropOverElement.hidden = true
+      this.dropBetweenElement.hidden = true
+    } else if (dropIndex.type == "over") {
+      const {rowHeight} = this.props
+      this.dropOverElement.hidden = false
+      this.dropBetweenElement.hidden = true
+      Object.assign(this.dropOverElement.style, {
+        position: "absolute",
+        boxSizing: "border-box",
+        left: "0px",
+        top: `${dropIndex.index * rowHeight}px`,
+        width: "100%",
+        height: `${rowHeight}px`,
+      })
+    } else {
+      const {rowHeight} = this.props
+      this.dropOverElement.hidden = true
+      this.dropBetweenElement.hidden = false
+      Object.assign(this.dropBetweenElement.style, {
+        position: "absolute",
+        boxSizing: "border-box",
+        left: "0px",
+        top: `${dropIndex.index * rowHeight}px`,
+        width: "100%",
+        height: "2px",
+        backgroundColor: "blue",
+      })
+    }
+  }
+
   render() {
-    const {root} = this.props
-    const classes = this.props.classNames || defaultClassNames
     this.infos = []
     this.visibleInfos = []
     this.pathToInfo.clear()
     this.infoToPath.clear()
     this.keyToInfo.clear()
 
+    const {root, rowHeight} = this.props
+    const classes = this.props.classNames || defaultClassNames
     const children = root.children || []
 
     return (
       <div ref={e => this.element = e} className={classes.tree} onDragOver={this.onDragOver} onDrop={this.onDrop}>
         {children.map((child, i) => this.renderNode(child, [i], true))}
+        <div ref={e => this.dropOverElement = e} className={classes.dropOver} hidden={true}/>
+        <div ref={e => this.dropBetweenElement = e} className={classes.dropBetween} hidden={true}/>
       </div>
     )
   }
 
   onDragOver = (ev: React.DragEvent<Element>) => {
     ev.preventDefault()
+    this.updateDropIndicator(this.getDropIndex(ev))
   }
 
-  getDropIndex(ev: React.DragEvent<Element>) {
+  getDropIndex(ev: React.DragEvent<Element>): DropIndex|undefined {
     const {rowHeight} = this.props
     const rect = this.element.getBoundingClientRect()
     const x = ev.clientX - rect.left + this.element.scrollTop
@@ -230,6 +276,9 @@ class Tree<TNode extends TreeNode> extends React.Component<TreeProps<TNode>, {}>
 
   getDropDestination(ev: React.DragEvent<Element>) {
     const target = this.getDropIndex(ev)
+    if (!target) {
+      return
+    }
     if (target.type == "over") {
       const info = this.visibleInfos[target.index]
       if (info) {
@@ -255,7 +304,7 @@ class Tree<TNode extends TreeNode> extends React.Component<TreeProps<TNode>, {}>
   }
 
   onDrop = (ev: React.DragEvent<Element>) => {
-    const {rowHeight} = this.props
+    this.updateDropIndicator(undefined)
 
     const type = ev.dataTransfer.getData(DRAG_MIME)
     if (!type) {
