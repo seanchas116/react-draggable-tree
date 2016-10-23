@@ -45,5 +45,3 @@ jspm_packages
 .node_repl_history
 
 /example/bundle.js
-/lib/index.js
-/lib/index.d.ts
