@@ -11,49 +11,6 @@ interface MyNode extends TreeNode {
 }
 class MyTree extends Tree<MyNode> {}
 
-function MyRowContent(props: {node: MyNode, selected: boolean, current: boolean}) {
-  const {node, selected, current} = props
-  return <div className={classNames("example-cell", {selected, current})}>{node.text}</div>
-}
-
-function nodeForPath(node: MyNode, path: number[]): MyNode|undefined {
-  if (path.length == 0) {
-    return node
-  } else if (node.children) {
-    return nodeForPath(node.children[path[0]], path.slice(1))
-  }
-}
-
-function cloneNode(node: MyNode): MyNode {
-  return {
-    text: node.text,
-    key: currentKey++,
-    children: node.children ? node.children.map(cloneNode) : undefined,
-    collapsed: node.collapsed
-  }
-}
-
-let currentKey = 0
-
-function generateNode(depth: number, minChildCount: number, maxChildCount: number): MyNode {
-  const text: string = loremIpsum({sentenceLowerBound: 2, sentenceUpperBound: 4})
-  const hasChild = depth > 1
-  let children: MyNode[]|undefined = undefined
-  if (hasChild) {
-    children = []
-    const childCount = Math.round(Math.random() * (maxChildCount - minChildCount) + minChildCount)
-    for (let i = 0; i < childCount; ++i) {
-      children.push(generateNode(depth - 1, minChildCount, maxChildCount))
-    }
-  }
-  const key = currentKey++
-  return {
-    text,
-    key,
-    children
-  }
-}
-
 class Example extends React.Component<{}, {}> {
   root = generateNode(4, 2, 4)
   selection: Selection = {
@@ -111,6 +68,49 @@ class Example extends React.Component<{}, {}> {
         onCopy={onCopy}
       />
     )
+  }
+}
+
+function MyRowContent(props: {node: MyNode, selected: boolean, current: boolean}) {
+  const {node, selected, current} = props
+  return <div className={classNames("example-cell", {selected, current})}>{node.text}</div>
+}
+
+function nodeForPath(node: MyNode, path: number[]): MyNode|undefined {
+  if (path.length == 0) {
+    return node
+  } else if (node.children) {
+    return nodeForPath(node.children[path[0]], path.slice(1))
+  }
+}
+
+function cloneNode(node: MyNode): MyNode {
+  return {
+    text: node.text,
+    key: currentKey++,
+    children: node.children ? node.children.map(cloneNode) : undefined,
+    collapsed: node.collapsed
+  }
+}
+
+let currentKey = 0
+
+function generateNode(depth: number, minChildCount: number, maxChildCount: number): MyNode {
+  const text: string = loremIpsum({sentenceLowerBound: 2, sentenceUpperBound: 4})
+  const hasChild = depth > 1
+  let children: MyNode[]|undefined = undefined
+  if (hasChild) {
+    children = []
+    const childCount = Math.round(Math.random() * (maxChildCount - minChildCount) + minChildCount)
+    for (let i = 0; i < childCount; ++i) {
+      children.push(generateNode(depth - 1, minChildCount, maxChildCount))
+    }
+  }
+  const key = currentKey++
+  return {
+    text,
+    key,
+    children
   }
 }
 
