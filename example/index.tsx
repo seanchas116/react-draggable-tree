@@ -64,7 +64,6 @@ class Example extends React.Component<{}, {}> {
       this.forceUpdate()
     }
     const onMove = (src: NodeInfo<MyNode>[], dest: NodeInfo<MyNode>, destIndex: number, destIndexAfter: number) => {
-      console.log(src.map(s => s.path.join()), dest.path.join(), destIndex, destIndexAfter)
       const nodes: MyNode[] = []
       for (let i = src.length - 1; i >= 0; --i) {
         const {path} = src[i]
