@@ -46,6 +46,7 @@ interface TreeProps<TNode extends TreeNode> {
   indent: number
   selectedColor?: string
   currentColor?: string
+  indicatorColor?: string
   rowContent: (nodeInfo: NodeInfo<TNode>) => JSX.Element
   toggler?: (props: TogglerProps<TNode>) => JSX.Element
   selection: Selection
@@ -80,11 +81,12 @@ class Tree<TNode extends TreeNode> extends React.Component<TreeProps<TNode>, {}>
   }
 
   propsWithDefaults() {
-    return Object.assign({}, this.props, {
+    return Object.assign({}, {
       selectedColor: "lightgrey",
       currentColor: "lightgrey",
+      indicatorColor: "#2196F3",
       toggler: Toggler
-    })
+    }, this.props)
   }
 
   clearNodes() {
@@ -212,7 +214,7 @@ class Tree<TNode extends TreeNode> extends React.Component<TreeProps<TNode>, {}>
   }
 
   render() {
-    const {root, rowHeight, indent} = this.props
+    const {root, rowHeight, indent, indicatorColor} = this.propsWithDefaults()
     const children = root.children || []
     this.clearNodes()
     const rootInfo = {node: root, selected: false, current: false, path: [], visible: false, visibleOffset: 0}
@@ -222,7 +224,7 @@ class Tree<TNode extends TreeNode> extends React.Component<TreeProps<TNode>, {}>
     return (
       <div ref={e => this.element = e} className="ReactDraggableTree" onDragOver={this.onDragOver} onDrop={this.onDrop}>
         {children.map((child, i) => this.renderNode(child, [i], true))}
-        <DropIndicator ref={e => this.dropIndicator = e} rowHeight={rowHeight} indent={indent} />
+        <DropIndicator ref={e => this.dropIndicator = e} rowHeight={rowHeight} indent={indent} color={indicatorColor} />
       </div>
     )
   }
@@ -385,6 +387,7 @@ function Toggler<TNode extends TreeNode>(props: TogglerProps<TNode>) {
 interface DropIndicatorProps {
   rowHeight: number
   indent: number
+  color: string
 }
 
 interface DropIndicatorState {
@@ -402,13 +405,15 @@ class DropIndicator extends React.Component<DropIndicatorProps, DropIndicatorSta
 
   render() {
     const {type, index, depth} = this.state
-    const {rowHeight, indent} = this.props
+    const {rowHeight, indent, color} = this.props
     const offset = index * rowHeight
     const dropOverStyle = {
+      borderColor: color,
       top: `${offset}px`,
       height: `${rowHeight}px`,
     }
     const dropBetweenStyle = {
+      backgroundColor: color,
       top: `${offset - 1}px`,
       height: "2px",
       left: `${depth * indent}px`
