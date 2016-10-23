@@ -35,11 +35,11 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/seanchas116/react-draggable-tree.git"
+    "url": "git+https://github.com/sketchglass/react-draggable-tree.git"
   },
   "bugs": {
-    "url": "https://github.com/seanchas116/react-draggable-tree/issues"
+    "url": "https://github.com/sketchglass/react-draggable-tree/issues"
   },
-  "homepage": "https://github.com/seanchas116/react-draggable-tree#readme",
-  "description": ""
+  "homepage": "https://github.com/sketchglass/react-draggable-tree#readme",
+  "description": "Draggable tree view for React"
 }
