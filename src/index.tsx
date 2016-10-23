@@ -23,7 +23,6 @@ interface NodeInfo<TNode extends TreeNode> {
   visibleOffset: number
 }
 
-export
 interface DropTarget<TNode extends TreeNode> {
   type: "between" | "over"
   index: number
@@ -62,7 +61,7 @@ class Tree<TNode extends TreeNode> extends React.Component<TreeProps<TNode>, {}>
   private keyToInfo = new Map<Key, NodeInfo<TNode>>()
   private rootInfo: NodeInfo<TNode>
 
-  removeAncestorsFromSelection(selection: Set<Key>) {
+  private removeAncestorsFromSelection(selection: Set<Key>) {
     const newSelection = new Set(selection)
     for (const {path} of this.keysToInfos(selection)) {
       for (let i = 1; i < path.length; ++i) {
@@ -76,20 +75,20 @@ class Tree<TNode extends TreeNode> extends React.Component<TreeProps<TNode>, {}>
     return newSelection
   }
 
-  propsWithDefaults() {
+  private propsWithDefaults() {
     return Object.assign({}, {
       indent: 24,
     }, this.props)
   }
 
-  clearNodes() {
+  private clearNodes() {
     this.visibleInfos = []
     this.pathToInfo.clear()
     this.infoToPath.clear()
     this.keyToInfo.clear()
   }
 
-  addNodeInfo(nodeInfo: NodeInfo<TNode>) {
+  private addNodeInfo(nodeInfo: NodeInfo<TNode>) {
     this.infoToPath.set(nodeInfo, nodeInfo.path)
     this.pathToInfo.set(nodeInfo.path.join(), nodeInfo)
     if (nodeInfo.visible) {
@@ -98,7 +97,7 @@ class Tree<TNode extends TreeNode> extends React.Component<TreeProps<TNode>, {}>
     this.keyToInfo.set(nodeInfo.node.key, nodeInfo)
   }
 
-  renderNode(node: TNode, path: number[], visible: boolean): JSX.Element[] {
+  private renderNode(node: TNode, path: number[], visible: boolean): JSX.Element[] {
     const {indent, rowHeight, rowContent, onSelectionChange, onCollapsedChange, selection} = this.propsWithDefaults()
     const {currentKey, selectedKeys} = selection
     const {key} = node
@@ -189,7 +188,7 @@ class Tree<TNode extends TreeNode> extends React.Component<TreeProps<TNode>, {}>
     }
   }
 
-  keysToInfos(keys: Iterable<Key>) {
+  private keysToInfos(keys: Iterable<Key>) {
     const infos: NodeInfo<TNode>[] = []
     for (const key of keys) {
       const info = this.keyToInfo.get(key)
@@ -201,7 +200,7 @@ class Tree<TNode extends TreeNode> extends React.Component<TreeProps<TNode>, {}>
     return infos
   }
 
-  updateDropIndicator(target: DropTarget<TNode>|undefined) {
+  private updateDropIndicator(target: DropTarget<TNode>|undefined) {
     if (target) {
       const {type, index, depth} = target
       this.dropIndicator.setState({type, index, depth})
@@ -226,7 +225,7 @@ class Tree<TNode extends TreeNode> extends React.Component<TreeProps<TNode>, {}>
     )
   }
 
-  onDragOver = (ev: React.DragEvent<Element>) => {
+  private onDragOver = (ev: React.DragEvent<Element>) => {
     ev.preventDefault()
     ev.dataTransfer.dropEffect = ev.altKey ? "copy" : "move"
     const target = this.getDropTarget(ev)
@@ -237,7 +236,7 @@ class Tree<TNode extends TreeNode> extends React.Component<TreeProps<TNode>, {}>
     this.updateDropIndicator(undefined)
   }
 
-  getDropTarget(ev: {clientX: number, clientY: number}): DropTarget<TNode> {
+  private getDropTarget(ev: {clientX: number, clientY: number}): DropTarget<TNode> {
     const {rowHeight, indent} = this.props
     const rect = this.element.getBoundingClientRect()
     const x = ev.clientX - rect.left + this.element.scrollTop
@@ -287,7 +286,7 @@ class Tree<TNode extends TreeNode> extends React.Component<TreeProps<TNode>, {}>
     }
   }
 
-  canDrop(destInfo: NodeInfo<TNode>, destIndex: number) {
+  private canDrop(destInfo: NodeInfo<TNode>, destIndex: number) {
     const {selectedKeys} = this.props.selection
     const {path} = destInfo
     for (let i = 0; i < path.length; ++i) {
@@ -302,7 +301,7 @@ class Tree<TNode extends TreeNode> extends React.Component<TreeProps<TNode>, {}>
     return true
   }
 
-  onDrop = (ev: React.DragEvent<Element>) => {
+  private onDrop = (ev: React.DragEvent<Element>) => {
     this.updateDropIndicator(undefined)
 
     const data = ev.dataTransfer.getData(DRAG_MIME)
