@@ -9,10 +9,10 @@
   align-items: center;
 }
 .ReactDraggableTree_row-selected {
-  background-color: #eee;
+  background-color: #e0e0e0;
 }
 .ReactDraggableTree_row-current {
-  background-color: #ddd;
+  background-color: #e0e0e0;
 }
 .ReactDraggableTree_toggler {
   width: 16px;
@@ -45,7 +45,7 @@
   left: 0;
   width: 100%;
   pointer-events: none;
-  border: 2px solid blue;
+  border: 2px solid #2196F3;
 }
 .ReactDraggableTree_dropBetween {
   position: absolute;
@@ -53,5 +53,5 @@
   left: 0;
   width: 100%;
   pointer-events: none;
-  background-color: blue;
+  background-color: #2196F3;
 }

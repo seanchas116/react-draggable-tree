@@ -44,9 +44,6 @@ interface TreeProps<TNode extends TreeNode> {
   draggable: boolean
   rowHeight: number
   indent?: number
-  selectedColor?: string
-  currentColor?: string
-  indicatorColor?: string
   rowContent: (nodeInfo: NodeInfo<TNode>) => JSX.Element
   toggler?: (props: TogglerProps<TNode>) => JSX.Element
   selection: Selection
@@ -82,9 +79,6 @@ class Tree<TNode extends TreeNode> extends React.Component<TreeProps<TNode>, {}>
 
   propsWithDefaults() {
     return Object.assign({}, {
-      selectedColor: "#e0e0e0",
-      currentColor: "#e0e0e0",
-      indicatorColor: "#2196F3",
       indent: 24,
       toggler: Toggler
     }, this.props)
@@ -107,7 +101,7 @@ class Tree<TNode extends TreeNode> extends React.Component<TreeProps<TNode>, {}>
   }
 
   renderNode(node: TNode, path: number[], visible: boolean): JSX.Element[] {
-    const {indent, rowHeight, rowContent, toggler, onSelectionChange, onCollapsedChange, selection, selectedColor, currentColor} = this.propsWithDefaults()
+    const {indent, rowHeight, rowContent, toggler, onSelectionChange, onCollapsedChange, selection} = this.propsWithDefaults()
     const {currentKey, selectedKeys} = selection
     const {key} = node
 
@@ -126,7 +120,6 @@ class Tree<TNode extends TreeNode> extends React.Component<TreeProps<TNode>, {}>
     const style = {
       paddingLeft: (path.length - 1) * indent + "px",
       height: rowHeight + "px",
-      backgroundColor: isCurrent ? currentColor : (isSelected ? selectedColor : "transparent")
     }
 
     const onClick = (ev: React.MouseEvent<Element>) => {
@@ -177,7 +170,12 @@ class Tree<TNode extends TreeNode> extends React.Component<TreeProps<TNode>, {}>
       }
     }
 
-    let row = <div key={`row-${key}`} className="ReactDraggableTree_row" style={style} onClick={onClick} draggable={true} onDragStart={onDragStart} onDragEnd={onDragEnd}>
+    const rowClasses = classNames("ReactDraggableTree_row", {
+      "ReactDraggableTree_row-selected": isSelected,
+      "ReactDraggableTree_row-current": isCurrent,
+    })
+
+    let row = <div key={`row-${key}`} className={rowClasses} style={style} onClick={onClick} draggable={true} onDragStart={onDragStart} onDragEnd={onDragEnd}>
       {toggler({nodeInfo, visible: !!node.children, collapsed: !!node.collapsed, onClick: onTogglerClick})}
       {rowContent(nodeInfo)}
     </div>
@@ -215,7 +213,7 @@ class Tree<TNode extends TreeNode> extends React.Component<TreeProps<TNode>, {}>
   }
 
   render() {
-    const {root, rowHeight, indent, indicatorColor} = this.propsWithDefaults()
+    const {root, rowHeight, indent} = this.propsWithDefaults()
     const children = root.children || []
     this.clearNodes()
     const rootInfo = {node: root, selected: false, current: false, path: [], visible: false, visibleOffset: 0}
@@ -225,7 +223,7 @@ class Tree<TNode extends TreeNode> extends React.Component<TreeProps<TNode>, {}>
     return (
       <div ref={e => this.element = e} className="ReactDraggableTree" onDragOver={this.onDragOver} onDrop={this.onDrop}>
         {children.map((child, i) => this.renderNode(child, [i], true))}
-        <DropIndicator ref={e => this.dropIndicator = e} rowHeight={rowHeight} indent={indent} color={indicatorColor} />
+        <DropIndicator ref={e => this.dropIndicator = e} rowHeight={rowHeight} indent={indent} />
       </div>
     )
   }
@@ -388,7 +386,6 @@ function Toggler<TNode extends TreeNode>(props: TogglerProps<TNode>) {
 interface DropIndicatorProps {
   rowHeight: number
   indent: number
-  color: string
 }
 
 interface DropIndicatorState {
@@ -406,15 +403,13 @@ class DropIndicator extends React.Component<DropIndicatorProps, DropIndicatorSta
 
   render() {
     const {type, index, depth} = this.state
-    const {rowHeight, indent, color} = this.props
+    const {rowHeight, indent} = this.props
     const offset = index * rowHeight
     const dropOverStyle = {
-      borderColor: color,
       top: `${offset}px`,
       height: `${rowHeight}px`,
     }
     const dropBetweenStyle = {
-      backgroundColor: color,
       top: `${offset - 1}px`,
       height: "2px",
       left: `${(depth + 1) * indent}px`
