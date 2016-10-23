@@ -169,8 +169,6 @@ class Tree<TNode extends TreeNode> extends React.Component<TreeProps<TNode>, {}>
       this.dropOverElement.hidden = false
       this.dropBetweenElement.hidden = true
       Object.assign(this.dropOverElement.style, {
-        position: "absolute",
-        boxSizing: "border-box",
         left: "0px",
         top: `${dropIndex.index * rowHeight}px`,
         width: "100%",
@@ -181,13 +179,10 @@ class Tree<TNode extends TreeNode> extends React.Component<TreeProps<TNode>, {}>
       this.dropOverElement.hidden = true
       this.dropBetweenElement.hidden = false
       Object.assign(this.dropBetweenElement.style, {
-        position: "absolute",
-        boxSizing: "border-box",
         left: "0px",
         top: `${dropIndex.index * rowHeight - 1}px`,
         width: "100%",
         height: "2px",
-        backgroundColor: "blue",
       })
     }
   }

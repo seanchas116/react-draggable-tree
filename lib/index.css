@@ -39,9 +39,14 @@
   transform: rotate(-45deg) translate(-2px, -2px);
 }
 .ReactDraggableTree_dropOver {
+  position: absolute;
+  box-shadow: border-box;
   pointer-events: none;
   border: 2px solid blue;
 }
 .ReactDraggableTree_dropBetween {
+  position: absolute;
+  box-shadow: border-box;
   pointer-events: none;
+  background-color: blue;
 }
