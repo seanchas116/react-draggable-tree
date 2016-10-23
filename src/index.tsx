@@ -262,6 +262,21 @@ class Tree<TNode extends TreeNode> extends React.Component<TreeProps<TNode>, {}>
     }
   }
 
+  canDrop(destInfo: NodeInfo<TNode>, destIndex: number) {
+    const srcKeys = this.props.selected || new Set()
+    const {path} = destInfo
+    for (let i = 0; i < path.length; ++i) {
+      const ancestorPath = path.slice(0, path.length - i)
+      const ancestor = this.pathToInfo.get(ancestorPath.join())
+      if (ancestor) {
+        if (srcKeys.has(ancestor.node.key)) {
+          return false
+        }
+      }
+    }
+    return true
+  }
+
   onDrop = (ev: React.DragEvent<Element>) => {
     this.updateDropIndicator(undefined)
 
@@ -275,10 +290,10 @@ class Tree<TNode extends TreeNode> extends React.Component<TreeProps<TNode>, {}>
     }
     const {info: destInfo, index: destIndex} = dest
 
-    const srcKeys = this.props.selected || new Set()
-    if (srcKeys.has(destInfo.node.key)) {
+    if (!this.canDrop(destInfo, destIndex)) {
       return
     }
+    const srcKeys = this.props.selected || new Set()
     const srcInfos = this.keysToInfos(srcKeys)
 
     if (type == "move") {
