@@ -237,13 +237,12 @@ class Tree<TNode extends TreeNode> extends React.Component<TreeProps<TNode>, {}>
   }
 
   private getDropTarget(ev: {clientX: number, clientY: number}): DropTarget<TNode> {
-    const {rowHeight, indent} = this.props
+    const {rowHeight, indent} = this.propsWithDefaults()
     const rect = this.element.getBoundingClientRect()
     const x = ev.clientX - rect.left + this.element.scrollTop
     const y = ev.clientY - rect.top + this.element.scrollLeft
     const overIndex = clamp(Math.floor(y / rowHeight), 0, this.visibleInfos.length)
     const offset = y - overIndex * rowHeight
-    const depth = Math.floor(x / indent)
 
     if (overIndex < this.visibleInfos.length) {
       if (rowHeight * 0.25 < offset && offset < rowHeight * 0.75) {
@@ -263,7 +262,18 @@ class Tree<TNode extends TreeNode> extends React.Component<TreeProps<TNode>, {}>
     const betweenIndex = (offset < rowHeight / 2) ? overIndex : overIndex + 1
 
     if (betweenIndex < this.visibleInfos.length) {
-      const {path} = this.visibleInfos[betweenIndex]
+      let {path} = this.visibleInfos[betweenIndex]
+      if (0 < betweenIndex) {
+        const prev = this.visibleInfos[betweenIndex - 1]
+        let prevPath = prev.path
+        if (prev.node.children && prev.node.children.length == 0 && !prev.node.collapsed) {
+          prevPath = [...prevPath, -1]
+        }
+        if (path.length < prevPath.length) {
+          const depth = clamp(Math.floor(x / indent) - 1, path.length, prevPath.length)
+          path = [...prevPath.slice(0, depth - 1), prevPath[depth - 1] + 1]
+        }
+      }
       const destPath = path.slice(0, -1)
       const dest = this.pathToInfo.get(destPath.join())!
       return {
