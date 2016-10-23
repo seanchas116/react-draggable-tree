@@ -60,7 +60,6 @@ class Example extends React.Component<{}, {}> {
         selection={this.selection}
         draggable={true}
         rowHeight={40}
-        indent={16}
         rowContent={MyRowContent}
         onSelectionChange={onSelectionChange}
         onCollapsedChange={onCollapsedChange}

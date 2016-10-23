@@ -43,7 +43,7 @@ interface TreeProps<TNode extends TreeNode> {
   root: TNode
   draggable: boolean
   rowHeight: number
-  indent: number
+  indent?: number
   selectedColor?: string
   currentColor?: string
   indicatorColor?: string
@@ -85,6 +85,7 @@ class Tree<TNode extends TreeNode> extends React.Component<TreeProps<TNode>, {}>
       selectedColor: "#e0e0e0",
       currentColor: "#e0e0e0",
       indicatorColor: "#2196F3",
+      indent: 24,
       toggler: Toggler
     }, this.props)
   }
