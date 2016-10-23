@@ -48,13 +48,12 @@ interface TreeProps<TNode extends TreeNode> {
 
 export
 class Tree<TNode extends TreeNode> extends React.Component<TreeProps<TNode>, {}> {
-  element: HTMLElement
-  dropOverElement: HTMLElement
-  dropBetweenElement: HTMLElement
-  infoToPath = new Map<NodeInfo<TNode>, number[]>()
-  pathToInfo = new Map<string, NodeInfo<TNode>>() // using joined path as key string
-  visibleInfos: NodeInfo<TNode>[] = []
-  keyToInfo = new Map<Key, NodeInfo<TNode>>()
+  private element: HTMLElement
+  private dropIndicator: DropIndicator
+  private infoToPath = new Map<NodeInfo<TNode>, number[]>()
+  private pathToInfo = new Map<string, NodeInfo<TNode>>() // using joined path as key string
+  private visibleInfos: NodeInfo<TNode>[] = []
+  private keyToInfo = new Map<Key, NodeInfo<TNode>>()
 
   removeAncestorsFromSelection(selection: Set<Key>) {
     const newSelection = new Set(selection)
@@ -177,30 +176,7 @@ class Tree<TNode extends TreeNode> extends React.Component<TreeProps<TNode>, {}>
   }
 
   updateDropIndicator(dropIndex: DropIndex|undefined) {
-    if (!dropIndex) {
-      this.dropOverElement.hidden = true
-      this.dropBetweenElement.hidden = true
-    } else if (dropIndex.type == "over") {
-      const {rowHeight} = this.props
-      this.dropOverElement.hidden = false
-      this.dropBetweenElement.hidden = true
-      Object.assign(this.dropOverElement.style, {
-        left: "0px",
-        top: `${dropIndex.index * rowHeight}px`,
-        width: "100%",
-        height: `${rowHeight}px`,
-      })
-    } else {
-      const {rowHeight} = this.props
-      this.dropOverElement.hidden = true
-      this.dropBetweenElement.hidden = false
-      Object.assign(this.dropBetweenElement.style, {
-        left: "0px",
-        top: `${dropIndex.index * rowHeight - 1}px`,
-        width: "100%",
-        height: "2px",
-      })
-    }
+    this.dropIndicator.setState({dropIndex})
   }
 
   render() {
@@ -212,8 +188,7 @@ class Tree<TNode extends TreeNode> extends React.Component<TreeProps<TNode>, {}>
     return (
       <div ref={e => this.element = e} className="ReactDraggableTree" onDragOver={this.onDragOver} onDrop={this.onDrop}>
         {children.map((child, i) => this.renderNode(child, [i], true))}
-        <div ref={e => this.dropOverElement = e} className="ReactDraggableTree_dropOver" hidden={true}/>
-        <div ref={e => this.dropBetweenElement = e} className="ReactDraggableTree_dropBetween" hidden={true}/>
+        <DropIndicator ref={e => this.dropIndicator = e} rowHeight={rowHeight} />
       </div>
     )
   }
@@ -352,4 +327,38 @@ function Toggler<T extends TreeNode>(props: {visible: boolean, collapsed: boolea
     "ReactDraggableTree_toggler-collapsed": props.collapsed,
   })
   return <div className={claassName} onClick={props.onClick}/>
+}
+
+interface DropIndicatorProps {
+  rowHeight: number
+}
+
+interface DropIndicatorState {
+  dropIndex?: DropIndex
+}
+
+class DropIndicator extends React.Component<DropIndicatorProps, DropIndicatorState> {
+  state: DropIndicatorState = {}
+
+  render() {
+    const {dropIndex} = this.state
+    const {rowHeight} = this.props
+    let isDropOver = dropIndex && dropIndex.type == "over"
+    let isDropBetween = dropIndex && dropIndex.type == "between"
+    const offset = dropIndex ? dropIndex.index * rowHeight : 0
+    const dropOverStyle = {
+      top: `${offset}px`,
+      height: `${rowHeight}px`,
+    }
+    const dropBetweenStyle = {
+      top: `${offset - 1}px`,
+      height: "2px",
+    }
+    return (
+      <div>
+        <div className="ReactDraggableTree_dropOver" hidden={!isDropOver} style={dropOverStyle} />
+        <div className="ReactDraggableTree_dropBetween" hidden={!isDropBetween} style={dropBetweenStyle} />
+      </div>
+    )
+  }
 }
