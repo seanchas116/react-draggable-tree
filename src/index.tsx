@@ -45,7 +45,6 @@ interface TreeProps<TNode extends TreeNode> {
   rowHeight: number
   indent?: number
   rowContent: (nodeInfo: NodeInfo<TNode>) => JSX.Element
-  toggler?: (props: TogglerProps<TNode>) => JSX.Element
   selection: Selection
   onMove: (src: NodeInfo<TNode>[], dest: NodeInfo<TNode>, destIndexBefore: number, destIndexAfter: number) => void
   onCopy: (src: NodeInfo<TNode>[], dest: NodeInfo<TNode>, destIndexBefore: number) => void
@@ -80,7 +79,6 @@ class Tree<TNode extends TreeNode> extends React.Component<TreeProps<TNode>, {}>
   propsWithDefaults() {
     return Object.assign({}, {
       indent: 24,
-      toggler: Toggler
     }, this.props)
   }
 
@@ -101,7 +99,7 @@ class Tree<TNode extends TreeNode> extends React.Component<TreeProps<TNode>, {}>
   }
 
   renderNode(node: TNode, path: number[], visible: boolean): JSX.Element[] {
-    const {indent, rowHeight, rowContent, toggler, onSelectionChange, onCollapsedChange, selection} = this.propsWithDefaults()
+    const {indent, rowHeight, rowContent, onSelectionChange, onCollapsedChange, selection} = this.propsWithDefaults()
     const {currentKey, selectedKeys} = selection
     const {key} = node
 
@@ -176,7 +174,7 @@ class Tree<TNode extends TreeNode> extends React.Component<TreeProps<TNode>, {}>
     })
 
     let row = <div key={`row-${key}`} className={rowClasses} style={style} onClick={onClick} draggable={true} onDragStart={onDragStart} onDragEnd={onDragEnd}>
-      {toggler({nodeInfo, visible: !!node.children, collapsed: !!node.collapsed, onClick: onTogglerClick})}
+      {Toggler({nodeInfo, visible: !!node.children, collapsed: !!node.collapsed, onClick: onTogglerClick})}
       {rowContent(nodeInfo)}
     </div>
 
