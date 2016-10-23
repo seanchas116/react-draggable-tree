@@ -82,8 +82,8 @@ class Tree<TNode extends TreeNode> extends React.Component<TreeProps<TNode>, {}>
 
   propsWithDefaults() {
     return Object.assign({}, {
-      selectedColor: "lightgrey",
-      currentColor: "lightgrey",
+      selectedColor: "#e0e0e0",
+      currentColor: "#e0e0e0",
       indicatorColor: "#2196F3",
       toggler: Toggler
     }, this.props)
