@@ -6,6 +6,8 @@
   "scripts": {
     "build": "cd src && tsc",
     "example": "cd example && webpack-dev-server --inline",
+    "example:build": "cd example && webpack",
+    "pages": "npm run example:build && gh-pages -d example",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
@@ -15,6 +17,7 @@
     "@types/react": "^0.14.41",
     "@types/react-dom": "^0.14.18",
     "css-loader": "^0.25.0",
+    "gh-pages": "^0.11.0",
     "lorem-ipsum": "^1.0.3",
     "react": "^15.3.2",
     "react-dom": "^15.3.2",

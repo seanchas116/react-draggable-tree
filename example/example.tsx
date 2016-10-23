@@ -1,4 +1,4 @@
-require("./index.css")
+require("./example.css")
 require("../lib/index.css")
 import React = require("react")
 import ReactDOM = require("react-dom")
