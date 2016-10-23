@@ -11,9 +11,9 @@ interface MyNode extends TreeNode {
 }
 class MyTree extends Tree<MyNode> {}
 
-function ExampleCell(props: {text: string, selected: boolean, current: boolean}) {
-  const {text, selected, current} = props
-  return <div className={classNames("example-cell", {selected, current})}>{text}</div>
+function MyRowContent(props: {node: MyNode, selected: boolean, current: boolean}) {
+  const {node, selected, current} = props
+  return <div className={classNames("example-cell", {selected, current})}>{node.text}</div>
 }
 
 function nodeForPath(node: MyNode, path: number[]): MyNode|undefined {
@@ -104,7 +104,7 @@ class Example extends React.Component<{}, {}> {
         draggable={true}
         rowHeight={40}
         indent={16}
-        renderNode={({node, selected, current}) => <ExampleCell text={node.text} selected={selected} current={current} />}
+        rowContent={MyRowContent}
         onSelectionChange={onSelectionChange}
         onCollapsedChange={onCollapsedChange}
         onMove={onMove}

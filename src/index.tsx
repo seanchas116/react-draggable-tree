@@ -41,8 +41,8 @@ interface TreeProps<TNode extends TreeNode> {
   indent: number
   selectedColor?: string
   currentColor?: string
-  renderNode: (nodeInfo: NodeInfo<TNode>) => JSX.Element
-  renderToggler?: (props: {visible: boolean, collapsed: boolean, onClick: () => void}) => JSX.Element
+  rowContent: (nodeInfo: NodeInfo<TNode>) => JSX.Element
+  toggler?: (props: TogglerProps<TNode>) => JSX.Element
   selection: Selection
   onMove: (src: NodeInfo<TNode>[], dest: NodeInfo<TNode>, destIndexBefore: number, destIndexAfter: number) => void
   onCopy: (src: NodeInfo<TNode>[], dest: NodeInfo<TNode>, destIndexBefore: number) => void
@@ -77,7 +77,7 @@ class Tree<TNode extends TreeNode> extends React.Component<TreeProps<TNode>, {}>
     return Object.assign({}, this.props, {
       selectedColor: "lightgrey",
       currentColor: "lightgrey",
-      renderToggler: Toggler
+      toggler: Toggler
     })
   }
 
@@ -98,7 +98,7 @@ class Tree<TNode extends TreeNode> extends React.Component<TreeProps<TNode>, {}>
   }
 
   renderNode(node: TNode, path: number[], visible: boolean): JSX.Element[] {
-    const {indent, rowHeight, renderNode, renderToggler: RenderToggler, onSelectionChange, onCollapsedChange, selection, selectedColor, currentColor} = this.propsWithDefaults()
+    const {indent, rowHeight, rowContent, toggler, onSelectionChange, onCollapsedChange, selection, selectedColor, currentColor} = this.propsWithDefaults()
     const {currentKey, selectedKeys} = selection
     const {key} = node
 
@@ -162,8 +162,8 @@ class Tree<TNode extends TreeNode> extends React.Component<TreeProps<TNode>, {}>
     }
 
     let row = <div key={`row-${key}`} className="ReactDraggableTree_row" style={style} onClick={onClick} draggable={true} onDragStart={onDragStart} onDragEnd={onDragEnd}>
-      <RenderToggler visible={!!node.children} collapsed={!!node.collapsed} onClick={onTogglerClick} />
-      {renderNode(nodeInfo)}
+      {toggler({nodeInfo, visible: !!node.children, collapsed: !!node.collapsed, onClick: onTogglerClick})}
+      {rowContent(nodeInfo)}
     </div>
 
     if (node.children) {
@@ -350,7 +350,15 @@ function isPathEqual(a: number[], b: number[]) {
   return true
 }
 
-function Toggler<T extends TreeNode>(props: {visible: boolean, collapsed: boolean, onClick: () => void}) {
+export
+interface TogglerProps<TNode extends TreeNode> {
+  nodeInfo: NodeInfo<TNode>
+  visible: boolean
+  collapsed: boolean
+  onClick: () => void
+}
+
+function Toggler<TNode extends TreeNode>(props: TogglerProps<TNode>) {
   const claassName = classNames("ReactDraggableTree_toggler", {
     "ReactDraggableTree_toggler-visible": props.visible,
     "ReactDraggableTree_toggler-collapsed": props.collapsed,
