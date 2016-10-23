@@ -2,7 +2,7 @@ require("./index.css")
 require("../lib/index.css")
 import React = require("react")
 import ReactDOM = require("react-dom")
-import {Tree, TreeNode, NodeInfo} from "../src"
+import {Tree, TreeNode, NodeInfo, Selection} from "../src"
 const classNames = require("classnames")
 const loremIpsum = require("lorem-ipsum")
 
@@ -56,16 +56,14 @@ function generateNode(depth: number, minChildCount: number, maxChildCount: numbe
 
 class Example extends React.Component<{}, {}> {
   root = generateNode(4, 2, 4)
-  currentKey = this.root.children![0].key
-  selectedKeys = new Set([this.currentKey])
+  selection: Selection = {
+    currentKey: this.root.children![0].key,
+    selectedKeys: new Set([this.root.children![0].key,]),
+  }
 
   render() {
-    const changeCurrent = (key: number) => {
-      this.currentKey = key
-      this.forceUpdate()
-    }
-    const changeSelected = (keys: Set<number>) => {
-      this.selectedKeys = keys
+    const onSelectionChange = (selection: Selection) => {
+      this.selection = selection
       this.forceUpdate()
     }
     const onCollapsedChange = (info: NodeInfo<MyNode>, collapsed: boolean) => {
@@ -102,14 +100,12 @@ class Example extends React.Component<{}, {}> {
     return (
       <MyTree
         root={this.root}
-        current={this.currentKey}
-        selected={this.selectedKeys}
+        selection={this.selection}
         draggable={true}
         rowHeight={40}
         indent={16}
         renderNode={({node, selected, current}) => <ExampleCell text={node.text} selected={selected} current={current} />}
-        onSelectedChange={changeSelected}
-        onCurrentChange={changeCurrent}
+        onSelectionChange={onSelectionChange}
         onCollapsedChange={onCollapsedChange}
         onMove={onMove}
         onCopy={onCopy}
