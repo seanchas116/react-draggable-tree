@@ -417,7 +417,7 @@ class DropIndicator extends React.Component<DropIndicatorProps, DropIndicatorSta
       backgroundColor: color,
       top: `${offset - 1}px`,
       height: "2px",
-      left: `${depth * indent}px`
+      left: `${(depth + 1) * indent}px`
     }
     return (
       <div>
