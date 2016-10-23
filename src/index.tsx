@@ -124,6 +124,12 @@ class Tree<TNode extends TreeNode> extends React.Component<TreeProps<TNode>, {}>
     }
 
     const onDragStart = (ev: React.DragEvent<Element>) => {
+      if (!selected || !selected.has(key)) {
+        onSelectedChange(new Set([key]))
+      }
+      if (current != key) {
+        onCurrentChange(key)
+      }
       ev.dataTransfer.setData(DRAG_MIME, "move")
     }
 
