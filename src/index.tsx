@@ -53,7 +53,6 @@ class Tree<TNode extends TreeNode> extends React.Component<TreeProps<TNode>, {}>
   dropBetweenElement: HTMLElement
   infoToPath = new Map<NodeInfo<TNode>, number[]>()
   pathToInfo = new Map<string, NodeInfo<TNode>>() // using joined path as key string
-  infos: NodeInfo<TNode>[] = []
   visibleInfos: NodeInfo<TNode>[] = []
   keyToInfo = new Map<Key, NodeInfo<TNode>>()
 
@@ -79,6 +78,22 @@ class Tree<TNode extends TreeNode> extends React.Component<TreeProps<TNode>, {}>
     })
   }
 
+  clearNodes() {
+    this.visibleInfos = []
+    this.pathToInfo.clear()
+    this.infoToPath.clear()
+    this.keyToInfo.clear()
+  }
+
+  addNodeInfo(nodeInfo: NodeInfo<TNode>, visible: boolean) {
+    this.infoToPath.set(nodeInfo, nodeInfo.path)
+    this.pathToInfo.set(nodeInfo.path.join(), nodeInfo)
+    if (visible) {
+      this.visibleInfos.push(nodeInfo)
+    }
+    this.keyToInfo.set(nodeInfo.node.key, nodeInfo)
+  }
+
   renderNode(node: TNode, path: number[], visible: boolean): JSX.Element[] {
     const {indent, rowHeight, renderNode, renderToggler: RenderToggler, onCurrentChange, onSelectedChange, onCollapsedChange, current, selected, selectedColor, currentColor} = this.propsWithDefaults()
     const {key} = node
@@ -86,13 +101,7 @@ class Tree<TNode extends TreeNode> extends React.Component<TreeProps<TNode>, {}>
     const isSelected = selected ? selected.has(key) : false
     const isCurrent = key == current
     const nodeInfo = {node, selected: isSelected, current: isCurrent, path}
-    this.infoToPath.set(nodeInfo, path)
-    this.pathToInfo.set(path.join(), nodeInfo)
-    this.infos.push(nodeInfo)
-    if (visible) {
-      this.visibleInfos.push(nodeInfo)
-    }
-    this.keyToInfo.set(key, nodeInfo)
+    this.addNodeInfo(nodeInfo, visible)
 
     const style = {
       paddingLeft: (path.length - 1) * indent + "px",
@@ -194,14 +203,10 @@ class Tree<TNode extends TreeNode> extends React.Component<TreeProps<TNode>, {}>
   }
 
   render() {
-    this.infos = []
-    this.visibleInfos = []
-    this.pathToInfo.clear()
-    this.infoToPath.clear()
-    this.keyToInfo.clear()
-
     const {root, rowHeight} = this.props
     const children = root.children || []
+    this.clearNodes()
+    this.addNodeInfo({node: root, selected: false, current: false, path: []}, false)
 
     return (
       <div ref={e => this.element = e} className="ReactDraggableTree" onDragOver={this.onDragOver} onDrop={this.onDrop}>
