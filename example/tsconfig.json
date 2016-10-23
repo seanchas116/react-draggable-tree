@@ -5,6 +5,9 @@
         "jsx": "react",
         "noImplicitAny": true,
         "sourceMap": false,
-        "strictNullChecks": true
+        "strictNullChecks": true,
+        "types": [
+            "node"
+        ]
     }
 }
