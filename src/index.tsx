@@ -210,7 +210,17 @@ class Tree<TNode extends TreeNode> extends React.Component<TreeProps<TNode>, {}>
   onDragOver = (ev: React.DragEvent<Element>) => {
     ev.preventDefault()
     ev.dataTransfer.dropEffect = ev.altKey ? "copy" : "move"
-    this.updateDropIndicator(this.getDropIndex(ev))
+    const dropIndex = this.getDropIndex(ev)
+    if (dropIndex) {
+      const dest = this.getDropDestination(dropIndex)
+      if (dest) {
+        if (this.canDrop(dest.info, dest.index)) {
+          this.updateDropIndicator(dropIndex)
+          return
+        }
+      }
+    }
+    this.updateDropIndicator(undefined)
   }
 
   getDropIndex(ev: React.DragEvent<Element>): DropIndex|undefined {
@@ -244,20 +254,19 @@ class Tree<TNode extends TreeNode> extends React.Component<TreeProps<TNode>, {}>
     }
   }
 
-  getDropDestination(ev: React.DragEvent<Element>) {
-    const target = this.getDropIndex(ev)
-    if (!target) {
+  getDropDestination(dropIndex: DropIndex) {
+    if (!dropIndex) {
       return
     }
-    if (target.type == "over") {
-      const info = this.visibleInfos[target.index]
+    if (dropIndex.type == "over") {
+      const info = this.visibleInfos[dropIndex.index]
       if (info) {
         return {info, index: 0}
       }
     } else {
       let path: number[]
-      if (target.index < this.visibleInfos.length) {
-        path = this.visibleInfos[target.index].path
+      if (dropIndex.index < this.visibleInfos.length) {
+        path = this.visibleInfos[dropIndex.index].path
       } else {
         const {root} = this.props
         if (!root.children) {
@@ -295,7 +304,11 @@ class Tree<TNode extends TreeNode> extends React.Component<TreeProps<TNode>, {}>
     if (!data) {
       return
     }
-    const dest = this.getDropDestination(ev)
+    const dropIndex = this.getDropIndex(ev)
+    if (!dropIndex) {
+      return
+    }
+    const dest = this.getDropDestination(dropIndex)
     if (!dest) {
       return
     }
