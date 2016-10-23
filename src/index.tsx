@@ -154,8 +154,9 @@ class Tree<TNode extends TreeNode> extends React.Component<TreeProps<TNode>, {}>
     </div>
 
     if (node.children) {
+      const childrenVisible = visible && !node.collapsed
       const children = <div key={`children-${key}`} className="ReactDraggableTree_children" hidden={node.collapsed}>
-        {node.children.map((child, i) => this.renderNode(child, [...path, i], !node.collapsed))}
+        {node.children.map((child, i) => this.renderNode(child, [...path, i], childrenVisible))}
       </div>
       return [row, children]
     } else {
