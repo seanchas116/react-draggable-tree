@@ -141,13 +141,17 @@ class Tree<TNode extends TreeNode> extends React.Component<TreeProps<TNode>, {}>
       ev.dataTransfer.setData(DRAG_MIME, "move")
     }
 
+    const onDragEnd = () => {
+      this.updateDropIndicator(undefined)
+    }
+
     const onTogglerClick = () => {
       if (node.children) {
         onCollapsedChange(nodeInfo, !node.collapsed)
       }
     }
 
-    let row = <div key={`row-${key}`} className="ReactDraggableTree_row" style={style} onClick={onClick} draggable={true} onDragStart={onDragStart}>
+    let row = <div key={`row-${key}`} className="ReactDraggableTree_row" style={style} onClick={onClick} draggable={true} onDragStart={onDragStart} onDragEnd={onDragEnd}>
       <RenderToggler visible={!!node.children} collapsed={!!node.collapsed} onClick={onTogglerClick} />
       {renderNode(nodeInfo)}
     </div>
