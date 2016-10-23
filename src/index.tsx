@@ -174,7 +174,7 @@ class Tree<TNode extends TreeNode> extends React.Component<TreeProps<TNode>, {}>
     })
 
     let row = <div key={`row-${key}`} className={rowClasses} style={style} onClick={onClick} draggable={true} onDragStart={onDragStart} onDragEnd={onDragEnd}>
-      {Toggler({nodeInfo, visible: !!node.children, collapsed: !!node.collapsed, onClick: onTogglerClick})}
+      <Toggler visible={!!node.children} collapsed={!!node.collapsed} onClick={onTogglerClick} />
       {rowContent(nodeInfo)}
     </div>
 
@@ -365,15 +365,13 @@ function isPathEqual(a: number[], b: number[]) {
   return true
 }
 
-export
-interface TogglerProps<TNode extends TreeNode> {
-  nodeInfo: NodeInfo<TNode>
+interface TogglerProps {
   visible: boolean
   collapsed: boolean
   onClick: () => void
 }
 
-function Toggler<TNode extends TreeNode>(props: TogglerProps<TNode>) {
+function Toggler(props: TogglerProps) {
   const claassName = classNames("ReactDraggableTree_toggler", {
     "ReactDraggableTree_toggler-visible": props.visible,
     "ReactDraggableTree_toggler-collapsed": props.collapsed,
