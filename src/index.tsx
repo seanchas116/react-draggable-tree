@@ -132,13 +132,15 @@ class Tree<TNode extends TreeNode> extends React.Component<TreeProps<TNode>, {}>
     }
 
     const onDragStart = (ev: React.DragEvent<Element>) => {
+      ev.dataTransfer.effectAllowed = "copyMove"
+      ev.dataTransfer.setData(DRAG_MIME, "drag")
+
       if (!selected || !selected.has(key)) {
         onSelectedChange(new Set([key]))
       }
       if (current != key) {
         onCurrentChange(key)
       }
-      ev.dataTransfer.setData(DRAG_MIME, "move")
     }
 
     const onDragEnd = () => {
@@ -199,6 +201,7 @@ class Tree<TNode extends TreeNode> extends React.Component<TreeProps<TNode>, {}>
 
   onDragOver = (ev: React.DragEvent<Element>) => {
     ev.preventDefault()
+    ev.dataTransfer.dropEffect = ev.altKey ? "copy" : "move"
     this.updateDropIndicator(this.getDropIndex(ev))
   }
 
@@ -280,8 +283,8 @@ class Tree<TNode extends TreeNode> extends React.Component<TreeProps<TNode>, {}>
   onDrop = (ev: React.DragEvent<Element>) => {
     this.updateDropIndicator(undefined)
 
-    const type = ev.dataTransfer.getData(DRAG_MIME)
-    if (!type) {
+    const data = ev.dataTransfer.getData(DRAG_MIME)
+    if (!data) {
       return
     }
     const dest = this.getDropDestination(ev)
@@ -296,7 +299,9 @@ class Tree<TNode extends TreeNode> extends React.Component<TreeProps<TNode>, {}>
     const srcKeys = this.props.selected || new Set()
     const srcInfos = this.keysToInfos(srcKeys)
 
-    if (type == "move") {
+    if (ev.altKey) {
+      this.props.onCopy(srcInfos, destInfo, destIndex)
+    } else {
       let destIndexAfter = destIndex
       for (let info of srcInfos) {
         if (isPathEqual(info.path.slice(0, -1), destInfo.path)) {
@@ -307,8 +312,6 @@ class Tree<TNode extends TreeNode> extends React.Component<TreeProps<TNode>, {}>
         }
       }
       this.props.onMove(srcInfos, destInfo, destIndex, destIndexAfter)
-    } else {
-      this.props.onCopy(srcInfos, destInfo, destIndex)
     }
     ev.preventDefault()
   }

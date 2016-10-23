@@ -24,6 +24,15 @@ function nodeForPath(node: MyNode, path: number[]): MyNode|undefined {
   }
 }
 
+function cloneNode(node: MyNode): MyNode {
+  return {
+    text: node.text,
+    key: currentKey++,
+    children: node.children ? node.children.map(cloneNode) : undefined,
+    collapsed: node.collapsed
+  }
+}
+
 let currentKey = 0
 
 function generateNode(depth: number, minChildCount: number, maxChildCount: number): MyNode {
@@ -76,7 +85,18 @@ class Example extends React.Component<{}, {}> {
       dest.node.collapsed = false
       this.forceUpdate()
     }
-    const onCopy = (src: NodeInfo<MyNode>[], dest: NodeInfo<MyNode>, index: number) => {
+    const onCopy = (src: NodeInfo<MyNode>[], dest: NodeInfo<MyNode>, destIndex: number) => {
+      const nodes: MyNode[] = []
+      for (let i = src.length - 1; i >= 0; --i) {
+        const {path} = src[i]
+        const index = path[path.length - 1]
+        const parent = nodeForPath(this.root, path.slice(0, -1))!
+        const node = cloneNode(parent.children![index])
+        nodes.unshift(node)
+      }
+      dest.node.children!.splice(destIndex, 0, ...nodes)
+      dest.node.collapsed = false
+      this.forceUpdate()
     }
 
     return (
