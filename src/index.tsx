@@ -231,7 +231,8 @@ class Tree<TNode extends TreeNode> extends React.Component<TreeProps<TNode>, {}>
 
   private onDragOver = (ev: React.DragEvent<Element>) => {
     ev.preventDefault()
-    ev.dataTransfer.dropEffect = ev.altKey ? "copy" : "move"
+    const copy = ev.altKey || ev.ctrlKey
+    ev.dataTransfer.dropEffect = copy ? "copy" : "move"
     const target = this.getDropTarget(ev)
     if (this.canDrop(target.dest, target.destIndex)) {
       this.updateDropIndicator(target)
@@ -330,7 +331,9 @@ class Tree<TNode extends TreeNode> extends React.Component<TreeProps<TNode>, {}>
     }
     const srcInfos = this.keysToInfos(this.props.selection.selectedKeys)
 
-    if (ev.altKey) {
+    const copy = ev.altKey || ev.ctrlKey
+
+    if (copy) {
       this.props.onCopy(srcInfos, destInfo, destIndex)
     } else {
       let destIndexAfter = destIndex
