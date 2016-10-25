@@ -63,7 +63,7 @@ class Tree<TNode extends TreeNode> extends React.Component<TreeProps<TNode>, {}>
 
   private removeAncestorsFromSelection(selection: Set<Key>) {
     const newSelection = new Set(selection)
-    for (const {path} of this.keysToInfos(selection)) {
+    for (const {path} of this.keysToInfos(Array.from(selection))) {
       for (let i = 1; i < path.length; ++i) {
         const subpath = path.slice(0, i)
         const ancestor = this.pathToInfo.get(subpath.join())
@@ -192,7 +192,7 @@ class Tree<TNode extends TreeNode> extends React.Component<TreeProps<TNode>, {}>
     }
   }
 
-  private keysToInfos(keys: Iterable<Key>) {
+  private keysToInfos(keys: Key[]) {
     const infos: NodeInfo<TNode>[] = []
     for (const key of keys) {
       const info = this.keyToInfo.get(key)
@@ -329,7 +329,7 @@ class Tree<TNode extends TreeNode> extends React.Component<TreeProps<TNode>, {}>
     if (!this.canDrop(destInfo, destIndex)) {
       return
     }
-    const srcInfos = this.keysToInfos(this.props.selection.selectedKeys)
+    const srcInfos = this.keysToInfos(Array.from(this.props.selection.selectedKeys))
 
     const copy = ev.altKey || ev.ctrlKey
 
