@@ -123,7 +123,11 @@ class Tree<TNode extends TreeNode> extends React.Component<TreeProps<TNode>, {}>
       let newSelected: Set<Key>
       if (ev.ctrlKey || ev.metaKey) {
         newSelected = new Set(selectedKeys)
-        newSelected.add(key)
+        if (newSelected.has(key)) {
+          newSelected.delete(key)
+        } else {
+          newSelected.add(key)
+        }
       } else if (ev.shiftKey && currentKey != undefined) {
         const visibleKeys = this.visibleInfos.map(info => info.node.key)
         const currentIndex = visibleKeys.indexOf(currentKey)

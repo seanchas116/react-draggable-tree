@@ -11,9 +11,6 @@
 .ReactDraggableTree_row-selected {
   background-color: #e0e0e0;
 }
-.ReactDraggableTree_row-current {
-  background-color: #e0e0e0;
-}
 .ReactDraggableTree_toggler {
   width: 16px;
   height: 16px;
