@@ -16,7 +16,6 @@ interface TreeNode {
 export
 interface NodeInfo<TNode extends TreeNode> {
   node: TNode
-  current: boolean
   selected: boolean
   path: number[]
   visible: boolean
@@ -32,23 +31,17 @@ interface DropTarget<TNode extends TreeNode> {
 }
 
 export
-interface Selection {
-  currentKey?: Key
-  selectedKeys: Set<Key>
-}
-
-export
 interface TreeProps<TNode extends TreeNode> {
   root: TNode
   draggable: boolean
   rowHeight: number
   indent?: number
   rowContent: (nodeInfo: NodeInfo<TNode>) => JSX.Element
-  selection: Selection
+  selectedKeys: Set<Key>
   onMove: (src: NodeInfo<TNode>[], dest: NodeInfo<TNode>, destIndexBefore: number, destIndexAfter: number) => void
   onCopy: (src: NodeInfo<TNode>[], dest: NodeInfo<TNode>, destIndexBefore: number) => void
   onCollapsedChange: (nodeInfo: NodeInfo<TNode>, collapsed: boolean) => void
-  onSelectionChange: (selection: Selection) => void
+  onSelectedKeysChange: (selectedKeys: Set<Key>) => void
 }
 
 export
@@ -98,16 +91,13 @@ class Tree<TNode extends TreeNode> extends React.Component<TreeProps<TNode>, {}>
   }
 
   private renderNode(node: TNode, path: number[], visible: boolean): JSX.Element[] {
-    const {indent, rowHeight, rowContent, onSelectionChange, onCollapsedChange, selection} = this.propsWithDefaults()
-    const {currentKey, selectedKeys} = selection
+    const {indent, rowHeight, rowContent, onSelectedKeysChange, onCollapsedChange, selectedKeys} = this.propsWithDefaults()
     const {key} = node
 
     const isSelected = selectedKeys.has(key)
-    const isCurrent = key == currentKey
     const nodeInfo = {
       node,
       selected: isSelected,
-      current: isCurrent,
       path,
       visible,
       visibleOffset: this.visibleInfos.length
@@ -128,12 +118,12 @@ class Tree<TNode extends TreeNode> extends React.Component<TreeProps<TNode>, {}>
         } else {
           newSelected.add(key)
         }
-      } else if (ev.shiftKey && currentKey != undefined) {
+      } else if (ev.shiftKey && selectedKeys.size > 0) {
         const visibleKeys = this.visibleInfos.map(info => info.node.key)
-        const currentIndex = visibleKeys.indexOf(currentKey)
+        const selectedIndices = this.keysToInfos(Array.from(selectedKeys)).map(info => info.visibleOffset)
         const thisIndex = visibleKeys.indexOf(key)
-        const min = Math.min(thisIndex, currentIndex)
-        const max = Math.max(thisIndex, currentIndex)
+        const min = Math.min(thisIndex, ...selectedIndices)
+        const max = Math.max(thisIndex, ...selectedIndices)
         const keysToAdd = visibleKeys.slice(min, max + 1)
         newSelected = new Set(selectedKeys)
         for (const k of keysToAdd) {
@@ -143,10 +133,7 @@ class Tree<TNode extends TreeNode> extends React.Component<TreeProps<TNode>, {}>
         newSelected = new Set([key])
       }
 
-      onSelectionChange({
-        selectedKeys: this.removeAncestorsFromSelection(newSelected),
-        currentKey: key
-      })
+      onSelectedKeysChange(this.removeAncestorsFromSelection(newSelected))
     }
 
     const onDragStart = (ev: React.DragEvent<Element>) => {
@@ -154,10 +141,7 @@ class Tree<TNode extends TreeNode> extends React.Component<TreeProps<TNode>, {}>
       ev.dataTransfer.setData(DRAG_MIME, "drag")
 
       if (!selectedKeys.has(key)) {
-        onSelectionChange({
-          selectedKeys: new Set([key]),
-          currentKey: key
-        })
+        onSelectedKeysChange(new Set([key]))
       }
     }
 
@@ -173,7 +157,6 @@ class Tree<TNode extends TreeNode> extends React.Component<TreeProps<TNode>, {}>
 
     const rowClasses = classNames("ReactDraggableTree_row", {
       "ReactDraggableTree_row-selected": isSelected,
-      "ReactDraggableTree_row-current": isCurrent,
     })
 
     let row = <div key={`row-${key}`} className={rowClasses} style={style} onClick={onClick} draggable={true} onDragStart={onDragStart} onDragEnd={onDragEnd}>
@@ -302,7 +285,7 @@ class Tree<TNode extends TreeNode> extends React.Component<TreeProps<TNode>, {}>
   }
 
   private canDrop(destInfo: NodeInfo<TNode>, destIndex: number) {
-    const {selectedKeys} = this.props.selection
+    const {selectedKeys} = this.props
     const {path} = destInfo
     for (let i = 0; i < path.length; ++i) {
       const ancestorPath = path.slice(0, path.length - i)
@@ -329,7 +312,7 @@ class Tree<TNode extends TreeNode> extends React.Component<TreeProps<TNode>, {}>
     if (!this.canDrop(destInfo, destIndex)) {
       return
     }
-    const srcInfos = this.keysToInfos(Array.from(this.props.selection.selectedKeys))
+    const srcInfos = this.keysToInfos(Array.from(this.props.selectedKeys))
 
     const copy = ev.altKey || ev.ctrlKey
 
