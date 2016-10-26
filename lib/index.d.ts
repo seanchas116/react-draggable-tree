@@ -7,27 +7,21 @@ export interface TreeNode {
 }
 export interface NodeInfo<TNode extends TreeNode> {
     node: TNode;
-    current: boolean;
     selected: boolean;
     path: number[];
     visible: boolean;
     visibleOffset: number;
 }
-export interface Selection {
-    currentKey?: Key;
-    selectedKeys: Set<Key>;
-}
 export interface TreeProps<TNode extends TreeNode> {
     root: TNode;
-    draggable: boolean;
     rowHeight: number;
     indent?: number;
     rowContent: (nodeInfo: NodeInfo<TNode>) => JSX.Element;
-    selection: Selection;
+    selectedKeys: Set<Key>;
     onMove: (src: NodeInfo<TNode>[], dest: NodeInfo<TNode>, destIndexBefore: number, destIndexAfter: number) => void;
     onCopy: (src: NodeInfo<TNode>[], dest: NodeInfo<TNode>, destIndexBefore: number) => void;
     onCollapsedChange: (nodeInfo: NodeInfo<TNode>, collapsed: boolean) => void;
-    onSelectionChange: (selection: Selection) => void;
+    onSelectedKeysChange: (selectedKeys: Set<Key>) => void;
 }
 export declare class Tree<TNode extends TreeNode> extends React.Component<TreeProps<TNode>, {}> {
     private element;
