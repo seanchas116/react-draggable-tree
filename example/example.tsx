@@ -55,7 +55,6 @@ class Example extends React.Component<{}, {}> {
       <MyTree
         root={this.root}
         selectedKeys={this.selectedKeys}
-        draggable={true}
         rowHeight={40}
         rowContent={MyRowContent}
         onSelectedKeysChange={onSelectedKeysChange}

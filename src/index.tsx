@@ -33,7 +33,6 @@ interface DropTarget<TNode extends TreeNode> {
 export
 interface TreeProps<TNode extends TreeNode> {
   root: TNode
-  draggable: boolean
   rowHeight: number
   indent?: number
   rowContent: (nodeInfo: NodeInfo<TNode>) => JSX.Element
