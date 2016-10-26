@@ -2,7 +2,7 @@ require("./example.css")
 require("../lib/index.css")
 import React = require("react")
 import ReactDOM = require("react-dom")
-import {Tree, TreeNode, NodeInfo, Selection} from "../src"
+import {Tree, TreeNode, NodeInfo} from "../src"
 const classNames = require("classnames")
 const loremIpsum = require("lorem-ipsum")
 
@@ -13,14 +13,11 @@ class MyTree extends Tree<MyNode> {}
 
 class Example extends React.Component<{}, {}> {
   root = generateNode(4, 2, 4)
-  selection: Selection = {
-    currentKey: this.root.children![0].key,
-    selectedKeys: new Set([this.root.children![0].key,]),
-  }
+  selectedKeys = new Set([this.root.children![0].key])
 
   render() {
-    const onSelectionChange = (selection: Selection) => {
-      this.selection = selection
+    const onSelectedKeysChange = (selectedKeys: Set<number>) => {
+      this.selectedKeys = selectedKeys
       this.forceUpdate()
     }
     const onCollapsedChange = (info: NodeInfo<MyNode>, collapsed: boolean) => {
@@ -57,11 +54,10 @@ class Example extends React.Component<{}, {}> {
     return (
       <MyTree
         root={this.root}
-        selection={this.selection}
-        draggable={true}
+        selectedKeys={this.selectedKeys}
         rowHeight={40}
         rowContent={MyRowContent}
-        onSelectionChange={onSelectionChange}
+        onSelectedKeysChange={onSelectedKeysChange}
         onCollapsedChange={onCollapsedChange}
         onMove={onMove}
         onCopy={onCopy}
@@ -70,9 +66,9 @@ class Example extends React.Component<{}, {}> {
   }
 }
 
-function MyRowContent(props: {node: MyNode, selected: boolean, current: boolean}) {
-  const {node, selected, current} = props
-  return <div className={classNames("example-cell", {selected, current})}>{node.text}</div>
+function MyRowContent(props: {node: MyNode, selected: boolean}) {
+  const {node, selected} = props
+  return <div className={classNames("example-cell", {selected})}>{node.text}</div>
 }
 
 function nodeForPath(node: MyNode, path: number[]): MyNode|undefined {
