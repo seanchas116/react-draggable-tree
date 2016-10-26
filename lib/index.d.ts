@@ -21,7 +21,7 @@ export interface TreeProps<TNode extends TreeNode> {
     onMove: (src: NodeInfo<TNode>[], dest: NodeInfo<TNode>, destIndexBefore: number, destIndexAfter: number) => void;
     onCopy: (src: NodeInfo<TNode>[], dest: NodeInfo<TNode>, destIndexBefore: number) => void;
     onCollapsedChange: (nodeInfo: NodeInfo<TNode>, collapsed: boolean) => void;
-    onSelectedKeysChange: (selectedKeys: Set<Key>) => void;
+    onSelectedKeysChange: (selectedKeys: Set<Key>, selectedInfos: NodeInfo<TNode>[]) => void;
 }
 export declare class Tree<TNode extends TreeNode> extends React.Component<TreeProps<TNode>, {}> {
     private element;
