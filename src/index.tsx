@@ -1,6 +1,6 @@
 import React = require("react")
 const classNames = require("classnames")
-const bowser = require("bowser")
+import bowser = require("bowser")
 
 const DRAG_MIME = "x-react-draggable-tree-drag"
 
@@ -310,7 +310,7 @@ class Tree<TNode extends TreeNode> extends React.Component<TreeProps<TNode>, {}>
     }
     // workaround for https://bugs.chromium.org/p/chromium/issues/detail?id=644421
     let {clientX, clientY} = ev
-    if (bowser.chrome && bowser.version == 53) {
+    if (bowser.windows && bowser.chrome && bowser.version == "53") {
       clientX *= window.devicePixelRatio
       clientY *= window.devicePixelRatio
     }
