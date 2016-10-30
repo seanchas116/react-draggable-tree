@@ -310,7 +310,7 @@ class Tree<TNode extends TreeNode> extends React.Component<TreeProps<TNode>, {}>
     }
     // workaround for https://bugs.chromium.org/p/chromium/issues/detail?id=644421
     let {clientX, clientY} = ev
-    if (bowser.windows && bowser.chrome && bowser.version == "53") {
+    if (bowser.windows && bowser.chrome && bowser.version == "53.0") {
       clientX *= window.devicePixelRatio
       clientY *= window.devicePixelRatio
     }
