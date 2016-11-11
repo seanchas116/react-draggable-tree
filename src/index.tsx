@@ -249,40 +249,30 @@ class Tree<TNode extends TreeNode> extends React.Component<TreeProps<TNode>, {}>
       }
     }
 
-    const betweenIndex = (offset < rowHeight / 2) ? overIndex : overIndex + 1
+    const betweenIndex = clamp((offset < rowHeight / 2) ? overIndex : overIndex + 1, 0, this.visibleInfos.length)
 
-    if (betweenIndex < this.visibleInfos.length) {
-      let {path} = this.visibleInfos[betweenIndex]
-      if (0 < betweenIndex) {
-        const prev = this.visibleInfos[betweenIndex - 1]
-        let prevPath = prev.path
-        if (prev.node.children && prev.node.children.length == 0 && !prev.node.collapsed) {
-          prevPath = [...prevPath, -1]
-        }
-        if (path.length < prevPath.length) {
-          const depth = clamp(Math.floor(x / indent) - 1, path.length, prevPath.length)
-          path = [...prevPath.slice(0, depth - 1), prevPath[depth - 1] + 1]
-        }
+    let path = (betweenIndex == this.visibleInfos.length)
+      ? [this.rootInfo.node.children!.length]
+      : this.visibleInfos[betweenIndex].path
+    if (0 < betweenIndex) {
+      const prev = this.visibleInfos[betweenIndex - 1]
+      let prevPath = prev.path
+      if (prev.node.children && prev.node.children.length == 0 && !prev.node.collapsed) {
+        prevPath = [...prevPath, -1]
       }
-      const destPath = path.slice(0, -1)
-      const dest = this.pathToInfo.get(destPath.join())!
-      return {
-        type: "between",
-        index: betweenIndex,
-        dest,
-        destIndex: path[path.length - 1],
-        depth: path.length - 1
+      if (path.length < prevPath.length) {
+        const depth = clamp(Math.floor(x / indent) - 1, path.length, prevPath.length)
+        path = [...prevPath.slice(0, depth - 1), prevPath[depth - 1] + 1]
       }
-    } else {
-      const dest = this.rootInfo
-      const {root} = this.props
-      return {
-        type: "between",
-        index: betweenIndex,
-        dest,
-        destIndex: dest.node.children!.length,
-        depth: 0
-      }
+    }
+    const destPath = path.slice(0, -1)
+    const dest = this.pathToInfo.get(destPath.join())!
+    return {
+      type: "between",
+      index: betweenIndex,
+      dest,
+      destIndex: path[path.length - 1],
+      depth: path.length - 1
     }
   }
 
