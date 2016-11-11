@@ -56,20 +56,21 @@
 	var ReactDOM = __webpack_require__(40);
 	var src_1 = __webpack_require__(178);
 	var classNames = __webpack_require__(179);
-	var loremIpsum = __webpack_require__(180);
+	var loremIpsum = __webpack_require__(182);
 	var MyTree = (function (_super) {
 	    __extends(MyTree, _super);
 	    function MyTree() {
-	        _super.apply(this, arguments);
+	        return _super.apply(this, arguments) || this;
 	    }
 	    return MyTree;
 	}(src_1.Tree));
 	var Example = (function (_super) {
 	    __extends(Example, _super);
 	    function Example() {
-	        _super.apply(this, arguments);
-	        this.root = generateNode(4, 2, 4);
-	        this.selectedKeys = new Set([this.root.children[0].key]);
+	        var _this = _super.apply(this, arguments) || this;
+	        _this.root = generateNode(4, 2, 4);
+	        _this.selectedKeys = new Set([_this.root.children[0].key]);
+	        return _this;
 	    }
 	    Example.prototype.render = function () {
 	        var _this = this;
@@ -109,13 +110,13 @@
 	            _this.forceUpdate();
 	            var _a;
 	        };
-	        return (React.createElement(MyTree, {root: this.root, selectedKeys: this.selectedKeys, rowHeight: 40, rowContent: MyRowContent, onSelectedKeysChange: onSelectedKeysChange, onCollapsedChange: onCollapsedChange, onMove: onMove, onCopy: onCopy}));
+	        return (React.createElement(MyTree, { root: this.root, selectedKeys: this.selectedKeys, rowHeight: 40, rowContent: MyRowContent, onSelectedKeysChange: onSelectedKeysChange, onCollapsedChange: onCollapsedChange, onMove: onMove, onCopy: onCopy }));
 	    };
 	    return Example;
 	}(React.Component));
 	function MyRowContent(props) {
 	    var node = props.node, selected = props.selected;
-	    return React.createElement("div", {className: classNames("example-cell", { selected: selected })}, node.text);
+	    return React.createElement("div", { className: classNames("example-cell", { selected: selected }) }, node.text);
 	}
 	function nodeForPath(node, path) {
 	    if (path.length == 0) {
@@ -192,7 +193,7 @@
 
 
 	// module
-	exports.push([module.id, "\r\n#example {\r\n  width: 600px;\r\n  height: 600px;\r\n  overflow-y: scroll;\r\n  border: 1px solid grey;\r\n}\r\n", ""]);
+	exports.push([module.id, "\n#example {\n  width: 600px;\n  height: 600px;\n  overflow-y: scroll;\n  border: 1px solid grey;\n}\n", ""]);
 
 	// exports
 
@@ -540,7 +541,7 @@
 
 
 	// module
-	exports.push([module.id, "\r\n.ReactDraggableTree {\r\n  display: flex;\r\n  flex-direction: column;\r\n  position: relative;\r\n}\r\n.ReactDraggableTree_row {\r\n  display: flex;\r\n  align-items: center;\r\n}\r\n.ReactDraggableTree_row-selected {\r\n  background-color: #e0e0e0;\r\n}\r\n.ReactDraggableTree_toggler {\r\n  width: 16px;\r\n  height: 16px;\r\n  margin: 4px;\r\n  display: flex;\r\n  align-items: center;\r\n  justify-content: center;\r\n}\r\n.ReactDraggableTree_toggler:before {\r\n  content: \"\";\r\n  display: block;\r\n  width: 8px;\r\n  height: 8px;\r\n  box-sizing: border-box;\r\n  border-right: 1px solid gray;\r\n  border-bottom: 1px solid gray;\r\n  transform: rotate(45deg) translate(-2px, -2px);\r\n  visibility: hidden;\r\n}\r\n.ReactDraggableTree_toggler-visible:before {\r\n  visibility: visible;\r\n}\r\n.ReactDraggableTree_toggler-collapsed:before {\r\n  transform: rotate(-45deg) translate(-2px, -2px);\r\n}\r\n.ReactDraggableTree_dropOver {\r\n  position: absolute;\r\n  box-sizing: border-box;\r\n  left: 0;\r\n  width: 100%;\r\n  pointer-events: none;\r\n  border: 2px solid #2196F3;\r\n}\r\n.ReactDraggableTree_dropBetween {\r\n  position: absolute;\r\n  left: 0;\r\n  width: 100%;\r\n  pointer-events: none;\r\n  background-color: #2196F3;\r\n}", ""]);
+	exports.push([module.id, "\n.ReactDraggableTree {\n  display: flex;\n  flex-direction: column;\n  position: relative;\n}\n.ReactDraggableTree_row {\n  display: flex;\n  align-items: center;\n}\n.ReactDraggableTree_row-selected {\n  background-color: #e0e0e0;\n}\n.ReactDraggableTree_toggler {\n  width: 16px;\n  height: 16px;\n  margin: 4px;\n  display: flex;\n  align-items: center;\n  justify-content: center;\n}\n.ReactDraggableTree_toggler:before {\n  content: \"\";\n  display: block;\n  width: 8px;\n  height: 8px;\n  box-sizing: border-box;\n  border-right: 1px solid gray;\n  border-bottom: 1px solid gray;\n  transform: rotate(45deg) translate(-2px, -2px);\n  visibility: hidden;\n}\n.ReactDraggableTree_toggler-visible:before {\n  visibility: visible;\n}\n.ReactDraggableTree_toggler-collapsed:before {\n  transform: rotate(-45deg) translate(-2px, -2px);\n}\n.ReactDraggableTree_dropOver {\n  position: absolute;\n  box-sizing: border-box;\n  left: 0;\n  width: 100%;\n  pointer-events: none;\n  border: 2px solid #2196F3;\n}\n.ReactDraggableTree_dropBetween {\n  position: absolute;\n  left: 0;\n  width: 100%;\n  pointer-events: none;\n  background-color: #2196F3;\n}", ""]);
 
 	// exports
 
@@ -21924,17 +21925,17 @@
 	};
 	var React = __webpack_require__(7);
 	var classNames = __webpack_require__(179);
+	var bowser = __webpack_require__(180);
 	var DRAG_MIME = "x-react-draggable-tree-drag";
 	var Tree = (function (_super) {
 	    __extends(Tree, _super);
 	    function Tree() {
-	        var _this = this;
-	        _super.apply(this, arguments);
-	        this.infoToPath = new Map();
-	        this.pathToInfo = new Map(); // using joined path as key string
-	        this.visibleInfos = [];
-	        this.keyToInfo = new Map();
-	        this.onDragOver = function (ev) {
+	        var _this = _super.apply(this, arguments) || this;
+	        _this.infoToPath = new Map();
+	        _this.pathToInfo = new Map(); // using joined path as key string
+	        _this.visibleInfos = [];
+	        _this.keyToInfo = new Map();
+	        _this.onDragOver = function (ev) {
 	            ev.preventDefault();
 	            var copy = ev.altKey || ev.ctrlKey;
 	            ev.dataTransfer.dropEffect = copy ? "copy" : "move";
@@ -21945,18 +21946,24 @@
 	            }
 	            _this.updateDropIndicator(undefined);
 	        };
-	        this.onDrop = function (ev) {
+	        _this.onDrop = function (ev) {
 	            _this.updateDropIndicator(undefined);
 	            var data = ev.dataTransfer.getData(DRAG_MIME);
 	            if (!data) {
 	                return;
 	            }
-	            var target = _this.getDropTarget(ev);
+	            // workaround for https://bugs.chromium.org/p/chromium/issues/detail?id=644421
+	            var clientX = ev.clientX, clientY = ev.clientY;
+	            if (bowser.windows && bowser.chrome && bowser.version == "53.0") {
+	                clientX *= window.devicePixelRatio;
+	                clientY *= window.devicePixelRatio;
+	            }
+	            var target = _this.getDropTarget({ clientX: clientX, clientY: clientY });
 	            var destInfo = target.dest, destIndex = target.destIndex;
 	            if (!_this.canDrop(destInfo, destIndex)) {
 	                return;
 	            }
-	            var srcInfos = _this.keysToInfos(Array.from(_this.props.selectedKeys));
+	            var srcInfos = _this.keysToInfos(_this.props.selectedKeys);
 	            var copy = ev.altKey || ev.ctrlKey;
 	            if (copy) {
 	                _this.props.onCopy(srcInfos, destInfo, destIndex);
@@ -21976,10 +21983,11 @@
 	            }
 	            ev.preventDefault();
 	        };
+	        return _this;
 	    }
 	    Tree.prototype.removeAncestorsFromSelection = function (selection) {
 	        var newSelection = new Set(selection);
-	        for (var _i = 0, _a = this.keysToInfos(Array.from(selection)); _i < _a.length; _i++) {
+	        for (var _i = 0, _a = this.keysToInfos(selection); _i < _a.length; _i++) {
 	            var path = _a[_i].path;
 	            for (var i = 1; i < path.length; ++i) {
 	                var subpath = path.slice(0, i);
@@ -22040,7 +22048,7 @@
 	            }
 	            else if (ev.shiftKey && selectedKeys.size > 0) {
 	                var visibleKeys = _this.visibleInfos.map(function (info) { return info.node.key; });
-	                var selectedIndices = _this.keysToInfos(Array.from(selectedKeys)).map(function (info) { return info.visibleOffset; });
+	                var selectedIndices = _this.keysToInfos(selectedKeys).map(function (info) { return info.visibleOffset; });
 	                var thisIndex = visibleKeys.indexOf(key);
 	                var min = Math.min.apply(Math, [thisIndex].concat(selectedIndices));
 	                var max = Math.max.apply(Math, [thisIndex].concat(selectedIndices));
@@ -22054,13 +22062,15 @@
 	            else {
 	                newSelected = new Set([key]);
 	            }
-	            onSelectedKeysChange(_this.removeAncestorsFromSelection(newSelected));
+	            newSelected = _this.removeAncestorsFromSelection(newSelected);
+	            onSelectedKeysChange(newSelected, _this.keysToInfos(newSelected));
 	        };
 	        var onDragStart = function (ev) {
 	            ev.dataTransfer.effectAllowed = "copyMove";
 	            ev.dataTransfer.setData(DRAG_MIME, "drag");
 	            if (!selectedKeys.has(key)) {
-	                onSelectedKeysChange(new Set([key]));
+	                var newSelected = new Set([key]);
+	                onSelectedKeysChange(newSelected, _this.keysToInfos(newSelected));
 	            }
 	        };
 	        var onDragEnd = function () {
@@ -22074,12 +22084,12 @@
 	        var rowClasses = classNames("ReactDraggableTree_row", {
 	            "ReactDraggableTree_row-selected": isSelected,
 	        });
-	        var row = React.createElement("div", {key: "row-" + key, className: rowClasses, style: style, onClick: onClick, draggable: true, onDragStart: onDragStart, onDragEnd: onDragEnd}, 
-	            React.createElement(Toggler, {visible: !!node.children, collapsed: !!node.collapsed, onClick: onTogglerClick}), 
+	        var row = React.createElement("div", { key: "row-" + key, className: rowClasses, style: style, onClick: onClick, draggable: true, onDragStart: onDragStart, onDragEnd: onDragEnd },
+	            React.createElement(Toggler, { visible: !!node.children, collapsed: !!node.collapsed, onClick: onTogglerClick }),
 	            rowContent(nodeInfo));
 	        if (node.children) {
 	            var childrenVisible_1 = visible && !node.collapsed;
-	            var children = React.createElement("div", {key: "children-" + key, className: "ReactDraggableTree_children", hidden: node.collapsed}, node.children.map(function (child, i) { return _this.renderNode(child, path.concat([i]), childrenVisible_1); }));
+	            var children = React.createElement("div", { key: "children-" + key, className: "ReactDraggableTree_children", hidden: node.collapsed }, node.children.map(function (child, i) { return _this.renderNode(child, path.concat([i]), childrenVisible_1); }));
 	            return [row, children];
 	        }
 	        else {
@@ -22087,14 +22097,14 @@
 	        }
 	    };
 	    Tree.prototype.keysToInfos = function (keys) {
+	        var _this = this;
 	        var infos = [];
-	        for (var _i = 0, keys_1 = keys; _i < keys_1.length; _i++) {
-	            var key = keys_1[_i];
-	            var info = this.keyToInfo.get(key);
+	        keys.forEach(function (key) {
+	            var info = _this.keyToInfo.get(key);
 	            if (info) {
 	                infos.push(info);
 	            }
-	        }
+	        });
 	        infos.sort(function (a, b) { return comparePaths(a.path, b.path); });
 	        return infos;
 	    };
@@ -22115,9 +22125,9 @@
 	        var rootInfo = { node: root, selected: false, current: false, path: [], visible: false, visibleOffset: 0 };
 	        this.addNodeInfo(rootInfo);
 	        this.rootInfo = rootInfo;
-	        return (React.createElement("div", {ref: function (e) { return _this.element = e; }, className: "ReactDraggableTree", onDragOver: this.onDragOver, onDrop: this.onDrop}, 
-	            children.map(function (child, i) { return _this.renderNode(child, [i], true); }), 
-	            React.createElement(DropIndicator, {ref: function (e) { return _this.dropIndicator = e; }, rowHeight: rowHeight, indent: indent})));
+	        return (React.createElement("div", { ref: function (e) { return _this.element = e; }, className: "ReactDraggableTree", onDragOver: this.onDragOver, onDrop: this.onDrop },
+	            children.map(function (child, i) { return _this.renderNode(child, [i], true); }),
+	            React.createElement(DropIndicator, { ref: function (e) { return _this.dropIndicator = e; }, rowHeight: rowHeight, indent: indent })));
 	    };
 	    Tree.prototype.getDropTarget = function (ev) {
 	        var _a = this.propsWithDefaults(), rowHeight = _a.rowHeight, indent = _a.indent;
@@ -22128,53 +22138,42 @@
 	        var offset = y - overIndex * rowHeight;
 	        if (overIndex < this.visibleInfos.length) {
 	            if (rowHeight * 0.25 < offset && offset < rowHeight * 0.75) {
-	                var dest = this.visibleInfos[overIndex];
-	                if (dest.node.children) {
+	                var dest_1 = this.visibleInfos[overIndex];
+	                if (dest_1.node.children) {
 	                    return {
 	                        type: "over",
 	                        index: overIndex,
-	                        dest: dest,
+	                        dest: dest_1,
 	                        destIndex: 0,
 	                        depth: 0,
 	                    };
 	                }
 	            }
 	        }
-	        var betweenIndex = (offset < rowHeight / 2) ? overIndex : overIndex + 1;
-	        if (betweenIndex < this.visibleInfos.length) {
-	            var path = this.visibleInfos[betweenIndex].path;
-	            if (0 < betweenIndex) {
-	                var prev = this.visibleInfos[betweenIndex - 1];
-	                var prevPath = prev.path;
-	                if (prev.node.children && prev.node.children.length == 0 && !prev.node.collapsed) {
-	                    prevPath = prevPath.concat([-1]);
-	                }
-	                if (path.length < prevPath.length) {
-	                    var depth = clamp(Math.floor(x / indent) - 1, path.length, prevPath.length);
-	                    path = prevPath.slice(0, depth - 1).concat([prevPath[depth - 1] + 1]);
-	                }
+	        var betweenIndex = clamp((offset < rowHeight / 2) ? overIndex : overIndex + 1, 0, this.visibleInfos.length);
+	        var path = (betweenIndex == this.visibleInfos.length)
+	            ? [this.rootInfo.node.children.length]
+	            : this.visibleInfos[betweenIndex].path;
+	        if (0 < betweenIndex) {
+	            var prev = this.visibleInfos[betweenIndex - 1];
+	            var prevPath = prev.path;
+	            if (prev.node.children && prev.node.children.length == 0 && !prev.node.collapsed) {
+	                prevPath = prevPath.concat([-1]);
 	            }
-	            var destPath = path.slice(0, -1);
-	            var dest = this.pathToInfo.get(destPath.join());
-	            return {
-	                type: "between",
-	                index: betweenIndex,
-	                dest: dest,
-	                destIndex: path[path.length - 1],
-	                depth: path.length - 1
-	            };
+	            if (path.length < prevPath.length) {
+	                var depth = clamp(Math.floor(x / indent) - 1, path.length, prevPath.length);
+	                path = prevPath.slice(0, depth - 1).concat([prevPath[depth - 1] + 1]);
+	            }
 	        }
-	        else {
-	            var dest = this.rootInfo;
-	            var root = this.props.root;
-	            return {
-	                type: "between",
-	                index: betweenIndex,
-	                dest: dest,
-	                destIndex: dest.node.children.length,
-	                depth: 0
-	            };
-	        }
+	        var destPath = path.slice(0, -1);
+	        var dest = this.pathToInfo.get(destPath.join());
+	        return {
+	            type: "between",
+	            index: betweenIndex,
+	            dest: dest,
+	            destIndex: path[path.length - 1],
+	            depth: path.length - 1
+	        };
 	    };
 	    Tree.prototype.canDrop = function (destInfo, destIndex) {
 	        var selectedKeys = this.props.selectedKeys;
@@ -22225,17 +22224,18 @@
 	        "ReactDraggableTree_toggler-visible": props.visible,
 	        "ReactDraggableTree_toggler-collapsed": props.collapsed,
 	    });
-	    return React.createElement("div", {className: claassName, onClick: props.onClick});
+	    return React.createElement("div", { className: claassName, onClick: props.onClick });
 	}
 	var DropIndicator = (function (_super) {
 	    __extends(DropIndicator, _super);
 	    function DropIndicator() {
-	        _super.apply(this, arguments);
-	        this.state = {
+	        var _this = _super.apply(this, arguments) || this;
+	        _this.state = {
 	            type: "none",
 	            index: 0,
 	            depth: 0,
 	        };
+	        return _this;
 	    }
 	    DropIndicator.prototype.render = function () {
 	        var _a = this.state, type = _a.type, index = _a.index, depth = _a.depth;
@@ -22246,14 +22246,14 @@
 	            height: rowHeight + "px",
 	        };
 	        var dropBetweenStyle = {
-	            top: (offset - 1) + "px",
+	            top: offset - 1 + "px",
 	            height: "2px",
 	            left: (depth + 1) * indent + "px",
 	            width: "calc(100% - " + (depth + 1) * indent + "px)"
 	        };
-	        return (React.createElement("div", null, 
-	            React.createElement("div", {className: "ReactDraggableTree_dropOver", hidden: type != "over", style: dropOverStyle}), 
-	            React.createElement("div", {className: "ReactDraggableTree_dropBetween", hidden: type != "between", style: dropBetweenStyle})));
+	        return (React.createElement("div", null,
+	            React.createElement("div", { className: "ReactDraggableTree_dropOver", hidden: type != "over", style: dropOverStyle }),
+	            React.createElement("div", { className: "ReactDraggableTree_dropBetween", hidden: type != "between", style: dropBetweenStyle })));
 	    };
 	    return DropIndicator;
 	}(React.Component));
@@ -22317,6 +22317,599 @@
 /* 180 */
 /***/ function(module, exports, __webpack_require__) {
 
+	/*!
+	 * Bowser - a browser detector
+	 * https://github.com/ded/bowser
+	 * MIT License | (c) Dustin Diaz 2015
+	 */
+
+	!function (name, definition) {
+	  if (typeof module != 'undefined' && module.exports) module.exports = definition()
+	  else if (true) __webpack_require__(181)(name, definition)
+	  else this[name] = definition()
+	}('bowser', function () {
+	  /**
+	    * See useragents.js for examples of navigator.userAgent
+	    */
+
+	  var t = true
+
+	  function detect(ua) {
+
+	    function getFirstMatch(regex) {
+	      var match = ua.match(regex);
+	      return (match && match.length > 1 && match[1]) || '';
+	    }
+
+	    function getSecondMatch(regex) {
+	      var match = ua.match(regex);
+	      return (match && match.length > 1 && match[2]) || '';
+	    }
+
+	    var iosdevice = getFirstMatch(/(ipod|iphone|ipad)/i).toLowerCase()
+	      , likeAndroid = /like android/i.test(ua)
+	      , android = !likeAndroid && /android/i.test(ua)
+	      , nexusMobile = /nexus\s*[0-6]\s*/i.test(ua)
+	      , nexusTablet = !nexusMobile && /nexus\s*[0-9]+/i.test(ua)
+	      , chromeos = /CrOS/.test(ua)
+	      , silk = /silk/i.test(ua)
+	      , sailfish = /sailfish/i.test(ua)
+	      , tizen = /tizen/i.test(ua)
+	      , webos = /(web|hpw)os/i.test(ua)
+	      , windowsphone = /windows phone/i.test(ua)
+	      , samsungBrowser = /SamsungBrowser/i.test(ua)
+	      , windows = !windowsphone && /windows/i.test(ua)
+	      , mac = !iosdevice && !silk && /macintosh/i.test(ua)
+	      , linux = !android && !sailfish && !tizen && !webos && /linux/i.test(ua)
+	      , edgeVersion = getFirstMatch(/edge\/(\d+(\.\d+)?)/i)
+	      , versionIdentifier = getFirstMatch(/version\/(\d+(\.\d+)?)/i)
+	      , tablet = /tablet/i.test(ua)
+	      , mobile = !tablet && /[^-]mobi/i.test(ua)
+	      , xbox = /xbox/i.test(ua)
+	      , result
+
+	    if (/opera/i.test(ua)) {
+	      //  an old Opera
+	      result = {
+	        name: 'Opera'
+	      , opera: t
+	      , version: versionIdentifier || getFirstMatch(/(?:opera|opr|opios)[\s\/](\d+(\.\d+)?)/i)
+	      }
+	    } else if (/opr|opios/i.test(ua)) {
+	      // a new Opera
+	      result = {
+	        name: 'Opera'
+	        , opera: t
+	        , version: getFirstMatch(/(?:opr|opios)[\s\/](\d+(\.\d+)?)/i) || versionIdentifier
+	      }
+	    }
+	    else if (/SamsungBrowser/i.test(ua)) {
+	      result = {
+	        name: 'Samsung Internet for Android'
+	        , samsungBrowser: t
+	        , version: versionIdentifier || getFirstMatch(/(?:SamsungBrowser)[\s\/](\d+(\.\d+)?)/i)
+	      }
+	    }
+	    else if (/coast/i.test(ua)) {
+	      result = {
+	        name: 'Opera Coast'
+	        , coast: t
+	        , version: versionIdentifier || getFirstMatch(/(?:coast)[\s\/](\d+(\.\d+)?)/i)
+	      }
+	    }
+	    else if (/yabrowser/i.test(ua)) {
+	      result = {
+	        name: 'Yandex Browser'
+	      , yandexbrowser: t
+	      , version: versionIdentifier || getFirstMatch(/(?:yabrowser)[\s\/](\d+(\.\d+)?)/i)
+	      }
+	    }
+	    else if (/ucbrowser/i.test(ua)) {
+	      result = {
+	          name: 'UC Browser'
+	        , ucbrowser: t
+	        , version: getFirstMatch(/(?:ucbrowser)[\s\/](\d+(?:\.\d+)+)/i)
+	      }
+	    }
+	    else if (/mxios/i.test(ua)) {
+	      result = {
+	        name: 'Maxthon'
+	        , maxthon: t
+	        , version: getFirstMatch(/(?:mxios)[\s\/](\d+(?:\.\d+)+)/i)
+	      }
+	    }
+	    else if (/epiphany/i.test(ua)) {
+	      result = {
+	        name: 'Epiphany'
+	        , epiphany: t
+	        , version: getFirstMatch(/(?:epiphany)[\s\/](\d+(?:\.\d+)+)/i)
+	      }
+	    }
+	    else if (/puffin/i.test(ua)) {
+	      result = {
+	        name: 'Puffin'
+	        , puffin: t
+	        , version: getFirstMatch(/(?:puffin)[\s\/](\d+(?:\.\d+)?)/i)
+	      }
+	    }
+	    else if (/sleipnir/i.test(ua)) {
+	      result = {
+	        name: 'Sleipnir'
+	        , sleipnir: t
+	        , version: getFirstMatch(/(?:sleipnir)[\s\/](\d+(?:\.\d+)+)/i)
+	      }
+	    }
+	    else if (/k-meleon/i.test(ua)) {
+	      result = {
+	        name: 'K-Meleon'
+	        , kMeleon: t
+	        , version: getFirstMatch(/(?:k-meleon)[\s\/](\d+(?:\.\d+)+)/i)
+	      }
+	    }
+	    else if (windowsphone) {
+	      result = {
+	        name: 'Windows Phone'
+	      , windowsphone: t
+	      }
+	      if (edgeVersion) {
+	        result.msedge = t
+	        result.version = edgeVersion
+	      }
+	      else {
+	        result.msie = t
+	        result.version = getFirstMatch(/iemobile\/(\d+(\.\d+)?)/i)
+	      }
+	    }
+	    else if (/msie|trident/i.test(ua)) {
+	      result = {
+	        name: 'Internet Explorer'
+	      , msie: t
+	      , version: getFirstMatch(/(?:msie |rv:)(\d+(\.\d+)?)/i)
+	      }
+	    } else if (chromeos) {
+	      result = {
+	        name: 'Chrome'
+	      , chromeos: t
+	      , chromeBook: t
+	      , chrome: t
+	      , version: getFirstMatch(/(?:chrome|crios|crmo)\/(\d+(\.\d+)?)/i)
+	      }
+	    } else if (/chrome.+? edge/i.test(ua)) {
+	      result = {
+	        name: 'Microsoft Edge'
+	      , msedge: t
+	      , version: edgeVersion
+	      }
+	    }
+	    else if (/vivaldi/i.test(ua)) {
+	      result = {
+	        name: 'Vivaldi'
+	        , vivaldi: t
+	        , version: getFirstMatch(/vivaldi\/(\d+(\.\d+)?)/i) || versionIdentifier
+	      }
+	    }
+	    else if (sailfish) {
+	      result = {
+	        name: 'Sailfish'
+	      , sailfish: t
+	      , version: getFirstMatch(/sailfish\s?browser\/(\d+(\.\d+)?)/i)
+	      }
+	    }
+	    else if (/seamonkey\//i.test(ua)) {
+	      result = {
+	        name: 'SeaMonkey'
+	      , seamonkey: t
+	      , version: getFirstMatch(/seamonkey\/(\d+(\.\d+)?)/i)
+	      }
+	    }
+	    else if (/firefox|iceweasel|fxios/i.test(ua)) {
+	      result = {
+	        name: 'Firefox'
+	      , firefox: t
+	      , version: getFirstMatch(/(?:firefox|iceweasel|fxios)[ \/](\d+(\.\d+)?)/i)
+	      }
+	      if (/\((mobile|tablet);[^\)]*rv:[\d\.]+\)/i.test(ua)) {
+	        result.firefoxos = t
+	      }
+	    }
+	    else if (silk) {
+	      result =  {
+	        name: 'Amazon Silk'
+	      , silk: t
+	      , version : getFirstMatch(/silk\/(\d+(\.\d+)?)/i)
+	      }
+	    }
+	    else if (/phantom/i.test(ua)) {
+	      result = {
+	        name: 'PhantomJS'
+	      , phantom: t
+	      , version: getFirstMatch(/phantomjs\/(\d+(\.\d+)?)/i)
+	      }
+	    }
+	    else if (/slimerjs/i.test(ua)) {
+	      result = {
+	        name: 'SlimerJS'
+	        , slimer: t
+	        , version: getFirstMatch(/slimerjs\/(\d+(\.\d+)?)/i)
+	      }
+	    }
+	    else if (/blackberry|\bbb\d+/i.test(ua) || /rim\stablet/i.test(ua)) {
+	      result = {
+	        name: 'BlackBerry'
+	      , blackberry: t
+	      , version: versionIdentifier || getFirstMatch(/blackberry[\d]+\/(\d+(\.\d+)?)/i)
+	      }
+	    }
+	    else if (webos) {
+	      result = {
+	        name: 'WebOS'
+	      , webos: t
+	      , version: versionIdentifier || getFirstMatch(/w(?:eb)?osbrowser\/(\d+(\.\d+)?)/i)
+	      };
+	      /touchpad\//i.test(ua) && (result.touchpad = t)
+	    }
+	    else if (/bada/i.test(ua)) {
+	      result = {
+	        name: 'Bada'
+	      , bada: t
+	      , version: getFirstMatch(/dolfin\/(\d+(\.\d+)?)/i)
+	      };
+	    }
+	    else if (tizen) {
+	      result = {
+	        name: 'Tizen'
+	      , tizen: t
+	      , version: getFirstMatch(/(?:tizen\s?)?browser\/(\d+(\.\d+)?)/i) || versionIdentifier
+	      };
+	    }
+	    else if (/qupzilla/i.test(ua)) {
+	      result = {
+	        name: 'QupZilla'
+	        , qupzilla: t
+	        , version: getFirstMatch(/(?:qupzilla)[\s\/](\d+(?:\.\d+)+)/i) || versionIdentifier
+	      }
+	    }
+	    else if (/chromium/i.test(ua)) {
+	      result = {
+	        name: 'Chromium'
+	        , chromium: t
+	        , version: getFirstMatch(/(?:chromium)[\s\/](\d+(?:\.\d+)?)/i) || versionIdentifier
+	      }
+	    }
+	    else if (/chrome|crios|crmo/i.test(ua)) {
+	      result = {
+	        name: 'Chrome'
+	        , chrome: t
+	        , version: getFirstMatch(/(?:chrome|crios|crmo)\/(\d+(\.\d+)?)/i)
+	      }
+	    }
+	    else if (android) {
+	      result = {
+	        name: 'Android'
+	        , version: versionIdentifier
+	      }
+	    }
+	    else if (/safari|applewebkit/i.test(ua)) {
+	      result = {
+	        name: 'Safari'
+	      , safari: t
+	      }
+	      if (versionIdentifier) {
+	        result.version = versionIdentifier
+	      }
+	    }
+	    else if (iosdevice) {
+	      result = {
+	        name : iosdevice == 'iphone' ? 'iPhone' : iosdevice == 'ipad' ? 'iPad' : 'iPod'
+	      }
+	      // WTF: version is not part of user agent in web apps
+	      if (versionIdentifier) {
+	        result.version = versionIdentifier
+	      }
+	    }
+	    else if(/googlebot/i.test(ua)) {
+	      result = {
+	        name: 'Googlebot'
+	      , googlebot: t
+	      , version: getFirstMatch(/googlebot\/(\d+(\.\d+))/i) || versionIdentifier
+	      }
+	    }
+	    else {
+	      result = {
+	        name: getFirstMatch(/^(.*)\/(.*) /),
+	        version: getSecondMatch(/^(.*)\/(.*) /)
+	     };
+	   }
+
+	    // set webkit or gecko flag for browsers based on these engines
+	    if (!result.msedge && /(apple)?webkit/i.test(ua)) {
+	      if (/(apple)?webkit\/537\.36/i.test(ua)) {
+	        result.name = result.name || "Blink"
+	        result.blink = t
+	      } else {
+	        result.name = result.name || "Webkit"
+	        result.webkit = t
+	      }
+	      if (!result.version && versionIdentifier) {
+	        result.version = versionIdentifier
+	      }
+	    } else if (!result.opera && /gecko\//i.test(ua)) {
+	      result.name = result.name || "Gecko"
+	      result.gecko = t
+	      result.version = result.version || getFirstMatch(/gecko\/(\d+(\.\d+)?)/i)
+	    }
+
+	    // set OS flags for platforms that have multiple browsers
+	    if (!result.windowsphone && !result.msedge && (android || result.silk)) {
+	      result.android = t
+	    } else if (!result.windowsphone && !result.msedge && iosdevice) {
+	      result[iosdevice] = t
+	      result.ios = t
+	    } else if (mac) {
+	      result.mac = t
+	    } else if (xbox) {
+	      result.xbox = t
+	    } else if (windows) {
+	      result.windows = t
+	    } else if (linux) {
+	      result.linux = t
+	    }
+
+	    // OS version extraction
+	    var osVersion = '';
+	    if (result.windowsphone) {
+	      osVersion = getFirstMatch(/windows phone (?:os)?\s?(\d+(\.\d+)*)/i);
+	    } else if (iosdevice) {
+	      osVersion = getFirstMatch(/os (\d+([_\s]\d+)*) like mac os x/i);
+	      osVersion = osVersion.replace(/[_\s]/g, '.');
+	    } else if (android) {
+	      osVersion = getFirstMatch(/android[ \/-](\d+(\.\d+)*)/i);
+	    } else if (result.webos) {
+	      osVersion = getFirstMatch(/(?:web|hpw)os\/(\d+(\.\d+)*)/i);
+	    } else if (result.blackberry) {
+	      osVersion = getFirstMatch(/rim\stablet\sos\s(\d+(\.\d+)*)/i);
+	    } else if (result.bada) {
+	      osVersion = getFirstMatch(/bada\/(\d+(\.\d+)*)/i);
+	    } else if (result.tizen) {
+	      osVersion = getFirstMatch(/tizen[\/\s](\d+(\.\d+)*)/i);
+	    }
+	    if (osVersion) {
+	      result.osversion = osVersion;
+	    }
+
+	    // device type extraction
+	    var osMajorVersion = osVersion.split('.')[0];
+	    if (
+	         tablet
+	      || nexusTablet
+	      || iosdevice == 'ipad'
+	      || (android && (osMajorVersion == 3 || (osMajorVersion >= 4 && !mobile)))
+	      || result.silk
+	    ) {
+	      result.tablet = t
+	    } else if (
+	         mobile
+	      || iosdevice == 'iphone'
+	      || iosdevice == 'ipod'
+	      || android
+	      || nexusMobile
+	      || result.blackberry
+	      || result.webos
+	      || result.bada
+	    ) {
+	      result.mobile = t
+	    }
+
+	    // Graded Browser Support
+	    // http://developer.yahoo.com/yui/articles/gbs
+	    if (result.msedge ||
+	        (result.msie && result.version >= 10) ||
+	        (result.yandexbrowser && result.version >= 15) ||
+			    (result.vivaldi && result.version >= 1.0) ||
+	        (result.chrome && result.version >= 20) ||
+	        (result.samsungBrowser && result.version >= 4) ||
+	        (result.firefox && result.version >= 20.0) ||
+	        (result.safari && result.version >= 6) ||
+	        (result.opera && result.version >= 10.0) ||
+	        (result.ios && result.osversion && result.osversion.split(".")[0] >= 6) ||
+	        (result.blackberry && result.version >= 10.1)
+	        || (result.chromium && result.version >= 20)
+	        ) {
+	      result.a = t;
+	    }
+	    else if ((result.msie && result.version < 10) ||
+	        (result.chrome && result.version < 20) ||
+	        (result.firefox && result.version < 20.0) ||
+	        (result.safari && result.version < 6) ||
+	        (result.opera && result.version < 10.0) ||
+	        (result.ios && result.osversion && result.osversion.split(".")[0] < 6)
+	        || (result.chromium && result.version < 20)
+	        ) {
+	      result.c = t
+	    } else result.x = t
+
+	    return result
+	  }
+
+	  var bowser = detect(typeof navigator !== 'undefined' ? navigator.userAgent || '' : '')
+
+	  bowser.test = function (browserList) {
+	    for (var i = 0; i < browserList.length; ++i) {
+	      var browserItem = browserList[i];
+	      if (typeof browserItem=== 'string') {
+	        if (browserItem in bowser) {
+	          return true;
+	        }
+	      }
+	    }
+	    return false;
+	  }
+
+	  /**
+	   * Get version precisions count
+	   *
+	   * @example
+	   *   getVersionPrecision("1.10.3") // 3
+	   *
+	   * @param  {string} version
+	   * @return {number}
+	   */
+	  function getVersionPrecision(version) {
+	    return version.split(".").length;
+	  }
+
+	  /**
+	   * Array::map polyfill
+	   *
+	   * @param  {Array} arr
+	   * @param  {Function} iterator
+	   * @return {Array}
+	   */
+	  function map(arr, iterator) {
+	    var result = [], i;
+	    if (Array.prototype.map) {
+	      return Array.prototype.map.call(arr, iterator);
+	    }
+	    for (i = 0; i < arr.length; i++) {
+	      result.push(iterator(arr[i]));
+	    }
+	    return result;
+	  }
+
+	  /**
+	   * Calculate browser version weight
+	   *
+	   * @example
+	   *   compareVersions(['1.10.2.1',  '1.8.2.1.90'])    // 1
+	   *   compareVersions(['1.010.2.1', '1.09.2.1.90']);  // 1
+	   *   compareVersions(['1.10.2.1',  '1.10.2.1']);     // 0
+	   *   compareVersions(['1.10.2.1',  '1.0800.2']);     // -1
+	   *
+	   * @param  {Array<String>} versions versions to compare
+	   * @return {Number} comparison result
+	   */
+	  function compareVersions(versions) {
+	    // 1) get common precision for both versions, for example for "10.0" and "9" it should be 2
+	    var precision = Math.max(getVersionPrecision(versions[0]), getVersionPrecision(versions[1]));
+	    var chunks = map(versions, function (version) {
+	      var delta = precision - getVersionPrecision(version);
+
+	      // 2) "9" -> "9.0" (for precision = 2)
+	      version = version + new Array(delta + 1).join(".0");
+
+	      // 3) "9.0" -> ["000000000"", "000000009"]
+	      return map(version.split("."), function (chunk) {
+	        return new Array(20 - chunk.length).join("0") + chunk;
+	      }).reverse();
+	    });
+
+	    // iterate in reverse order by reversed chunks array
+	    while (--precision >= 0) {
+	      // 4) compare: "000000009" > "000000010" = false (but "9" > "10" = true)
+	      if (chunks[0][precision] > chunks[1][precision]) {
+	        return 1;
+	      }
+	      else if (chunks[0][precision] === chunks[1][precision]) {
+	        if (precision === 0) {
+	          // all version chunks are same
+	          return 0;
+	        }
+	      }
+	      else {
+	        return -1;
+	      }
+	    }
+	  }
+
+	  /**
+	   * Check if browser is unsupported
+	   *
+	   * @example
+	   *   bowser.isUnsupportedBrowser({
+	   *     msie: "10",
+	   *     firefox: "23",
+	   *     chrome: "29",
+	   *     safari: "5.1",
+	   *     opera: "16",
+	   *     phantom: "534"
+	   *   });
+	   *
+	   * @param  {Object}  minVersions map of minimal version to browser
+	   * @param  {Boolean} [strictMode = false] flag to return false if browser wasn't found in map
+	   * @param  {String}  [ua] user agent string
+	   * @return {Boolean}
+	   */
+	  function isUnsupportedBrowser(minVersions, strictMode, ua) {
+	    var _bowser = bowser;
+
+	    // make strictMode param optional with ua param usage
+	    if (typeof strictMode === 'string') {
+	      ua = strictMode;
+	      strictMode = void(0);
+	    }
+
+	    if (strictMode === void(0)) {
+	      strictMode = false;
+	    }
+	    if (ua) {
+	      _bowser = detect(ua);
+	    }
+
+	    var version = "" + _bowser.version;
+	    for (var browser in minVersions) {
+	      if (minVersions.hasOwnProperty(browser)) {
+	        if (_bowser[browser]) {
+	          if (typeof minVersions[browser] !== 'string') {
+	            throw new Error('Browser version in the minVersion map should be a string: ' + browser + ': ' + String(minVersions));
+	          }
+
+	          // browser version and min supported version.
+	          return compareVersions([version, minVersions[browser]]) < 0;
+	        }
+	      }
+	    }
+
+	    return strictMode; // not found
+	  }
+
+	  /**
+	   * Check if browser is supported
+	   *
+	   * @param  {Object} minVersions map of minimal version to browser
+	   * @param  {Boolean} [strictMode = false] flag to return false if browser wasn't found in map
+	   * @param  {String}  [ua] user agent string
+	   * @return {Boolean}
+	   */
+	  function check(minVersions, strictMode, ua) {
+	    return !isUnsupportedBrowser(minVersions, strictMode, ua);
+	  }
+
+	  bowser.isUnsupportedBrowser = isUnsupportedBrowser;
+	  bowser.compareVersions = compareVersions;
+	  bowser.check = check;
+
+	  /*
+	   * Set our detect method to the main bowser object so we can
+	   * reuse it to test other user agents.
+	   * This is needed to implement future tests.
+	   */
+	  bowser._detect = detect;
+
+	  return bowser
+	});
+
+
+/***/ },
+/* 181 */
+/***/ function(module, exports) {
+
+	module.exports = function() { throw new Error("define cannot be used indirect"); };
+
+
+/***/ },
+/* 182 */
+/***/ function(module, exports, __webpack_require__) {
+
 	var generator = function() {
 	  var options = (arguments.length) ? arguments[0] : {}
 	    , count = options.count || 1
@@ -22326,9 +22919,9 @@
 		  , paragraphLowerBound = options.paragraphLowerBound || 3
 		  , paragraphUpperBound = options.paragraphUpperBound || 7
 		  , format = options.format || 'plain'
-	    , words = options.words || __webpack_require__(181).words
+	    , words = options.words || __webpack_require__(183).words
 	    , random = options.random || Math.random
-	    , suffix = options.suffix || __webpack_require__(182).EOL;
+	    , suffix = options.suffix || __webpack_require__(184).EOL;
 
 	  units = simplePluralize(units.toLowerCase());
 
@@ -22442,7 +23035,7 @@
 
 
 /***/ },
-/* 181 */
+/* 183 */
 /***/ function(module, exports) {
 
 	var dictionary = {
@@ -22515,7 +23108,7 @@
 	module.exports = dictionary;
 
 /***/ },
-/* 182 */
+/* 184 */
 /***/ function(module, exports) {
 
 	exports.endianness = function () { return 'LE' };
