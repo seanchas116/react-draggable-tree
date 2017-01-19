@@ -40,7 +40,7 @@ interface TreeProps<TNode extends TreeNode> {
   selectedKeys: Set<Key>
   onMove: (src: NodeInfo<TNode>[], dest: NodeInfo<TNode>, destIndexBefore: number, destIndexAfter: number) => void
   onCopy: (src: NodeInfo<TNode>[], dest: NodeInfo<TNode>, destIndexBefore: number) => void
-  onContextMenu?: (nodeInfo: NodeInfo<TNode>) => void
+  onContextMenu?: (nodeInfo?: NodeInfo<TNode>) => void
   onCollapsedChange: (nodeInfo: NodeInfo<TNode>, collapsed: boolean) => void
   onSelectedKeysChange: (selectedKeys: Set<Key>, selectedInfos: NodeInfo<TNode>[]) => void
 }
@@ -186,7 +186,7 @@ class Tree<TNode extends TreeNode> extends React.Component<TreeProps<TNode>, {}>
     this.rootInfo = rootInfo
 
     return (
-      <div ref={e => this.element = e} className="ReactDraggableTree" onDragOver={this.onDragOver} onDrop={this.onDrop}>
+      <div ref={e => this.element = e} className="ReactDraggableTree" onDragOver={this.onDragOver} onDrop={this.onDrop} onContextMenu={this.onContextMenu}>
         {children.map((child, i) => this.renderNode(child, [i], true))}
         <DropIndicator ref={e => this.dropIndicator = e} rowHeight={rowHeight} indent={indent} />
       </div>
@@ -223,6 +223,21 @@ class Tree<TNode extends TreeNode> extends React.Component<TreeProps<TNode>, {}>
     onSelectedKeysChange(newSelected, this.keysToInfos(newSelected))
   }
 
+  private onContextMenu = (ev: React.MouseEvent<Element>) => {
+    const {rowHeight, onContextMenu} = this.props
+    const {visibleInfos} = this
+    const rect = this.element.getBoundingClientRect()
+    const y = ev.clientY - rect.top + this.element.scrollTop
+    const i = Math.round(y / rowHeight)
+    const nodeInfo = (0 <= i && i < visibleInfos.length) ? visibleInfos[i] : undefined
+    if (nodeInfo) {
+      this.onClickNode(nodeInfo, ev)
+    }
+    if (onContextMenu) {
+      onContextMenu(nodeInfo)
+    }
+  }
+
   private onDragOver = (ev: React.DragEvent<Element>) => {
     ev.preventDefault()
     const copy = ev.altKey || ev.ctrlKey
@@ -238,8 +253,8 @@ class Tree<TNode extends TreeNode> extends React.Component<TreeProps<TNode>, {}>
   private getDropTarget(ev: {clientX: number, clientY: number}): DropTarget<TNode> {
     const {rowHeight, indent} = this.propsWithDefaults()
     const rect = this.element.getBoundingClientRect()
-    const x = ev.clientX - rect.left + this.element.scrollTop
-    const y = ev.clientY - rect.top + this.element.scrollLeft
+    const x = ev.clientX - rect.left + this.element.scrollLeft
+    const y = ev.clientY - rect.top + this.element.scrollTop
     const overIndex = clamp(Math.floor(y / rowHeight), 0, this.visibleInfos.length)
     const offset = y - overIndex * rowHeight
 
