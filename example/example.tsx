@@ -16,7 +16,7 @@ class Example extends React.Component<{}, {}> {
   selectedKeys = new Set([this.root.children![0].key])
 
   render() {
-    const onContextMenu = (info?: NodeInfo<MyNode>) => {
+    const onContextMenu = (info: NodeInfo<MyNode>|undefined, ev: React.MouseEvent<Element>) => {
       if (info) {
         console.log(`Context menu at ${info.path}`)
       } else {
