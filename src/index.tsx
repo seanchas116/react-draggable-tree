@@ -224,13 +224,13 @@ class Tree<TNode extends TreeNode> extends React.Component<TreeProps<TNode>, {}>
   }
 
   private onContextMenu = (ev: React.MouseEvent<Element>) => {
-    const {rowHeight, onContextMenu} = this.props
+    const {rowHeight, onContextMenu, selectedKeys} = this.props
     const {visibleInfos} = this
     const rect = this.element.getBoundingClientRect()
     const y = ev.clientY - rect.top + this.element.scrollTop
-    const i = Math.round(y / rowHeight)
+    const i = Math.floor(y / rowHeight)
     const nodeInfo = (0 <= i && i < visibleInfos.length) ? visibleInfos[i] : undefined
-    if (nodeInfo) {
+    if (nodeInfo && !selectedKeys.has(nodeInfo.node.key)) {
       this.onClickNode(nodeInfo, ev)
     }
     if (onContextMenu) {
