@@ -16,6 +16,9 @@ class Example extends React.Component<{}, {}> {
   selectedKeys = new Set([this.root.children![0].key])
 
   render() {
+    const onContextMenu = (info: NodeInfo<MyNode>) => {
+      console.log(`Context menu at ${info.path}`)
+    }
     const onSelectedKeysChange = (selectedKeys: Set<number>) => {
       this.selectedKeys = selectedKeys
       this.forceUpdate()
@@ -59,6 +62,7 @@ class Example extends React.Component<{}, {}> {
         rowContent={MyRowContent}
         onSelectedKeysChange={onSelectedKeysChange}
         onCollapsedChange={onCollapsedChange}
+        onContextMenu={onContextMenu}
         onMove={onMove}
         onCopy={onCopy}
       />

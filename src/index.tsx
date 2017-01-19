@@ -40,6 +40,7 @@ interface TreeProps<TNode extends TreeNode> {
   selectedKeys: Set<Key>
   onMove: (src: NodeInfo<TNode>[], dest: NodeInfo<TNode>, destIndexBefore: number, destIndexAfter: number) => void
   onCopy: (src: NodeInfo<TNode>[], dest: NodeInfo<TNode>, destIndexBefore: number) => void
+  onContextMenu?: (nodeInfo: NodeInfo<TNode>) => void
   onCollapsedChange: (nodeInfo: NodeInfo<TNode>, collapsed: boolean) => void
   onSelectedKeysChange: (selectedKeys: Set<Key>, selectedInfos: NodeInfo<TNode>[]) => void
 }
