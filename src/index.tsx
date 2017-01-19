@@ -40,6 +40,7 @@ interface TreeProps<TNode extends TreeNode> {
   selectedKeys: Set<Key>
   onMove: (src: NodeInfo<TNode>[], dest: NodeInfo<TNode>, destIndexBefore: number, destIndexAfter: number) => void
   onCopy: (src: NodeInfo<TNode>[], dest: NodeInfo<TNode>, destIndexBefore: number) => void
+  onContextMenu?: (nodeInfo?: NodeInfo<TNode>) => void
   onCollapsedChange: (nodeInfo: NodeInfo<TNode>, collapsed: boolean) => void
   onSelectedKeysChange: (selectedKeys: Set<Key>, selectedInfos: NodeInfo<TNode>[]) => void
 }
@@ -109,34 +110,6 @@ class Tree<TNode extends TreeNode> extends React.Component<TreeProps<TNode>, {}>
       height: rowHeight + "px",
     }
 
-    const onClick = (ev: React.MouseEvent<Element>) => {
-      let newSelected: Set<Key>
-      if (ev.ctrlKey || ev.metaKey) {
-        newSelected = new Set(selectedKeys)
-        if (newSelected.has(key)) {
-          newSelected.delete(key)
-        } else {
-          newSelected.add(key)
-        }
-      } else if (ev.shiftKey && selectedKeys.size > 0) {
-        const visibleKeys = this.visibleInfos.map(info => info.node.key)
-        const selectedIndices = this.keysToInfos(selectedKeys).map(info => info.visibleOffset)
-        const thisIndex = visibleKeys.indexOf(key)
-        const min = Math.min(thisIndex, ...selectedIndices)
-        const max = Math.max(thisIndex, ...selectedIndices)
-        const keysToAdd = visibleKeys.slice(min, max + 1)
-        newSelected = new Set(selectedKeys)
-        for (const k of keysToAdd) {
-          newSelected.add(k)
-        }
-      } else {
-        newSelected = new Set([key])
-      }
-      newSelected = this.removeAncestorsFromSelection(newSelected)
-
-      onSelectedKeysChange(newSelected, this.keysToInfos(newSelected))
-    }
-
     const onDragStart = (ev: React.DragEvent<Element>) => {
       ev.dataTransfer.effectAllowed = "copyMove"
       ev.dataTransfer.setData(DRAG_MIME, "drag")
@@ -161,10 +134,16 @@ class Tree<TNode extends TreeNode> extends React.Component<TreeProps<TNode>, {}>
       "ReactDraggableTree_row-selected": isSelected,
     })
 
-    let row = <div key={`row-${key}`} className={rowClasses} style={style} onClick={onClick} draggable={true} onDragStart={onDragStart} onDragEnd={onDragEnd}>
-      <Toggler visible={!!node.children} collapsed={!!node.collapsed} onClick={onTogglerClick} />
-      {rowContent(nodeInfo)}
-    </div>
+    let row = (
+      <div
+        key={`row-${key}`} className={rowClasses} style={style}
+        onClick={ev => this.onClickNode(nodeInfo, ev)}
+        draggable={true} onDragStart={onDragStart} onDragEnd={onDragEnd}
+      >
+        <Toggler visible={!!node.children} collapsed={!!node.collapsed} onClick={onTogglerClick} />
+        {rowContent(nodeInfo)}
+      </div>
+    )
 
     if (node.children) {
       const childrenVisible = visible && !node.collapsed
@@ -207,11 +186,56 @@ class Tree<TNode extends TreeNode> extends React.Component<TreeProps<TNode>, {}>
     this.rootInfo = rootInfo
 
     return (
-      <div ref={e => this.element = e} className="ReactDraggableTree" onDragOver={this.onDragOver} onDrop={this.onDrop}>
+      <div ref={e => this.element = e} className="ReactDraggableTree" onDragOver={this.onDragOver} onDrop={this.onDrop} onContextMenu={this.onContextMenu}>
         {children.map((child, i) => this.renderNode(child, [i], true))}
         <DropIndicator ref={e => this.dropIndicator = e} rowHeight={rowHeight} indent={indent} />
       </div>
     )
+  }
+
+  private onClickNode = (nodeInfo: NodeInfo<TNode>, ev: React.MouseEvent<Element>) => {
+    const {selectedKeys, onSelectedKeysChange} = this.props
+    const {key} = nodeInfo.node
+    let newSelected: Set<Key>
+    if (ev.ctrlKey || ev.metaKey) {
+      newSelected = new Set(selectedKeys)
+      if (newSelected.has(key)) {
+        newSelected.delete(key)
+      } else {
+        newSelected.add(key)
+      }
+    } else if (ev.shiftKey && selectedKeys.size > 0) {
+      const visibleKeys = this.visibleInfos.map(info => info.node.key)
+      const selectedIndices = this.keysToInfos(selectedKeys).map(info => info.visibleOffset)
+      const thisIndex = visibleKeys.indexOf(key)
+      const min = Math.min(thisIndex, ...selectedIndices)
+      const max = Math.max(thisIndex, ...selectedIndices)
+      const keysToAdd = visibleKeys.slice(min, max + 1)
+      newSelected = new Set(selectedKeys)
+      for (const k of keysToAdd) {
+        newSelected.add(k)
+      }
+    } else {
+      newSelected = new Set([key])
+    }
+    newSelected = this.removeAncestorsFromSelection(newSelected)
+
+    onSelectedKeysChange(newSelected, this.keysToInfos(newSelected))
+  }
+
+  private onContextMenu = (ev: React.MouseEvent<Element>) => {
+    const {rowHeight, onContextMenu} = this.props
+    const {visibleInfos} = this
+    const rect = this.element.getBoundingClientRect()
+    const y = ev.clientY - rect.top + this.element.scrollTop
+    const i = Math.round(y / rowHeight)
+    const nodeInfo = (0 <= i && i < visibleInfos.length) ? visibleInfos[i] : undefined
+    if (nodeInfo) {
+      this.onClickNode(nodeInfo, ev)
+    }
+    if (onContextMenu) {
+      onContextMenu(nodeInfo)
+    }
   }
 
   private onDragOver = (ev: React.DragEvent<Element>) => {
@@ -229,8 +253,8 @@ class Tree<TNode extends TreeNode> extends React.Component<TreeProps<TNode>, {}>
   private getDropTarget(ev: {clientX: number, clientY: number}): DropTarget<TNode> {
     const {rowHeight, indent} = this.propsWithDefaults()
     const rect = this.element.getBoundingClientRect()
-    const x = ev.clientX - rect.left + this.element.scrollTop
-    const y = ev.clientY - rect.top + this.element.scrollLeft
+    const x = ev.clientX - rect.left + this.element.scrollLeft
+    const y = ev.clientY - rect.top + this.element.scrollTop
     const overIndex = clamp(Math.floor(y / rowHeight), 0, this.visibleInfos.length)
     const offset = y - overIndex * rowHeight
 

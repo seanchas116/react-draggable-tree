@@ -16,6 +16,13 @@ class Example extends React.Component<{}, {}> {
   selectedKeys = new Set([this.root.children![0].key])
 
   render() {
+    const onContextMenu = (info?: NodeInfo<MyNode>) => {
+      if (info) {
+        console.log(`Context menu at ${info.path}`)
+      } else {
+        console.log(`Context menu at blank space`)
+      }
+    }
     const onSelectedKeysChange = (selectedKeys: Set<number>) => {
       this.selectedKeys = selectedKeys
       this.forceUpdate()
@@ -59,6 +66,7 @@ class Example extends React.Component<{}, {}> {
         rowContent={MyRowContent}
         onSelectedKeysChange={onSelectedKeysChange}
         onCollapsedChange={onCollapsedChange}
+        onContextMenu={onContextMenu}
         onMove={onMove}
         onCopy={onCopy}
       />

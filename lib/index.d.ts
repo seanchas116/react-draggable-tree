@@ -20,6 +20,7 @@ export interface TreeProps<TNode extends TreeNode> {
     selectedKeys: Set<Key>;
     onMove: (src: NodeInfo<TNode>[], dest: NodeInfo<TNode>, destIndexBefore: number, destIndexAfter: number) => void;
     onCopy: (src: NodeInfo<TNode>[], dest: NodeInfo<TNode>, destIndexBefore: number) => void;
+    onContextMenu?: (nodeInfo?: NodeInfo<TNode>) => void;
     onCollapsedChange: (nodeInfo: NodeInfo<TNode>, collapsed: boolean) => void;
     onSelectedKeysChange: (selectedKeys: Set<Key>, selectedInfos: NodeInfo<TNode>[]) => void;
 }
@@ -39,6 +40,8 @@ export declare class Tree<TNode extends TreeNode> extends React.Component<TreePr
     private keysToInfos(keys);
     private updateDropIndicator(target);
     render(): JSX.Element;
+    private onClickNode;
+    private onContextMenu;
     private onDragOver;
     private getDropTarget(ev);
     private canDrop(destInfo, destIndex);
