@@ -20,7 +20,7 @@ export interface TreeProps<TNode extends TreeNode> {
     selectedKeys: Set<Key>;
     onMove: (src: NodeInfo<TNode>[], dest: NodeInfo<TNode>, destIndexBefore: number, destIndexAfter: number) => void;
     onCopy: (src: NodeInfo<TNode>[], dest: NodeInfo<TNode>, destIndexBefore: number) => void;
-    onContextMenu?: (nodeInfo?: NodeInfo<TNode>) => void;
+    onContextMenu?: (nodeInfo: NodeInfo<TNode> | undefined, ev: React.MouseEvent<Element>) => void;
     onCollapsedChange: (nodeInfo: NodeInfo<TNode>, collapsed: boolean) => void;
     onSelectedKeysChange: (selectedKeys: Set<Key>, selectedInfos: NodeInfo<TNode>[]) => void;
 }
