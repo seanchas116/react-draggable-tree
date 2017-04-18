@@ -2,61 +2,18 @@ require("./example.css")
 require("../lib/index.css")
 import React = require("react")
 import ReactDOM = require("react-dom")
-import {Tree, TreeDelegate, RowInfo} from "../src"
+import {TreeView, TreeDelegate, TreeRowInfo} from "../src"
 const classNames = require("classnames")
-const loremIpsum = require("lorem-ipsum")
+import {ExampleItem} from './ExampleItem'
 
-class ExampleItem {
-  static nextKey = 0
-  key = ExampleItem.nextKey++
-
-  constructor(public text: string, public children: ExampleItem[]|undefined, public collapsed: boolean) {
+class ExampleTreeDelegate implements TreeDelegate<ExampleItem> {
+  constructor(public view: ExampleTree) {
   }
-
-  getDescendant(path: number[]): ExampleItem|undefined {
-    if (path.length == 0) {
-      return this
-    } else if (this.children) {
-      return this.children[path[0]].getDescendant(path.slice(1))
-    }
-  }
-
-  clone(): ExampleItem {
-    return new ExampleItem(
-      this.text,
-      this.children ? this.children.map(c => c.clone()) : undefined,
-      this.collapsed
-    )
-  }
-
-  static generate(depth: number, minChildCount: number, maxChildCount: number): ExampleItem {
-    const text: string = loremIpsum({sentenceLowerBound: 2, sentenceUpperBound: 4})
-    const hasChild = depth > 1
-    let children: ExampleItem[]|undefined = undefined
-    if (hasChild) {
-      children = []
-      const childCount = Math.round(Math.random() * (maxChildCount - minChildCount) + minChildCount)
-      for (let i = 0; i < childCount; ++i) {
-        children.push(ExampleItem.generate(depth - 1, minChildCount, maxChildCount))
-      }
-    }
-    return new ExampleItem(text, children, false)
-  }
-}
-
-class ExampleTree extends Tree<ExampleItem> {}
-
-class ExampleDelegate implements TreeDelegate<ExampleItem> {
-  constructor(public view: Example) {
-  }
-  renderRow(info: RowInfo<ExampleItem>) {
+  renderRow(info: TreeRowInfo<ExampleItem>) {
     return ExampleRow(info)
   }
   getChildren(item: ExampleItem) {
     return item.children
-  }
-  getDroppable(item: ExampleItem) {
-    return true
   }
   getKey(item: ExampleItem) {
     return item.key
@@ -64,7 +21,7 @@ class ExampleDelegate implements TreeDelegate<ExampleItem> {
   getCollapsed(item: ExampleItem) {
     return !!item.collapsed
   }
-  onContextMenu(info: RowInfo<ExampleItem>|undefined, ev: React.MouseEvent<Element>) {
+  onContextMenu(info: TreeRowInfo<ExampleItem>|undefined, ev: React.MouseEvent<Element>) {
     if (info) {
       console.log(`Context menu at ${info.path}`)
     } else {
@@ -74,11 +31,11 @@ class ExampleDelegate implements TreeDelegate<ExampleItem> {
   onSelectedKeysChange(selectedKeys: Set<number>) {
     this.view.setState({selectedKeys})
   }
-  onCollapsedChange(info: RowInfo<ExampleItem>, collapsed: boolean) {
+  onCollapsedChange(info: TreeRowInfo<ExampleItem>, collapsed: boolean) {
     info.item.collapsed = collapsed
     this.view.setState({root: this.view.state.root})
   }
-  onMove(src: RowInfo<ExampleItem>[], dest: RowInfo<ExampleItem>, destIndex: number, destIndexAfter: number) {
+  onMove(src: TreeRowInfo<ExampleItem>[], dest: TreeRowInfo<ExampleItem>, destIndex: number, destIndexAfter: number) {
     const {root} = this.view.state
     const items: ExampleItem[] = []
     for (let i = src.length - 1; i >= 0; --i) {
@@ -92,7 +49,7 @@ class ExampleDelegate implements TreeDelegate<ExampleItem> {
     dest.item.collapsed = false
     this.view.setState({root})
   }
-  onCopy(src: RowInfo<ExampleItem>[], dest: RowInfo<ExampleItem>, destIndex: number) {
+  onCopy(src: TreeRowInfo<ExampleItem>[], dest: TreeRowInfo<ExampleItem>, destIndex: number) {
     const {root} = this.view.state
     const items: ExampleItem[] = []
     for (let i = src.length - 1; i >= 0; --i) {
@@ -108,13 +65,13 @@ class ExampleDelegate implements TreeDelegate<ExampleItem> {
   }
 }
 
-interface ExampleState {
+interface ExampleTreeState {
   root: ExampleItem
   selectedKeys: Set<number>
 }
 
-class Example extends React.Component<{}, ExampleState> {
-  delegate = new ExampleDelegate(this)
+class ExampleTree extends React.Component<{}, ExampleTreeState> {
+  delegate = new ExampleTreeDelegate(this)
 
   constructor() {
     super()
@@ -127,8 +84,9 @@ class Example extends React.Component<{}, ExampleState> {
 
   render() {
     const {root, selectedKeys} = this.state
+    const ExampleTreeView = TreeView as new () => TreeView<ExampleItem>
     return (
-      <ExampleTree
+      <ExampleTreeView
         root={root}
         selectedKeys={selectedKeys}
         rowHeight={40}
@@ -144,5 +102,5 @@ function ExampleRow(props: {item: ExampleItem, selected: boolean}) {
 }
 
 window.addEventListener("DOMContentLoaded", () => {
-  ReactDOM.render(<Example />, document.getElementById("example"))
+  ReactDOM.render(<ExampleTree />, document.getElementById("example"))
 })
