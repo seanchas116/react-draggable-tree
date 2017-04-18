@@ -4,10 +4,13 @@ const path = require("path")
 const webpack = require("webpack")
 
 module.exports = {
-  entry: path.resolve(__dirname, "example.tsx"),
+  entry: {
+    tree: path.resolve(__dirname, "tree.tsx"),
+    list: path.resolve(__dirname, "list.tsx"),
+  },
   output: {
     path: __dirname,
-    filename: "bundle.js"
+    filename: "bundle-[name].js"
   },
   resolve: {
     extensions: [".ts", ".tsx", ".js"]
