@@ -10161,9 +10161,9 @@ var Tree = (function (_super) {
         _this.pathToInfo = new Map(); // using joined path as key string
         _this.visibleInfos = [];
         _this.keyToInfo = new Map();
-        _this.onClickNode = function (nodeInfo, ev) {
-            var _a = _this.props, selectedKeys = _a.selectedKeys, onSelectedKeysChange = _a.onSelectedKeysChange;
-            var key = nodeInfo.node.key;
+        _this.onClickRow = function (rowInfo, ev) {
+            var _a = _this.props, selectedKeys = _a.selectedKeys, delegate = _a.delegate;
+            var key = delegate.getKey(rowInfo.item);
             var newSelected;
             if (ev.ctrlKey || ev.metaKey) {
                 newSelected = new Set(selectedKeys);
@@ -10175,7 +10175,7 @@ var Tree = (function (_super) {
                 }
             }
             else if (ev.shiftKey && selectedKeys.size > 0) {
-                var visibleKeys = _this.visibleInfos.map(function (info) { return info.node.key; });
+                var visibleKeys = _this.visibleInfos.map(function (info) { return delegate.getKey(info.item); });
                 var selectedIndices = _this.keysToInfos(selectedKeys).map(function (info) { return info.visibleOffset; });
                 var thisIndex = visibleKeys.indexOf(key);
                 var min = Math.min.apply(Math, [thisIndex].concat(selectedIndices));
@@ -10191,21 +10191,19 @@ var Tree = (function (_super) {
                 newSelected = new Set([key]);
             }
             newSelected = _this.removeAncestorsFromSelection(newSelected);
-            onSelectedKeysChange(newSelected, _this.keysToInfos(newSelected));
+            delegate.onSelectedKeysChange(newSelected, _this.keysToInfos(newSelected));
         };
         _this.onContextMenu = function (ev) {
-            var _a = _this.props, rowHeight = _a.rowHeight, onContextMenu = _a.onContextMenu, selectedKeys = _a.selectedKeys;
+            var _a = _this.props, rowHeight = _a.rowHeight, delegate = _a.delegate, selectedKeys = _a.selectedKeys;
             var visibleInfos = _this.visibleInfos;
             var rect = _this.element.getBoundingClientRect();
             var y = ev.clientY - rect.top + _this.element.scrollTop;
             var i = Math.floor(y / rowHeight);
-            var nodeInfo = (0 <= i && i < visibleInfos.length) ? visibleInfos[i] : undefined;
-            if (nodeInfo && !selectedKeys.has(nodeInfo.node.key)) {
-                _this.onClickNode(nodeInfo, ev);
+            var rowInfo = (0 <= i && i < visibleInfos.length) ? visibleInfos[i] : undefined;
+            if (rowInfo && !selectedKeys.has(delegate.getKey(rowInfo.item))) {
+                _this.onClickRow(rowInfo, ev);
             }
-            if (onContextMenu) {
-                onContextMenu(nodeInfo, ev);
-            }
+            delegate.onContextMenu(rowInfo, ev);
         };
         _this.onDragOver = function (ev) {
             ev.preventDefault();
@@ -10219,6 +10217,7 @@ var Tree = (function (_super) {
             _this.updateDropIndicator(undefined);
         };
         _this.onDrop = function (ev) {
+            var delegate = _this.props.delegate;
             _this.updateDropIndicator(undefined);
             var data = ev.dataTransfer.getData(DRAG_MIME);
             if (!data) {
@@ -10238,7 +10237,7 @@ var Tree = (function (_super) {
             var srcInfos = _this.keysToInfos(_this.props.selectedKeys);
             var copy = ev.altKey || ev.ctrlKey;
             if (copy) {
-                _this.props.onCopy(srcInfos, destInfo, destIndex);
+                delegate.onCopy(srcInfos, destInfo, destIndex);
             }
             else {
                 var destIndexAfter = destIndex;
@@ -10251,7 +10250,7 @@ var Tree = (function (_super) {
                         }
                     }
                 }
-                _this.props.onMove(srcInfos, destInfo, destIndex, destIndexAfter);
+                delegate.onMove(srcInfos, destInfo, destIndex, destIndexAfter);
             }
             ev.preventDefault();
         };
@@ -10259,13 +10258,14 @@ var Tree = (function (_super) {
     }
     Tree.prototype.removeAncestorsFromSelection = function (selection) {
         var newSelection = new Set(selection);
+        var delegate = this.props.delegate;
         for (var _i = 0, _a = this.keysToInfos(selection); _i < _a.length; _i++) {
             var path = _a[_i].path;
             for (var i = 1; i < path.length; ++i) {
                 var subpath = path.slice(0, i);
                 var ancestor = this.pathToInfo.get(subpath.join());
                 if (ancestor) {
-                    newSelection.delete(ancestor.node.key);
+                    newSelection.delete(delegate.getKey(ancestor.item));
                 }
             }
         }
@@ -10276,33 +10276,34 @@ var Tree = (function (_super) {
             indent: 24,
         }, this.props);
     };
-    Tree.prototype.clearNodes = function () {
+    Tree.prototype.clearRows = function () {
         this.visibleInfos = [];
         this.pathToInfo.clear();
         this.infoToPath.clear();
         this.keyToInfo.clear();
     };
-    Tree.prototype.addNodeInfo = function (nodeInfo) {
-        this.infoToPath.set(nodeInfo, nodeInfo.path);
-        this.pathToInfo.set(nodeInfo.path.join(), nodeInfo);
-        if (nodeInfo.visible) {
-            this.visibleInfos.push(nodeInfo);
+    Tree.prototype.addRowInfo = function (rowInfo) {
+        var delegate = this.props.delegate;
+        this.infoToPath.set(rowInfo, rowInfo.path);
+        this.pathToInfo.set(rowInfo.path.join(), rowInfo);
+        if (rowInfo.visible) {
+            this.visibleInfos.push(rowInfo);
         }
-        this.keyToInfo.set(nodeInfo.node.key, nodeInfo);
+        this.keyToInfo.set(delegate.getKey(rowInfo.item), rowInfo);
     };
-    Tree.prototype.renderNode = function (node, path, visible) {
+    Tree.prototype.renderItem = function (item, path, visible) {
         var _this = this;
-        var _a = this.propsWithDefaults(), indent = _a.indent, rowHeight = _a.rowHeight, rowContent = _a.rowContent, onSelectedKeysChange = _a.onSelectedKeysChange, onCollapsedChange = _a.onCollapsedChange, selectedKeys = _a.selectedKeys;
-        var key = node.key;
+        var _a = this.propsWithDefaults(), indent = _a.indent, rowHeight = _a.rowHeight, delegate = _a.delegate, selectedKeys = _a.selectedKeys;
+        var key = delegate.getKey(item);
         var isSelected = selectedKeys.has(key);
-        var nodeInfo = {
-            node: node,
+        var rowInfo = {
+            item: item,
             selected: isSelected,
             path: path,
             visible: visible,
             visibleOffset: this.visibleInfos.length
         };
-        this.addNodeInfo(nodeInfo);
+        this.addRowInfo(rowInfo);
         var style = {
             paddingLeft: (path.length - 1) * indent + "px",
             height: rowHeight + "px",
@@ -10312,27 +10313,29 @@ var Tree = (function (_super) {
             ev.dataTransfer.setData(DRAG_MIME, "drag");
             if (!selectedKeys.has(key)) {
                 var newSelected = new Set([key]);
-                onSelectedKeysChange(newSelected, _this.keysToInfos(newSelected));
+                delegate.onSelectedKeysChange(newSelected, _this.keysToInfos(newSelected));
             }
         };
         var onDragEnd = function () {
             _this.updateDropIndicator(undefined);
         };
         var onTogglerClick = function () {
-            if (node.children) {
-                onCollapsedChange(nodeInfo, !node.collapsed);
+            if (delegate.getChildren(item)) {
+                delegate.onCollapsedChange(rowInfo, !delegate.getCollapsed(item));
             }
         };
         var rowClasses = classNames("ReactDraggableTree_row", {
             "ReactDraggableTree_row-selected": isSelected,
         });
-        var row = (React.createElement("div", { key: "row-" + key, className: rowClasses, style: style, onClick: function (ev) { return _this.onClickNode(nodeInfo, ev); }, draggable: true, onDragStart: onDragStart, onDragEnd: onDragEnd },
-            React.createElement(Toggler, { visible: !!node.children, collapsed: !!node.collapsed, onClick: onTogglerClick }),
-            rowContent(nodeInfo)));
-        if (node.children) {
-            var childrenVisible_1 = visible && !node.collapsed;
-            var children = React.createElement("div", { key: "children-" + key, className: "ReactDraggableTree_children", hidden: node.collapsed }, node.children.map(function (child, i) { return _this.renderNode(child, path.concat([i]), childrenVisible_1); }));
-            return [row, children];
+        var children = delegate.getChildren(item);
+        var collapsed = delegate.getCollapsed(item);
+        var row = (React.createElement("div", { key: "row-" + key, className: rowClasses, style: style, onClick: function (ev) { return _this.onClickRow(rowInfo, ev); }, draggable: true, onDragStart: onDragStart, onDragEnd: onDragEnd },
+            React.createElement(Toggler, { visible: !!children, collapsed: collapsed, onClick: onTogglerClick }),
+            delegate.renderRow(rowInfo)));
+        if (children) {
+            var childrenVisible_1 = visible && !collapsed;
+            var childRows = React.createElement("div", { key: "children-" + key, className: "ReactDraggableTree_children", hidden: collapsed }, children.map(function (child, i) { return _this.renderItem(child, path.concat([i]), childrenVisible_1); }));
+            return [row, childRows];
         }
         else {
             return [row];
@@ -10361,17 +10364,18 @@ var Tree = (function (_super) {
     };
     Tree.prototype.render = function () {
         var _this = this;
-        var _a = this.propsWithDefaults(), root = _a.root, rowHeight = _a.rowHeight, indent = _a.indent;
-        var children = root.children || [];
-        this.clearNodes();
-        var rootInfo = { node: root, selected: false, current: false, path: [], visible: false, visibleOffset: 0 };
-        this.addNodeInfo(rootInfo);
+        var _a = this.propsWithDefaults(), root = _a.root, rowHeight = _a.rowHeight, indent = _a.indent, delegate = _a.delegate;
+        var children = delegate.getChildren(root) || [];
+        this.clearRows();
+        var rootInfo = { item: root, selected: false, current: false, path: [], visible: false, visibleOffset: 0 };
+        this.addRowInfo(rootInfo);
         this.rootInfo = rootInfo;
         return (React.createElement("div", { ref: function (e) { return _this.element = e; }, className: "ReactDraggableTree", onDragOver: this.onDragOver, onDrop: this.onDrop, onContextMenu: this.onContextMenu },
-            children.map(function (child, i) { return _this.renderNode(child, [i], true); }),
+            children.map(function (child, i) { return _this.renderItem(child, [i], true); }),
             React.createElement(DropIndicator, { ref: function (e) { return _this.dropIndicator = e; }, rowHeight: rowHeight, indent: indent })));
     };
     Tree.prototype.getDropTarget = function (ev) {
+        var delegate = this.props.delegate;
         var _a = this.propsWithDefaults(), rowHeight = _a.rowHeight, indent = _a.indent;
         var rect = this.element.getBoundingClientRect();
         var x = ev.clientX - rect.left + this.element.scrollLeft;
@@ -10381,7 +10385,7 @@ var Tree = (function (_super) {
         if (overIndex < this.visibleInfos.length) {
             if (rowHeight * 0.25 < offset && offset < rowHeight * 0.75) {
                 var dest_1 = this.visibleInfos[overIndex];
-                if (dest_1.node.children) {
+                if (delegate.getChildren(dest_1.item)) {
                     return {
                         type: "over",
                         index: overIndex,
@@ -10394,12 +10398,14 @@ var Tree = (function (_super) {
         }
         var betweenIndex = clamp((offset < rowHeight / 2) ? overIndex : overIndex + 1, 0, this.visibleInfos.length);
         var path = (betweenIndex == this.visibleInfos.length)
-            ? [this.rootInfo.node.children.length]
+            ? [delegate.getChildren(this.rootInfo.item).length]
             : this.visibleInfos[betweenIndex].path;
         if (0 < betweenIndex) {
             var prev = this.visibleInfos[betweenIndex - 1];
             var prevPath = prev.path;
-            if (prev.node.children && prev.node.children.length == 0 && !prev.node.collapsed) {
+            var prevChildren = delegate.getChildren(prev.item);
+            var prevCollapsed = delegate.getCollapsed(prev.item);
+            if (prevChildren && prevChildren.length == 0 && !prevCollapsed) {
                 prevPath = prevPath.concat([-1]);
             }
             if (path.length < prevPath.length) {
@@ -10418,13 +10424,14 @@ var Tree = (function (_super) {
         };
     };
     Tree.prototype.canDrop = function (destInfo, destIndex) {
-        var selectedKeys = this.props.selectedKeys;
+        var _a = this.props, selectedKeys = _a.selectedKeys, delegate = _a.delegate;
         var path = destInfo.path;
         for (var i = 0; i < path.length; ++i) {
             var ancestorPath = path.slice(0, path.length - i);
             var ancestor = this.pathToInfo.get(ancestorPath.join());
             if (ancestor) {
-                if (selectedKeys.has(ancestor.node.key)) {
+                var ancestorKey = delegate.getKey(ancestor.item);
+                if (selectedKeys.has(ancestorKey)) {
                     return false;
                 }
             }
@@ -25830,109 +25837,134 @@ var ReactDOM = __webpack_require__(85);
 var src_1 = __webpack_require__(88);
 var classNames = __webpack_require__(50);
 var loremIpsum = __webpack_require__(84);
-var MyTree = (function (_super) {
-    __extends(MyTree, _super);
-    function MyTree() {
+var ExampleItem = (function () {
+    function ExampleItem(text, children, collapsed) {
+        this.text = text;
+        this.children = children;
+        this.collapsed = collapsed;
+        this.key = ExampleItem.nextKey++;
+    }
+    ExampleItem.prototype.getDescendant = function (path) {
+        if (path.length == 0) {
+            return this;
+        }
+        else if (this.children) {
+            return this.children[path[0]].getDescendant(path.slice(1));
+        }
+    };
+    ExampleItem.prototype.clone = function () {
+        return new ExampleItem(this.text, this.children ? this.children.map(function (c) { return c.clone(); }) : undefined, this.collapsed);
+    };
+    ExampleItem.generate = function (depth, minChildCount, maxChildCount) {
+        var text = loremIpsum({ sentenceLowerBound: 2, sentenceUpperBound: 4 });
+        var hasChild = depth > 1;
+        var children = undefined;
+        if (hasChild) {
+            children = [];
+            var childCount = Math.round(Math.random() * (maxChildCount - minChildCount) + minChildCount);
+            for (var i = 0; i < childCount; ++i) {
+                children.push(ExampleItem.generate(depth - 1, minChildCount, maxChildCount));
+            }
+        }
+        return new ExampleItem(text, children, false);
+    };
+    return ExampleItem;
+}());
+ExampleItem.nextKey = 0;
+var ExampleTree = (function (_super) {
+    __extends(ExampleTree, _super);
+    function ExampleTree() {
         return _super !== null && _super.apply(this, arguments) || this;
     }
-    return MyTree;
+    return ExampleTree;
 }(src_1.Tree));
+var ExampleDelegate = (function () {
+    function ExampleDelegate(view) {
+        this.view = view;
+    }
+    ExampleDelegate.prototype.renderRow = function (info) {
+        return ExampleRow(info);
+    };
+    ExampleDelegate.prototype.getChildren = function (item) {
+        return item.children;
+    };
+    ExampleDelegate.prototype.getDroppable = function (item) {
+        return true;
+    };
+    ExampleDelegate.prototype.getKey = function (item) {
+        return item.key;
+    };
+    ExampleDelegate.prototype.getCollapsed = function (item) {
+        return !!item.collapsed;
+    };
+    ExampleDelegate.prototype.onContextMenu = function (info, ev) {
+        if (info) {
+            console.log("Context menu at " + info.path);
+        }
+        else {
+            console.log("Context menu at blank space");
+        }
+    };
+    ExampleDelegate.prototype.onSelectedKeysChange = function (selectedKeys) {
+        this.view.setState({ selectedKeys: selectedKeys });
+    };
+    ExampleDelegate.prototype.onCollapsedChange = function (info, collapsed) {
+        info.item.collapsed = collapsed;
+        this.view.setState({ root: this.view.state.root });
+    };
+    ExampleDelegate.prototype.onMove = function (src, dest, destIndex, destIndexAfter) {
+        var root = this.view.state.root;
+        var items = [];
+        for (var i = src.length - 1; i >= 0; --i) {
+            var path = src[i].path;
+            var index = path[path.length - 1];
+            var parent_1 = root.getDescendant(path.slice(0, -1));
+            var item = parent_1.children.splice(index, 1)[0];
+            items.unshift(item);
+        }
+        (_a = dest.item.children).splice.apply(_a, [destIndexAfter, 0].concat(items));
+        dest.item.collapsed = false;
+        this.view.setState({ root: root });
+        var _a;
+    };
+    ExampleDelegate.prototype.onCopy = function (src, dest, destIndex) {
+        var root = this.view.state.root;
+        var items = [];
+        for (var i = src.length - 1; i >= 0; --i) {
+            var path = src[i].path;
+            var index = path[path.length - 1];
+            var parent_2 = root.getDescendant(path.slice(0, -1));
+            var item = parent_2.children[index].clone();
+            items.unshift(item);
+        }
+        (_a = dest.item.children).splice.apply(_a, [destIndex, 0].concat(items));
+        dest.item.collapsed = false;
+        this.view.setState({ root: root });
+        var _a;
+    };
+    return ExampleDelegate;
+}());
 var Example = (function (_super) {
     __extends(Example, _super);
     function Example() {
-        var _this = _super !== null && _super.apply(this, arguments) || this;
-        _this.root = generateNode(4, 2, 4);
-        _this.selectedKeys = new Set([_this.root.children[0].key]);
+        var _this = _super.call(this) || this;
+        _this.delegate = new ExampleDelegate(_this);
+        var root = ExampleItem.generate(4, 2, 4);
+        _this.state = {
+            root: root,
+            selectedKeys: new Set([root.children[0].key])
+        };
         return _this;
     }
     Example.prototype.render = function () {
-        var _this = this;
-        var onContextMenu = function (info, ev) {
-            if (info) {
-                console.log("Context menu at " + info.path);
-            }
-            else {
-                console.log("Context menu at blank space");
-            }
-        };
-        var onSelectedKeysChange = function (selectedKeys) {
-            _this.selectedKeys = selectedKeys;
-            _this.forceUpdate();
-        };
-        var onCollapsedChange = function (info, collapsed) {
-            info.node.collapsed = collapsed;
-            _this.forceUpdate();
-        };
-        var onMove = function (src, dest, destIndex, destIndexAfter) {
-            var nodes = [];
-            for (var i = src.length - 1; i >= 0; --i) {
-                var path = src[i].path;
-                var index = path[path.length - 1];
-                var parent_1 = nodeForPath(_this.root, path.slice(0, -1));
-                var node = parent_1.children.splice(index, 1)[0];
-                nodes.unshift(node);
-            }
-            (_a = dest.node.children).splice.apply(_a, [destIndexAfter, 0].concat(nodes));
-            dest.node.collapsed = false;
-            _this.forceUpdate();
-            var _a;
-        };
-        var onCopy = function (src, dest, destIndex) {
-            var nodes = [];
-            for (var i = src.length - 1; i >= 0; --i) {
-                var path = src[i].path;
-                var index = path[path.length - 1];
-                var parent_2 = nodeForPath(_this.root, path.slice(0, -1));
-                var node = cloneNode(parent_2.children[index]);
-                nodes.unshift(node);
-            }
-            (_a = dest.node.children).splice.apply(_a, [destIndex, 0].concat(nodes));
-            dest.node.collapsed = false;
-            _this.forceUpdate();
-            var _a;
-        };
-        return (React.createElement(MyTree, { root: this.root, selectedKeys: this.selectedKeys, rowHeight: 40, rowContent: MyRowContent, onSelectedKeysChange: onSelectedKeysChange, onCollapsedChange: onCollapsedChange, onContextMenu: onContextMenu, onMove: onMove, onCopy: onCopy }));
+        var _a = this.state, root = _a.root, selectedKeys = _a.selectedKeys;
+        return (React.createElement(ExampleTree, { root: root, selectedKeys: selectedKeys, rowHeight: 40, delegate: this.delegate }));
     };
     return Example;
 }(React.Component));
-function MyRowContent(props) {
-    var node = props.node, selected = props.selected;
-    return React.createElement("div", { className: classNames("example-cell", { selected: selected }) }, node.text);
-}
-function nodeForPath(node, path) {
-    if (path.length == 0) {
-        return node;
-    }
-    else if (node.children) {
-        return nodeForPath(node.children[path[0]], path.slice(1));
-    }
-}
-function cloneNode(node) {
-    return {
-        text: node.text,
-        key: currentKey++,
-        children: node.children ? node.children.map(cloneNode) : undefined,
-        collapsed: node.collapsed
-    };
-}
-var currentKey = 0;
-function generateNode(depth, minChildCount, maxChildCount) {
-    var text = loremIpsum({ sentenceLowerBound: 2, sentenceUpperBound: 4 });
-    var hasChild = depth > 1;
-    var children = undefined;
-    if (hasChild) {
-        children = [];
-        var childCount = Math.round(Math.random() * (maxChildCount - minChildCount) + minChildCount);
-        for (var i = 0; i < childCount; ++i) {
-            children.push(generateNode(depth - 1, minChildCount, maxChildCount));
-        }
-    }
-    var key = currentKey++;
-    return {
-        text: text,
-        key: key,
-        children: children
-    };
+function ExampleRow(props) {
+    var item = props.item, selected = props.selected;
+    return React.createElement("div", { className: classNames("example-cell", { selected: selected }) }, item.text);
 }
 window.addEventListener("DOMContentLoaded", function () {
     ReactDOM.render(React.createElement(Example, null), document.getElementById("example"));
