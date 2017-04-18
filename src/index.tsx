@@ -47,7 +47,7 @@ interface TreeProps<TItem> {
 }
 
 export
-class Tree<TItem> extends React.Component<TreeProps<TItem>, {}> {
+class TreeView<TItem> extends React.Component<TreeProps<TItem>, {}> {
   private element: HTMLElement
   private dropIndicator: DropIndicator
   private infoToPath = new Map<RowInfo<TItem>, number[]>()

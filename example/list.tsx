@@ -2,7 +2,7 @@ require("./example.css")
 require("../lib/index.css")
 import React = require("react")
 import ReactDOM = require("react-dom")
-import {Tree, TreeDelegate, RowInfo} from "../src"
+import {TreeView, TreeDelegate, RowInfo} from "../src"
 const classNames = require("classnames")
 const loremIpsum = require("lorem-ipsum")
 
@@ -44,7 +44,7 @@ class ExampleItem {
   }
 }
 
-class ExampleTree extends Tree<ExampleItem> {}
+class ExampleTreeView extends TreeView<ExampleItem> {}
 
 class ExampleDelegate implements TreeDelegate<ExampleItem> {
   constructor(public view: Example) {
@@ -128,7 +128,7 @@ class Example extends React.Component<{}, ExampleState> {
   render() {
     const {root, selectedKeys} = this.state
     return (
-      <ExampleTree
+      <ExampleTreeView
         root={root}
         selectedKeys={selectedKeys}
         rowHeight={40}
