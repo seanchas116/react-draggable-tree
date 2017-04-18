@@ -78,7 +78,7 @@ class Tree<TItem> extends React.Component<TreeProps<TItem>, {}> {
     }, this.props)
   }
 
-  private clearNodes() {
+  private clearRows() {
     this.visibleInfos = []
     this.pathToInfo.clear()
     this.infoToPath.clear()
@@ -187,7 +187,7 @@ class Tree<TItem> extends React.Component<TreeProps<TItem>, {}> {
   render() {
     const {root, rowHeight, indent, delegate} = this.propsWithDefaults()
     const children = delegate.getChildren(root) || []
-    this.clearNodes()
+    this.clearRows()
     const rootInfo = {item: root, selected: false, current: false, path: [], visible: false, visibleOffset: 0}
     this.addRowInfo(rootInfo)
     this.rootInfo = rootInfo
