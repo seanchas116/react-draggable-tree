@@ -2,14 +2,14 @@ require("./example.css")
 require("../lib/index.css")
 import React = require("react")
 import ReactDOM = require("react-dom")
-import {TreeView, TreeDelegate, RowInfo} from "../src"
+import {TreeView, TreeDelegate, TreeRowInfo} from "../src"
 const classNames = require("classnames")
 import {ExampleItem} from './ExampleItem'
 
 class ExampleTreeDelegate implements TreeDelegate<ExampleItem> {
-  constructor(public view: Example) {
+  constructor(public view: ExampleTree) {
   }
-  renderRow(info: RowInfo<ExampleItem>) {
+  renderRow(info: TreeRowInfo<ExampleItem>) {
     return ExampleRow(info)
   }
   getChildren(item: ExampleItem) {
@@ -24,7 +24,7 @@ class ExampleTreeDelegate implements TreeDelegate<ExampleItem> {
   getCollapsed(item: ExampleItem) {
     return !!item.collapsed
   }
-  onContextMenu(info: RowInfo<ExampleItem>|undefined, ev: React.MouseEvent<Element>) {
+  onContextMenu(info: TreeRowInfo<ExampleItem>|undefined, ev: React.MouseEvent<Element>) {
     if (info) {
       console.log(`Context menu at ${info.path}`)
     } else {
@@ -34,11 +34,11 @@ class ExampleTreeDelegate implements TreeDelegate<ExampleItem> {
   onSelectedKeysChange(selectedKeys: Set<number>) {
     this.view.setState({selectedKeys})
   }
-  onCollapsedChange(info: RowInfo<ExampleItem>, collapsed: boolean) {
+  onCollapsedChange(info: TreeRowInfo<ExampleItem>, collapsed: boolean) {
     info.item.collapsed = collapsed
     this.view.setState({root: this.view.state.root})
   }
-  onMove(src: RowInfo<ExampleItem>[], dest: RowInfo<ExampleItem>, destIndex: number, destIndexAfter: number) {
+  onMove(src: TreeRowInfo<ExampleItem>[], dest: TreeRowInfo<ExampleItem>, destIndex: number, destIndexAfter: number) {
     const {root} = this.view.state
     const items: ExampleItem[] = []
     for (let i = src.length - 1; i >= 0; --i) {
@@ -52,7 +52,7 @@ class ExampleTreeDelegate implements TreeDelegate<ExampleItem> {
     dest.item.collapsed = false
     this.view.setState({root})
   }
-  onCopy(src: RowInfo<ExampleItem>[], dest: RowInfo<ExampleItem>, destIndex: number) {
+  onCopy(src: TreeRowInfo<ExampleItem>[], dest: TreeRowInfo<ExampleItem>, destIndex: number) {
     const {root} = this.view.state
     const items: ExampleItem[] = []
     for (let i = src.length - 1; i >= 0; --i) {

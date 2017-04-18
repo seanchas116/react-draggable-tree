@@ -1,2 +1,2 @@
-export {TreeView, TreeDelegate, RowInfo} from './TreeView'
+export {TreeView, TreeDelegate, TreeRowInfo} from './TreeView'
 export {ListView, ListDelegate, ListRowInfo} from './ListView'

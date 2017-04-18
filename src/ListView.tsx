@@ -1,5 +1,5 @@
 import * as React from 'react'
-import {TreeView, TreeDelegate, RowInfo} from './TreeView'
+import {TreeView, TreeDelegate, TreeRowInfo} from './TreeView'
 
 export type Key = number | string
 
@@ -39,7 +39,7 @@ interface ListTreeItemRoot<T> {
 }
 type ListTreeItem<T> = ListTreeItemChild<T> | ListTreeItemRoot<T>
 
-function toListRowInfo<T>(treeRowInfo: RowInfo<ListTreeItem<T>>): ListRowInfo<T> {
+function toListRowInfo<T>(treeRowInfo: TreeRowInfo<ListTreeItem<T>>): ListRowInfo<T> {
   return {
     item: (treeRowInfo.item as ListTreeItemChild<T>).item,
     selected: treeRowInfo.selected,
@@ -52,7 +52,7 @@ function toListRowInfo<T>(treeRowInfo: RowInfo<ListTreeItem<T>>): ListRowInfo<T>
 class ListTreeDelegate<T> implements TreeDelegate<ListTreeItem<T>> {
   constructor(public delegate: ListDelegate<T>) {
   }
-  renderRow(info: RowInfo<ListTreeItem<T>>) {
+  renderRow(info: TreeRowInfo<ListTreeItem<T>>) {
     return this.delegate.renderRow(toListRowInfo(info))
   }
   getChildren(item: ListTreeItem<T>) {
@@ -73,18 +73,18 @@ class ListTreeDelegate<T> implements TreeDelegate<ListTreeItem<T>> {
   getCollapsed(item: ListTreeItem<T>) {
     return false
   }
-  onMove(src: RowInfo<ListTreeItem<T>>[], dest: RowInfo<ListTreeItem<T>>, destIndexBefore: number, destIndexAfter: number) {
+  onMove(src: TreeRowInfo<ListTreeItem<T>>[], dest: TreeRowInfo<ListTreeItem<T>>, destIndexBefore: number, destIndexAfter: number) {
     this.delegate.onMove(src.map(toListRowInfo), toListRowInfo(dest), destIndexAfter)
   }
-  onCopy(src: RowInfo<ListTreeItem<T>>[], dest: RowInfo<ListTreeItem<T>>, destIndexBefore: number) {
+  onCopy(src: TreeRowInfo<ListTreeItem<T>>[], dest: TreeRowInfo<ListTreeItem<T>>, destIndexBefore: number) {
     this.delegate.onCopy(src.map(toListRowInfo), toListRowInfo(dest))
   }
-  onContextMenu(info: RowInfo<ListTreeItem<T>>|undefined, ev: React.MouseEvent<Element>) {
+  onContextMenu(info: TreeRowInfo<ListTreeItem<T>>|undefined, ev: React.MouseEvent<Element>) {
     this.delegate.onContextMenu(info && toListRowInfo(info), ev)
   }
-  onCollapsedChange(info: RowInfo<ListTreeItem<T>>, collapsed: boolean) {
+  onCollapsedChange(info: TreeRowInfo<ListTreeItem<T>>, collapsed: boolean) {
   }
-  onSelectedKeysChange(selectedKeys: Set<Key>, selectedInfos: RowInfo<ListTreeItem<T>>[]) {
+  onSelectedKeysChange(selectedKeys: Set<Key>, selectedInfos: TreeRowInfo<ListTreeItem<T>>[]) {
     this.delegate.onSelectedKeysChange(selectedKeys, selectedInfos.map(toListRowInfo))
   }
 }
