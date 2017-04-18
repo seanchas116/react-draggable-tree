@@ -2,84 +2,102 @@ require("./example.css")
 require("../lib/index.css")
 import React = require("react")
 import ReactDOM = require("react-dom")
-import {Tree, TreeNode, NodeInfo} from "../src"
+import {Tree, TreeDelegate, RowInfo} from "../src"
 const classNames = require("classnames")
 const loremIpsum = require("lorem-ipsum")
 
-interface MyNode extends TreeNode {
+interface ExampleItem {
+  key: number
   text: string
+  children: ExampleItem[]|undefined
+  collapsed?: boolean
 }
-class MyTree extends Tree<MyNode> {}
+class ExampleTree extends Tree<ExampleItem> {}
+
+class ExampleDelegate implements TreeDelegate<ExampleItem> {
+  constructor(public view: Example) {
+  }
+  renderRow(info: RowInfo<ExampleItem>) {
+    return ExampleRow(info)
+  }
+  getChildren(item: ExampleItem) {
+    return item.children
+  }
+  getDroppable(item: ExampleItem) {
+    return true
+  }
+  getKey(item: ExampleItem) {
+    return item.key
+  }
+  getCollapsed(item: ExampleItem) {
+    return !!item.collapsed
+  }
+  onContextMenu(info: RowInfo<ExampleItem>|undefined, ev: React.MouseEvent<Element>) {
+    if (info) {
+      console.log(`Context menu at ${info.path}`)
+    } else {
+      console.log(`Context menu at blank space`)
+    }
+  }
+  onSelectedKeysChange(selectedKeys: Set<number>) {
+    this.view.selectedKeys = selectedKeys
+    this.view.forceUpdate()
+  }
+  onCollapsedChange(info: RowInfo<ExampleItem>, collapsed: boolean) {
+    info.item.collapsed = collapsed
+    this.view.forceUpdate()
+  }
+  onMove(src: RowInfo<ExampleItem>[], dest: RowInfo<ExampleItem>, destIndex: number, destIndexAfter: number) {
+    const items: ExampleItem[] = []
+    for (let i = src.length - 1; i >= 0; --i) {
+      const {path} = src[i]
+      const index = path[path.length - 1]
+      const parent = nodeForPath(this.view.root, path.slice(0, -1))!
+      const [item] = parent.children!.splice(index, 1)
+      items.unshift(item)
+    }
+    dest.item.children!.splice(destIndexAfter, 0, ...items)
+    dest.item.collapsed = false
+    this.view.forceUpdate()
+  }
+  onCopy(src: RowInfo<ExampleItem>[], dest: RowInfo<ExampleItem>, destIndex: number) {
+    const items: ExampleItem[] = []
+    for (let i = src.length - 1; i >= 0; --i) {
+      const {path} = src[i]
+      const index = path[path.length - 1]
+      const parent = nodeForPath(this.view.root, path.slice(0, -1))!
+      const item = cloneNode(parent.children![index])
+      items.unshift(item)
+    }
+    dest.item.children!.splice(destIndex, 0, ...items)
+    dest.item.collapsed = false
+    this.view.forceUpdate()
+  }
+}
 
 class Example extends React.Component<{}, {}> {
   root = generateNode(4, 2, 4)
   selectedKeys = new Set([this.root.children![0].key])
+  delegate = new ExampleDelegate(this)
 
   render() {
-    const onContextMenu = (info: NodeInfo<MyNode>|undefined, ev: React.MouseEvent<Element>) => {
-      if (info) {
-        console.log(`Context menu at ${info.path}`)
-      } else {
-        console.log(`Context menu at blank space`)
-      }
-    }
-    const onSelectedKeysChange = (selectedKeys: Set<number>) => {
-      this.selectedKeys = selectedKeys
-      this.forceUpdate()
-    }
-    const onCollapsedChange = (info: NodeInfo<MyNode>, collapsed: boolean) => {
-      info.node.collapsed = collapsed
-      this.forceUpdate()
-    }
-    const onMove = (src: NodeInfo<MyNode>[], dest: NodeInfo<MyNode>, destIndex: number, destIndexAfter: number) => {
-      const nodes: MyNode[] = []
-      for (let i = src.length - 1; i >= 0; --i) {
-        const {path} = src[i]
-        const index = path[path.length - 1]
-        const parent = nodeForPath(this.root, path.slice(0, -1))!
-        const [node] = parent.children!.splice(index, 1)
-        nodes.unshift(node)
-      }
-      dest.node.children!.splice(destIndexAfter, 0, ...nodes)
-      dest.node.collapsed = false
-      this.forceUpdate()
-    }
-    const onCopy = (src: NodeInfo<MyNode>[], dest: NodeInfo<MyNode>, destIndex: number) => {
-      const nodes: MyNode[] = []
-      for (let i = src.length - 1; i >= 0; --i) {
-        const {path} = src[i]
-        const index = path[path.length - 1]
-        const parent = nodeForPath(this.root, path.slice(0, -1))!
-        const node = cloneNode(parent.children![index])
-        nodes.unshift(node)
-      }
-      dest.node.children!.splice(destIndex, 0, ...nodes)
-      dest.node.collapsed = false
-      this.forceUpdate()
-    }
-
     return (
-      <MyTree
+      <ExampleTree
         root={this.root}
         selectedKeys={this.selectedKeys}
         rowHeight={40}
-        rowContent={MyRowContent}
-        onSelectedKeysChange={onSelectedKeysChange}
-        onCollapsedChange={onCollapsedChange}
-        onContextMenu={onContextMenu}
-        onMove={onMove}
-        onCopy={onCopy}
+        delegate={this.delegate}
       />
     )
   }
 }
 
-function MyRowContent(props: {node: MyNode, selected: boolean}) {
-  const {node, selected} = props
-  return <div className={classNames("example-cell", {selected})}>{node.text}</div>
+function ExampleRow(props: {item: ExampleItem, selected: boolean}) {
+  const {item, selected} = props
+  return <div className={classNames("example-cell", {selected})}>{item.text}</div>
 }
 
-function nodeForPath(node: MyNode, path: number[]): MyNode|undefined {
+function nodeForPath(node: ExampleItem, path: number[]): ExampleItem|undefined {
   if (path.length == 0) {
     return node
   } else if (node.children) {
@@ -87,7 +105,7 @@ function nodeForPath(node: MyNode, path: number[]): MyNode|undefined {
   }
 }
 
-function cloneNode(node: MyNode): MyNode {
+function cloneNode(node: ExampleItem): ExampleItem {
   return {
     text: node.text,
     key: currentKey++,
@@ -98,10 +116,10 @@ function cloneNode(node: MyNode): MyNode {
 
 let currentKey = 0
 
-function generateNode(depth: number, minChildCount: number, maxChildCount: number): MyNode {
+function generateNode(depth: number, minChildCount: number, maxChildCount: number): ExampleItem {
   const text: string = loremIpsum({sentenceLowerBound: 2, sentenceUpperBound: 4})
   const hasChild = depth > 1
-  let children: MyNode[]|undefined = undefined
+  let children: ExampleItem[]|undefined = undefined
   if (hasChild) {
     children = []
     const childCount = Math.round(Math.random() * (maxChildCount - minChildCount) + minChildCount)
