@@ -52,7 +52,7 @@ class ExampleDelegate implements TreeDelegate<ExampleItem> {
     for (let i = src.length - 1; i >= 0; --i) {
       const {path} = src[i]
       const index = path[path.length - 1]
-      const parent = nodeForPath(this.view.root, path.slice(0, -1))!
+      const parent = itemForPath(this.view.root, path.slice(0, -1))!
       const [item] = parent.children!.splice(index, 1)
       items.unshift(item)
     }
@@ -65,8 +65,8 @@ class ExampleDelegate implements TreeDelegate<ExampleItem> {
     for (let i = src.length - 1; i >= 0; --i) {
       const {path} = src[i]
       const index = path[path.length - 1]
-      const parent = nodeForPath(this.view.root, path.slice(0, -1))!
-      const item = cloneNode(parent.children![index])
+      const parent = itemForPath(this.view.root, path.slice(0, -1))!
+      const item = cloneItem(parent.children![index])
       items.unshift(item)
     }
     dest.item.children!.splice(destIndex, 0, ...items)
@@ -76,7 +76,7 @@ class ExampleDelegate implements TreeDelegate<ExampleItem> {
 }
 
 class Example extends React.Component<{}, {}> {
-  root = generateNode(4, 2, 4)
+  root = generateItem(4, 2, 4)
   selectedKeys = new Set([this.root.children![0].key])
   delegate = new ExampleDelegate(this)
 
@@ -97,26 +97,26 @@ function ExampleRow(props: {item: ExampleItem, selected: boolean}) {
   return <div className={classNames("example-cell", {selected})}>{item.text}</div>
 }
 
-function nodeForPath(node: ExampleItem, path: number[]): ExampleItem|undefined {
+function itemForPath(item: ExampleItem, path: number[]): ExampleItem|undefined {
   if (path.length == 0) {
-    return node
-  } else if (node.children) {
-    return nodeForPath(node.children[path[0]], path.slice(1))
+    return item
+  } else if (item.children) {
+    return itemForPath(item.children[path[0]], path.slice(1))
   }
 }
 
-function cloneNode(node: ExampleItem): ExampleItem {
+function cloneItem(item: ExampleItem): ExampleItem {
   return {
-    text: node.text,
+    text: item.text,
     key: currentKey++,
-    children: node.children ? node.children.map(cloneNode) : undefined,
-    collapsed: node.collapsed
+    children: item.children ? item.children.map(cloneItem) : undefined,
+    collapsed: item.collapsed
   }
 }
 
 let currentKey = 0
 
-function generateNode(depth: number, minChildCount: number, maxChildCount: number): ExampleItem {
+function generateItem(depth: number, minChildCount: number, maxChildCount: number): ExampleItem {
   const text: string = loremIpsum({sentenceLowerBound: 2, sentenceUpperBound: 4})
   const hasChild = depth > 1
   let children: ExampleItem[]|undefined = undefined
@@ -124,7 +124,7 @@ function generateNode(depth: number, minChildCount: number, maxChildCount: numbe
     children = []
     const childCount = Math.round(Math.random() * (maxChildCount - minChildCount) + minChildCount)
     for (let i = 0; i < childCount; ++i) {
-      children.push(generateNode(depth - 1, minChildCount, maxChildCount))
+      children.push(generateItem(depth - 1, minChildCount, maxChildCount))
     }
   }
   const key = currentKey++
