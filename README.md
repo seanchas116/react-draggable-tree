@@ -1,9 +1,11 @@
 # react-draggable-tree
 
-Draggable tree view for React
+Draggable tree view / list view for React
 
-* [Example](https://sketchglass.github.io/react-draggable-tree/example.html)
-* [Example Source](example/example.tsx)
+* [Tree View Example](https://sketchglass.github.io/react-draggable-tree/tree.html)
+* [Tree View Example Source](example/tree.tsx)
+* [List View Example](https://sketchglass.github.io/react-draggable-tree/list.html)
+* [List View Example Source](example/list.tsx)
 * [API](lib/index.d.ts)
 
 ## Install
