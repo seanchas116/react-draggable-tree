@@ -2,119 +2,145 @@ require("./example.css")
 require("../lib/index.css")
 import React = require("react")
 import ReactDOM = require("react-dom")
-import {Tree, TreeNode, NodeInfo} from "../src"
+import {Tree, TreeDelegate, RowInfo} from "../src"
 const classNames = require("classnames")
 const loremIpsum = require("lorem-ipsum")
 
-interface MyNode extends TreeNode {
-  text: string
-}
-class MyTree extends Tree<MyNode> {}
+class ExampleItem {
+  static nextKey = 0
+  key = ExampleItem.nextKey++
 
-class Example extends React.Component<{}, {}> {
-  root = generateNode(4, 2, 4)
-  selectedKeys = new Set([this.root.children![0].key])
+  constructor(public text: string, public children: ExampleItem[]|undefined, public collapsed: boolean) {
+  }
+
+  getDescendant(path: number[]): ExampleItem|undefined {
+    if (path.length == 0) {
+      return this
+    } else if (this.children) {
+      return this.children[path[0]].getDescendant(path.slice(1))
+    }
+  }
+
+  clone(): ExampleItem {
+    return new ExampleItem(
+      this.text,
+      this.children ? this.children.map(c => c.clone()) : undefined,
+      this.collapsed
+    )
+  }
+
+  static generate(depth: number, minChildCount: number, maxChildCount: number): ExampleItem {
+    const text: string = loremIpsum({sentenceLowerBound: 2, sentenceUpperBound: 4})
+    const hasChild = depth > 1
+    let children: ExampleItem[]|undefined = undefined
+    if (hasChild) {
+      children = []
+      const childCount = Math.round(Math.random() * (maxChildCount - minChildCount) + minChildCount)
+      for (let i = 0; i < childCount; ++i) {
+        children.push(ExampleItem.generate(depth - 1, minChildCount, maxChildCount))
+      }
+    }
+    return new ExampleItem(text, children, false)
+  }
+}
+
+class ExampleTree extends Tree<ExampleItem> {}
+
+class ExampleDelegate implements TreeDelegate<ExampleItem> {
+  constructor(public view: Example) {
+  }
+  renderRow(info: RowInfo<ExampleItem>) {
+    return ExampleRow(info)
+  }
+  getChildren(item: ExampleItem) {
+    return item.children
+  }
+  getDroppable(item: ExampleItem) {
+    return true
+  }
+  getKey(item: ExampleItem) {
+    return item.key
+  }
+  getCollapsed(item: ExampleItem) {
+    return !!item.collapsed
+  }
+  onContextMenu(info: RowInfo<ExampleItem>|undefined, ev: React.MouseEvent<Element>) {
+    if (info) {
+      console.log(`Context menu at ${info.path}`)
+    } else {
+      console.log(`Context menu at blank space`)
+    }
+  }
+  onSelectedKeysChange(selectedKeys: Set<number>) {
+    this.view.setState({selectedKeys})
+  }
+  onCollapsedChange(info: RowInfo<ExampleItem>, collapsed: boolean) {
+    info.item.collapsed = collapsed
+    this.view.setState({root: this.view.state.root})
+  }
+  onMove(src: RowInfo<ExampleItem>[], dest: RowInfo<ExampleItem>, destIndex: number, destIndexAfter: number) {
+    const {root} = this.view.state
+    const items: ExampleItem[] = []
+    for (let i = src.length - 1; i >= 0; --i) {
+      const {path} = src[i]
+      const index = path[path.length - 1]
+      const parent = root.getDescendant(path.slice(0, -1))!
+      const [item] = parent.children!.splice(index, 1)
+      items.unshift(item)
+    }
+    dest.item.children!.splice(destIndexAfter, 0, ...items)
+    dest.item.collapsed = false
+    this.view.setState({root})
+  }
+  onCopy(src: RowInfo<ExampleItem>[], dest: RowInfo<ExampleItem>, destIndex: number) {
+    const {root} = this.view.state
+    const items: ExampleItem[] = []
+    for (let i = src.length - 1; i >= 0; --i) {
+      const {path} = src[i]
+      const index = path[path.length - 1]
+      const parent = root.getDescendant(path.slice(0, -1))!
+      const item = parent.children![index].clone()
+      items.unshift(item)
+    }
+    dest.item.children!.splice(destIndex, 0, ...items)
+    dest.item.collapsed = false
+    this.view.setState({root})
+  }
+}
+
+interface ExampleState {
+  root: ExampleItem
+  selectedKeys: Set<number>
+}
+
+class Example extends React.Component<{}, ExampleState> {
+  delegate = new ExampleDelegate(this)
+
+  constructor() {
+    super()
+    const root = ExampleItem.generate(4, 2, 4)
+    this.state = {
+      root,
+      selectedKeys: new Set([root.children![0].key])
+    }
+  }
 
   render() {
-    const onContextMenu = (info: NodeInfo<MyNode>|undefined, ev: React.MouseEvent<Element>) => {
-      if (info) {
-        console.log(`Context menu at ${info.path}`)
-      } else {
-        console.log(`Context menu at blank space`)
-      }
-    }
-    const onSelectedKeysChange = (selectedKeys: Set<number>) => {
-      this.selectedKeys = selectedKeys
-      this.forceUpdate()
-    }
-    const onCollapsedChange = (info: NodeInfo<MyNode>, collapsed: boolean) => {
-      info.node.collapsed = collapsed
-      this.forceUpdate()
-    }
-    const onMove = (src: NodeInfo<MyNode>[], dest: NodeInfo<MyNode>, destIndex: number, destIndexAfter: number) => {
-      const nodes: MyNode[] = []
-      for (let i = src.length - 1; i >= 0; --i) {
-        const {path} = src[i]
-        const index = path[path.length - 1]
-        const parent = nodeForPath(this.root, path.slice(0, -1))!
-        const [node] = parent.children!.splice(index, 1)
-        nodes.unshift(node)
-      }
-      dest.node.children!.splice(destIndexAfter, 0, ...nodes)
-      dest.node.collapsed = false
-      this.forceUpdate()
-    }
-    const onCopy = (src: NodeInfo<MyNode>[], dest: NodeInfo<MyNode>, destIndex: number) => {
-      const nodes: MyNode[] = []
-      for (let i = src.length - 1; i >= 0; --i) {
-        const {path} = src[i]
-        const index = path[path.length - 1]
-        const parent = nodeForPath(this.root, path.slice(0, -1))!
-        const node = cloneNode(parent.children![index])
-        nodes.unshift(node)
-      }
-      dest.node.children!.splice(destIndex, 0, ...nodes)
-      dest.node.collapsed = false
-      this.forceUpdate()
-    }
-
+    const {root, selectedKeys} = this.state
     return (
-      <MyTree
-        root={this.root}
-        selectedKeys={this.selectedKeys}
+      <ExampleTree
+        root={root}
+        selectedKeys={selectedKeys}
         rowHeight={40}
-        rowContent={MyRowContent}
-        onSelectedKeysChange={onSelectedKeysChange}
-        onCollapsedChange={onCollapsedChange}
-        onContextMenu={onContextMenu}
-        onMove={onMove}
-        onCopy={onCopy}
+        delegate={this.delegate}
       />
     )
   }
 }
 
-function MyRowContent(props: {node: MyNode, selected: boolean}) {
-  const {node, selected} = props
-  return <div className={classNames("example-cell", {selected})}>{node.text}</div>
-}
-
-function nodeForPath(node: MyNode, path: number[]): MyNode|undefined {
-  if (path.length == 0) {
-    return node
-  } else if (node.children) {
-    return nodeForPath(node.children[path[0]], path.slice(1))
-  }
-}
-
-function cloneNode(node: MyNode): MyNode {
-  return {
-    text: node.text,
-    key: currentKey++,
-    children: node.children ? node.children.map(cloneNode) : undefined,
-    collapsed: node.collapsed
-  }
-}
-
-let currentKey = 0
-
-function generateNode(depth: number, minChildCount: number, maxChildCount: number): MyNode {
-  const text: string = loremIpsum({sentenceLowerBound: 2, sentenceUpperBound: 4})
-  const hasChild = depth > 1
-  let children: MyNode[]|undefined = undefined
-  if (hasChild) {
-    children = []
-    const childCount = Math.round(Math.random() * (maxChildCount - minChildCount) + minChildCount)
-    for (let i = 0; i < childCount; ++i) {
-      children.push(generateNode(depth - 1, minChildCount, maxChildCount))
-    }
-  }
-  const key = currentKey++
-  return {
-    text,
-    key,
-    children
-  }
+function ExampleRow(props: {item: ExampleItem, selected: boolean}) {
+  const {item, selected} = props
+  return <div className={classNames("example-cell", {selected})}>{item.text}</div>
 }
 
 window.addEventListener("DOMContentLoaded", () => {
