@@ -14,8 +14,8 @@ export interface ListRowInfo<T> {
 export interface ListDelegate<T> {
   getKey(item: T): Key
   renderRow(info: ListRowInfo<T>): JSX.Element
-  onMove(src: ListRowInfo<T>[], dest: ListRowInfo<T>, destIndexAfter: number): void
-  onCopy(src: ListRowInfo<T>[], dest: ListRowInfo<T>): void
+  onMove(src: ListRowInfo<T>[], destIndexBefore: number, destIndexAfter: number): void
+  onCopy(src: ListRowInfo<T>[], destIndexBefore: number): void
   onContextMenu(info: ListRowInfo<T>|undefined, ev: React.MouseEvent<Element>): void
   onSelectedKeysChange(keys: Set<Key>, rows: ListRowInfo<T>[]): void
 }
@@ -74,10 +74,10 @@ class ListTreeDelegate<T> implements TreeDelegate<ListTreeItem<T>> {
     return false
   }
   onMove(src: TreeRowInfo<ListTreeItem<T>>[], dest: TreeRowInfo<ListTreeItem<T>>, destIndexBefore: number, destIndexAfter: number) {
-    this.delegate.onMove(src.map(toListRowInfo), toListRowInfo(dest), destIndexAfter)
+    this.delegate.onMove(src.map(toListRowInfo), destIndexBefore, destIndexAfter)
   }
   onCopy(src: TreeRowInfo<ListTreeItem<T>>[], dest: TreeRowInfo<ListTreeItem<T>>, destIndexBefore: number) {
-    this.delegate.onCopy(src.map(toListRowInfo), toListRowInfo(dest))
+    this.delegate.onCopy(src.map(toListRowInfo), destIndexBefore)
   }
   onContextMenu(info: TreeRowInfo<ListTreeItem<T>>|undefined, ev: React.MouseEvent<Element>) {
     this.delegate.onContextMenu(info && toListRowInfo(info), ev)

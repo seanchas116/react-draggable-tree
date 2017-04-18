@@ -29,7 +29,7 @@ class ExampleListDelegate implements ListDelegate<ExampleItem> {
     info.item.collapsed = collapsed
     this.view.setState({items: this.view.state.items})
   }
-  onMove(src: ListRowInfo<ExampleItem>[], dest: ListRowInfo<ExampleItem>, destIndexAfter: number) {
+  onMove(src: ListRowInfo<ExampleItem>[], destIndexBefore: number, destIndexAfter: number) {
     const {items} = this.view.state
     const itemsToMove: ExampleItem[] = []
     for (let i = src.length - 1; i >= 0; --i) {
@@ -40,7 +40,7 @@ class ExampleListDelegate implements ListDelegate<ExampleItem> {
     items.splice(destIndexAfter, 0, ...itemsToMove)
     this.view.setState({items})
   }
-  onCopy(src: ListRowInfo<ExampleItem>[], dest: ListRowInfo<ExampleItem>) {
+  onCopy(src: ListRowInfo<ExampleItem>[], destIndexBefore: number) {
     const {items} = this.view.state
     const itemsToCopy: ExampleItem[] = []
     for (let i = src.length - 1; i >= 0; --i) {
@@ -48,7 +48,7 @@ class ExampleListDelegate implements ListDelegate<ExampleItem> {
       const item = items[index].clone()
       itemsToCopy.unshift(item)
     }
-    items.splice(dest.index, 0, ...itemsToCopy)
+    items.splice(destIndexBefore, 0, ...itemsToCopy)
     this.view.setState({items})
   }
 }
