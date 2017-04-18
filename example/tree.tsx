@@ -15,9 +15,6 @@ class ExampleTreeDelegate implements TreeDelegate<ExampleItem> {
   getChildren(item: ExampleItem) {
     return item.children
   }
-  getDroppable(item: ExampleItem) {
-    return true
-  }
   getKey(item: ExampleItem) {
     return item.key
   }

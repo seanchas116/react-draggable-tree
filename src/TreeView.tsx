@@ -27,7 +27,6 @@ export
 interface TreeDelegate<TItem> {
   renderRow(info: TreeRowInfo<TItem>): JSX.Element
   getChildren(item: TItem): TItem[]|undefined
-  getDroppable(src: TItem, dst: TItem): boolean
   getKey(item: TItem): Key
   getCollapsed(item: TItem): boolean
   onMove: (src: TreeRowInfo<TItem>[], dest: TreeRowInfo<TItem>, destIndexBefore: number, destIndexAfter: number) => void

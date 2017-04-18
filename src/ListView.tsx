@@ -60,9 +60,6 @@ class ListTreeDelegate<T> implements TreeDelegate<ListTreeItem<T>> {
       return item.children
     }
   }
-  getDroppable(src: ListTreeItem<T>, dst: ListTreeItem<T>) {
-    return true
-  }
   getKey(item: ListTreeItem<T>): Key {
     if (item.type === 'child') {
       return this.delegate.getKey(item.item)
