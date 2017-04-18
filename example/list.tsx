@@ -2,71 +2,22 @@ require("./example.css")
 require("../lib/index.css")
 import React = require("react")
 import ReactDOM = require("react-dom")
-import {TreeView, TreeDelegate, RowInfo} from "../src"
 const classNames = require("classnames")
-const loremIpsum = require("lorem-ipsum")
+import {ListView, ListDelegate, ListRowInfo} from "../src"
+import {ExampleItem} from './ExampleItem'
 
-class ExampleItem {
-  static nextKey = 0
-  key = ExampleItem.nextKey++
-
-  constructor(public text: string, public children: ExampleItem[]|undefined, public collapsed: boolean) {
+class ExampleListDelegate implements ListDelegate<ExampleItem> {
+  constructor(public view: ExampleList) {
   }
-
-  getDescendant(path: number[]): ExampleItem|undefined {
-    if (path.length == 0) {
-      return this
-    } else if (this.children) {
-      return this.children[path[0]].getDescendant(path.slice(1))
-    }
-  }
-
-  clone(): ExampleItem {
-    return new ExampleItem(
-      this.text,
-      this.children ? this.children.map(c => c.clone()) : undefined,
-      this.collapsed
-    )
-  }
-
-  static generate(depth: number, minChildCount: number, maxChildCount: number): ExampleItem {
-    const text: string = loremIpsum({sentenceLowerBound: 2, sentenceUpperBound: 4})
-    const hasChild = depth > 1
-    let children: ExampleItem[]|undefined = undefined
-    if (hasChild) {
-      children = []
-      const childCount = Math.round(Math.random() * (maxChildCount - minChildCount) + minChildCount)
-      for (let i = 0; i < childCount; ++i) {
-        children.push(ExampleItem.generate(depth - 1, minChildCount, maxChildCount))
-      }
-    }
-    return new ExampleItem(text, children, false)
-  }
-}
-
-class ExampleTreeView extends TreeView<ExampleItem> {}
-
-class ExampleDelegate implements TreeDelegate<ExampleItem> {
-  constructor(public view: Example) {
-  }
-  renderRow(info: RowInfo<ExampleItem>) {
+  renderRow(info: ListRowInfo<ExampleItem>) {
     return ExampleRow(info)
-  }
-  getChildren(item: ExampleItem) {
-    return item.children
-  }
-  getDroppable(item: ExampleItem) {
-    return true
   }
   getKey(item: ExampleItem) {
     return item.key
   }
-  getCollapsed(item: ExampleItem) {
-    return !!item.collapsed
-  }
-  onContextMenu(info: RowInfo<ExampleItem>|undefined, ev: React.MouseEvent<Element>) {
+  onContextMenu(info: ListRowInfo<ExampleItem>|undefined, ev: React.MouseEvent<Element>) {
     if (info) {
-      console.log(`Context menu at ${info.path}`)
+      console.log(`Context menu at ${info.index}`)
     } else {
       console.log(`Context menu at blank space`)
     }
@@ -74,62 +25,60 @@ class ExampleDelegate implements TreeDelegate<ExampleItem> {
   onSelectedKeysChange(selectedKeys: Set<number>) {
     this.view.setState({selectedKeys})
   }
-  onCollapsedChange(info: RowInfo<ExampleItem>, collapsed: boolean) {
+  onCollapsedChange(info: ListRowInfo<ExampleItem>, collapsed: boolean) {
     info.item.collapsed = collapsed
-    this.view.setState({root: this.view.state.root})
+    this.view.setState({items: this.view.state.items})
   }
-  onMove(src: RowInfo<ExampleItem>[], dest: RowInfo<ExampleItem>, destIndex: number, destIndexAfter: number) {
-    const {root} = this.view.state
-    const items: ExampleItem[] = []
+  onMove(src: ListRowInfo<ExampleItem>[], dest: ListRowInfo<ExampleItem>, destIndexAfter: number) {
+    const {items} = this.view.state
+    const itemsToMove: ExampleItem[] = []
     for (let i = src.length - 1; i >= 0; --i) {
-      const {path} = src[i]
-      const index = path[path.length - 1]
-      const parent = root.getDescendant(path.slice(0, -1))!
-      const [item] = parent.children!.splice(index, 1)
-      items.unshift(item)
+      const {index} = src[i]
+      const [item] = items.splice(index, 1)
+      itemsToMove.unshift(item)
     }
-    dest.item.children!.splice(destIndexAfter, 0, ...items)
-    dest.item.collapsed = false
-    this.view.setState({root})
+    items.splice(destIndexAfter, 0, ...itemsToMove)
+    this.view.setState({items})
   }
-  onCopy(src: RowInfo<ExampleItem>[], dest: RowInfo<ExampleItem>, destIndex: number) {
-    const {root} = this.view.state
-    const items: ExampleItem[] = []
+  onCopy(src: ListRowInfo<ExampleItem>[], dest: ListRowInfo<ExampleItem>) {
+    const {items} = this.view.state
+    const itemsToCopy: ExampleItem[] = []
     for (let i = src.length - 1; i >= 0; --i) {
-      const {path} = src[i]
-      const index = path[path.length - 1]
-      const parent = root.getDescendant(path.slice(0, -1))!
-      const item = parent.children![index].clone()
-      items.unshift(item)
+      const {index} = src[i]
+      const item = items[index].clone()
+      itemsToCopy.unshift(item)
     }
-    dest.item.children!.splice(destIndex, 0, ...items)
-    dest.item.collapsed = false
-    this.view.setState({root})
+    items.splice(dest.index, 0, ...itemsToCopy)
+    this.view.setState({items})
   }
 }
 
-interface ExampleState {
-  root: ExampleItem
+interface ExampleListState {
+  items: ExampleItem[]
   selectedKeys: Set<number>
 }
 
-class Example extends React.Component<{}, ExampleState> {
-  delegate = new ExampleDelegate(this)
+class ExampleList extends React.Component<{}, ExampleListState> {
+  delegate = new ExampleListDelegate(this)
 
   constructor() {
     super()
-    const root = ExampleItem.generate(4, 2, 4)
+    const items: ExampleItem[] = []
+    for (let i = 0; i < 10; ++i) {
+      items.push(ExampleItem.generate(1, 0, 0))
+    }
     this.state = {
-      root,
-      selectedKeys: new Set([root.children![0].key])
+      items,
+      selectedKeys: new Set([items[0].key])
     }
   }
 
   render() {
-    const {root, selectedKeys} = this.state
+    const {items, selectedKeys} = this.state
+    const ExampleListView = ListView as new () => ListView<ExampleItem>
     return (
-      <ExampleTreeView
-        root={root}
+      <ExampleListView
+        items={items}
         selectedKeys={selectedKeys}
         rowHeight={40}
         delegate={this.delegate}
@@ -144,5 +93,5 @@ function ExampleRow(props: {item: ExampleItem, selected: boolean}) {
 }
 
 window.addEventListener("DOMContentLoaded", () => {
-  ReactDOM.render(<Example />, document.getElementById("example"))
+  ReactDOM.render(<ExampleList />, document.getElementById("example"))
 })
