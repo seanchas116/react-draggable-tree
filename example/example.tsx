@@ -6,12 +6,44 @@ import {Tree, TreeDelegate, RowInfo} from "../src"
 const classNames = require("classnames")
 const loremIpsum = require("lorem-ipsum")
 
-interface ExampleItem {
-  key: number
-  text: string
-  children: ExampleItem[]|undefined
-  collapsed?: boolean
+class ExampleItem {
+  static nextKey = 0
+  key = ExampleItem.nextKey++
+
+  constructor(public text: string, public children: ExampleItem[]|undefined, public collapsed: boolean) {
+  }
+
+  getDescendant(path: number[]): ExampleItem|undefined {
+    if (path.length == 0) {
+      return this
+    } else if (this.children) {
+      return this.children[path[0]].getDescendant(path.slice(1))
+    }
+  }
+
+  clone(): ExampleItem {
+    return new ExampleItem(
+      this.text,
+      this.children ? this.children.map(c => c.clone()) : undefined,
+      this.collapsed
+    )
+  }
+
+  static generate(depth: number, minChildCount: number, maxChildCount: number): ExampleItem {
+    const text: string = loremIpsum({sentenceLowerBound: 2, sentenceUpperBound: 4})
+    const hasChild = depth > 1
+    let children: ExampleItem[]|undefined = undefined
+    if (hasChild) {
+      children = []
+      const childCount = Math.round(Math.random() * (maxChildCount - minChildCount) + minChildCount)
+      for (let i = 0; i < childCount; ++i) {
+        children.push(ExampleItem.generate(depth - 1, minChildCount, maxChildCount))
+      }
+    }
+    return new ExampleItem(text, children, false)
+  }
 }
+
 class ExampleTree extends Tree<ExampleItem> {}
 
 class ExampleDelegate implements TreeDelegate<ExampleItem> {
@@ -52,7 +84,7 @@ class ExampleDelegate implements TreeDelegate<ExampleItem> {
     for (let i = src.length - 1; i >= 0; --i) {
       const {path} = src[i]
       const index = path[path.length - 1]
-      const parent = itemForPath(this.view.root, path.slice(0, -1))!
+      const parent = this.view.root.getDescendant(path.slice(0, -1))!
       const [item] = parent.children!.splice(index, 1)
       items.unshift(item)
     }
@@ -65,8 +97,8 @@ class ExampleDelegate implements TreeDelegate<ExampleItem> {
     for (let i = src.length - 1; i >= 0; --i) {
       const {path} = src[i]
       const index = path[path.length - 1]
-      const parent = itemForPath(this.view.root, path.slice(0, -1))!
-      const item = cloneItem(parent.children![index])
+      const parent = this.view.root.getDescendant(path.slice(0, -1))!
+      const item = parent.children![index].clone()
       items.unshift(item)
     }
     dest.item.children!.splice(destIndex, 0, ...items)
@@ -76,7 +108,7 @@ class ExampleDelegate implements TreeDelegate<ExampleItem> {
 }
 
 class Example extends React.Component<{}, {}> {
-  root = generateItem(4, 2, 4)
+  root = ExampleItem.generate(4, 2, 4)
   selectedKeys = new Set([this.root.children![0].key])
   delegate = new ExampleDelegate(this)
 
@@ -95,44 +127,6 @@ class Example extends React.Component<{}, {}> {
 function ExampleRow(props: {item: ExampleItem, selected: boolean}) {
   const {item, selected} = props
   return <div className={classNames("example-cell", {selected})}>{item.text}</div>
-}
-
-function itemForPath(item: ExampleItem, path: number[]): ExampleItem|undefined {
-  if (path.length == 0) {
-    return item
-  } else if (item.children) {
-    return itemForPath(item.children[path[0]], path.slice(1))
-  }
-}
-
-function cloneItem(item: ExampleItem): ExampleItem {
-  return {
-    text: item.text,
-    key: currentKey++,
-    children: item.children ? item.children.map(cloneItem) : undefined,
-    collapsed: item.collapsed
-  }
-}
-
-let currentKey = 0
-
-function generateItem(depth: number, minChildCount: number, maxChildCount: number): ExampleItem {
-  const text: string = loremIpsum({sentenceLowerBound: 2, sentenceUpperBound: 4})
-  const hasChild = depth > 1
-  let children: ExampleItem[]|undefined = undefined
-  if (hasChild) {
-    children = []
-    const childCount = Math.round(Math.random() * (maxChildCount - minChildCount) + minChildCount)
-    for (let i = 0; i < childCount; ++i) {
-      children.push(generateItem(depth - 1, minChildCount, maxChildCount))
-    }
-  }
-  const key = currentKey++
-  return {
-    text,
-    key,
-    children
-  }
 }
 
 window.addEventListener("DOMContentLoaded", () => {
