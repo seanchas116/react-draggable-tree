@@ -72,51 +72,65 @@ class ExampleDelegate implements TreeDelegate<ExampleItem> {
     }
   }
   onSelectedKeysChange(selectedKeys: Set<number>) {
-    this.view.selectedKeys = selectedKeys
-    this.view.forceUpdate()
+    this.view.setState({selectedKeys})
   }
   onCollapsedChange(info: RowInfo<ExampleItem>, collapsed: boolean) {
     info.item.collapsed = collapsed
-    this.view.forceUpdate()
+    this.view.setState({root: this.view.state.root})
   }
   onMove(src: RowInfo<ExampleItem>[], dest: RowInfo<ExampleItem>, destIndex: number, destIndexAfter: number) {
+    const {root} = this.view.state
     const items: ExampleItem[] = []
     for (let i = src.length - 1; i >= 0; --i) {
       const {path} = src[i]
       const index = path[path.length - 1]
-      const parent = this.view.root.getDescendant(path.slice(0, -1))!
+      const parent = root.getDescendant(path.slice(0, -1))!
       const [item] = parent.children!.splice(index, 1)
       items.unshift(item)
     }
     dest.item.children!.splice(destIndexAfter, 0, ...items)
     dest.item.collapsed = false
-    this.view.forceUpdate()
+    this.view.setState({root})
   }
   onCopy(src: RowInfo<ExampleItem>[], dest: RowInfo<ExampleItem>, destIndex: number) {
+    const {root} = this.view.state
     const items: ExampleItem[] = []
     for (let i = src.length - 1; i >= 0; --i) {
       const {path} = src[i]
       const index = path[path.length - 1]
-      const parent = this.view.root.getDescendant(path.slice(0, -1))!
+      const parent = root.getDescendant(path.slice(0, -1))!
       const item = parent.children![index].clone()
       items.unshift(item)
     }
     dest.item.children!.splice(destIndex, 0, ...items)
     dest.item.collapsed = false
-    this.view.forceUpdate()
+    this.view.setState({root})
   }
 }
 
-class Example extends React.Component<{}, {}> {
-  root = ExampleItem.generate(4, 2, 4)
-  selectedKeys = new Set([this.root.children![0].key])
+interface ExampleState {
+  root: ExampleItem
+  selectedKeys: Set<number>
+}
+
+class Example extends React.Component<{}, ExampleState> {
   delegate = new ExampleDelegate(this)
 
+  constructor() {
+    super()
+    const root = ExampleItem.generate(4, 2, 4)
+    this.state = {
+      root,
+      selectedKeys: new Set([root.children![0].key])
+    }
+  }
+
   render() {
+    const {root, selectedKeys} = this.state
     return (
       <ExampleTree
-        root={this.root}
-        selectedKeys={this.selectedKeys}
+        root={root}
+        selectedKeys={selectedKeys}
         rowHeight={40}
         delegate={this.delegate}
       />
