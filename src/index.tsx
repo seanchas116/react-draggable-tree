@@ -1,6 +1,5 @@
 import React = require("react")
 const classNames = require("classnames")
-import bowser = require("bowser")
 
 const DRAG_MIME = "x-react-draggable-tree-drag"
 
@@ -333,13 +332,7 @@ class Tree<TItem> extends React.Component<TreeProps<TItem>, {}> {
     if (!data) {
       return
     }
-    // workaround for https://bugs.chromium.org/p/chromium/issues/detail?id=644421
     let {clientX, clientY} = ev
-    if (bowser.windows && bowser.chrome && bowser.version == "53.0") {
-      clientX *= window.devicePixelRatio
-      clientY *= window.devicePixelRatio
-    }
-
     const target = this.getDropTarget({clientX, clientY})
     const {dest: destInfo, destIndex} = target
 
