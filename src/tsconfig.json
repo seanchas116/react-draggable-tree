@@ -9,6 +9,7 @@
         "jsx": "react",
         "declaration": true,
         "noImplicitAny": true,
+        "noUnusedLocals": true,
         "sourceMap": false,
         "strictNullChecks": true,
         "outDir": "../lib",
