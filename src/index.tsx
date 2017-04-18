@@ -33,7 +33,7 @@ interface TreeDelegate<TItem> {
   getCollapsed(item: TItem): boolean
   onMove: (src: RowInfo<TItem>[], dest: RowInfo<TItem>, destIndexBefore: number, destIndexAfter: number) => void
   onCopy: (src: RowInfo<TItem>[], dest: RowInfo<TItem>, destIndexBefore: number) => void
-  onContextMenu?: (info: RowInfo<TItem>|undefined, ev: React.MouseEvent<Element>) => void
+  onContextMenu: (info: RowInfo<TItem>|undefined, ev: React.MouseEvent<Element>) => void
   onCollapsedChange: (info: RowInfo<TItem>, collapsed: boolean) => void
   onSelectedKeysChange: (selectedKeys: Set<Key>, selectedInfos: RowInfo<TItem>[]) => void
 }
@@ -240,9 +240,7 @@ class Tree<TItem> extends React.Component<TreeProps<TItem>, {}> {
     if (rowInfo && !selectedKeys.has(delegate.getKey(rowInfo.item))) {
       this.onClickRow(rowInfo, ev)
     }
-    if (delegate.onContextMenu) {
-      delegate.onContextMenu(rowInfo, ev)
-    }
+    delegate.onContextMenu(rowInfo, ev)
   }
 
   private onDragOver = (ev: React.DragEvent<Element>) => {
