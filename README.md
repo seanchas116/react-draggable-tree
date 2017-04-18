@@ -1,6 +1,10 @@
 # react-draggable-tree
 
+[![NPM](https://nodei.co/npm/react-draggable-tree.png)](https://nodei.co/npm/react-draggable-tree/)
+
 Draggable tree view / list view for React
+
+TypeScript `.d.ts` included
 
 * [Tree View Example](https://sketchglass.github.io/react-draggable-tree/tree.html)
 * [Tree View Example Source](example/tree.tsx)
@@ -11,7 +15,7 @@ Draggable tree view / list view for React
 ## Install
 
 ```
-npm install --save github:sketchglass/react-draggable-tree
+npm install --save react-draggable-tree
 ```
 
 ## Develop
