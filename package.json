@@ -14,22 +14,22 @@
   "license": "MIT",
   "devDependencies": {
     "@types/bowser": "^1.0.30",
-    "@types/node": "^6.0.45",
-    "@types/react": "^0.14.41",
-    "@types/react-dom": "^0.14.18",
-    "css-loader": "^0.25.0",
-    "gh-pages": "^0.11.0",
+    "@types/node": "^6.0.69",
+    "@types/react": "^15.0.22",
+    "@types/react-dom": "^0.14.23",
+    "css-loader": "^0.28.0",
+    "gh-pages": "^0.12.0",
     "lorem-ipsum": "^1.0.3",
-    "react": "^15.3.2",
-    "react-dom": "^15.3.2",
-    "style-loader": "^0.13.1",
-    "ts-loader": "^0.9.5",
-    "typescript": "^2.0.3",
-    "webpack": "^1.13.2",
-    "webpack-dev-server": "^1.16.2"
+    "react": "^15.5.4",
+    "react-dom": "^15.5.4",
+    "style-loader": "^0.16.1",
+    "ts-loader": "^2.0.3",
+    "typescript": "^2.2.2",
+    "webpack": "^2.4.1",
+    "webpack-dev-server": "^2.4.2"
   },
   "dependencies": {
-    "bowser": "^1.4.6",
+    "bowser": "^1.6.1",
     "classnames": "^2.2.5"
   },
   "directories": {

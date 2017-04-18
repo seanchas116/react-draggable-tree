@@ -1,19 +1,21 @@
 "use strict";
 
+const path = require("path")
 const webpack = require("webpack")
 
 module.exports = {
-  entry: "./example.tsx",
+  entry: path.resolve(__dirname, "example.tsx"),
   output: {
-    filename: "./bundle.js"
+    path: __dirname,
+    filename: "bundle.js"
   },
   resolve: {
-    extensions: ["", ".ts", ".tsx", ".js"]
+    extensions: [".ts", ".tsx", ".js"]
   },
   module: {
     loaders: [
-      { test: /\.tsx?$/, loader: "ts-loader", },
-      { test: /\.css$/, loader: "style-loader!css-loader" },
+      { test: /\.tsx?$/, use: "ts-loader", },
+      { test: /\.css$/, use: ["style-loader", "css-loader"] },
     ],
   },
   devServer: {
