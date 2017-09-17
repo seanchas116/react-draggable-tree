@@ -17,10 +17,10 @@ export interface TreeProps {
     rowHeight: number;
     indent?: number;
     selectedKeys: Set<Key>;
-    renderRow(info: TreeRowInfo): JSX.Element;
+    renderRow: (info: TreeRowInfo) => JSX.Element;
     onMove: (src: TreeRowInfo[], dest: TreeRowInfo, destIndexBefore: number, destIndexAfter: number) => void;
     onCopy: (src: TreeRowInfo[], dest: TreeRowInfo, destIndexBefore: number) => void;
-    onContextMenu: (info: TreeRowInfo | undefined, ev: React.MouseEvent<Element>) => void;
+    onContextMenu?: (info: TreeRowInfo | undefined, ev: React.MouseEvent<Element>) => void;
     onCollapsedChange: (info: TreeRowInfo, collapsed: boolean) => void;
     onSelectedKeysChange: (selectedKeys: Set<Key>, selectedInfos: TreeRowInfo[]) => void;
 }
