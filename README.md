@@ -2,7 +2,9 @@
 
 [![NPM](https://nodei.co/npm/react-draggable-tree.png)](https://nodei.co/npm/react-draggable-tree/)
 
-Draggable tree view / list view for React
+Draggable tree view for React
+
+Select, move and copy items intuitively
 
 TypeScript `.d.ts` included
 
