@@ -1,0 +1,53 @@
+
+.ReactDraggableTree {
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+.ReactDraggableTree_row {
+  display: flex;
+  align-items: center;
+}
+.ReactDraggableTree_row-selected {
+  background-color: #e0e0e0;
+}
+.ReactDraggableTree_toggler {
+  width: 16px;
+  height: 16px;
+  margin: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.ReactDraggableTree_toggler:before {
+  content: "";
+  display: block;
+  width: 8px;
+  height: 8px;
+  box-sizing: border-box;
+  border-right: 1px solid gray;
+  border-bottom: 1px solid gray;
+  transform: rotate(45deg) translate(-2px, -2px);
+  visibility: hidden;
+}
+.ReactDraggableTree_toggler-visible:before {
+  visibility: visible;
+}
+.ReactDraggableTree_toggler-collapsed:before {
+  transform: rotate(-45deg) translate(-2px, -2px);
+}
+.ReactDraggableTree_dropOver {
+  position: absolute;
+  box-sizing: border-box;
+  left: 0;
+  width: 100%;
+  pointer-events: none;
+  border: 2px solid #2196F3;
+}
+.ReactDraggableTree_dropBetween {
+  position: absolute;
+  left: 0;
+  width: 100%;
+  pointer-events: none;
+  background-color: #2196F3;
+}
