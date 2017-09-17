@@ -7,63 +7,61 @@ export
 type Key = string | number
 
 export
-interface TreeRowInfo<TItem> {
-  item: TItem
+interface TreeNode {
+  children: this[] | undefined
+  collapsed: boolean
+  key: Key
+}
+
+export
+interface TreeRowInfo {
+  node: TreeNode
   selected: boolean
   path: number[]
   visible: boolean
   visibleOffset: number
 }
 
-interface DropTarget<TItem> {
+interface DropTarget {
   type: "between" | "over"
   index: number
-  dest: TreeRowInfo<TItem>
+  dest: TreeRowInfo
   destIndex: number
   depth: number
 }
 
 export
-interface TreeDelegate<TItem> {
-  renderRow(info: TreeRowInfo<TItem>): JSX.Element
-  getChildren(item: TItem): TItem[]|undefined
-  getKey(item: TItem): Key
-  getCollapsed(item: TItem): boolean
-  onMove: (src: TreeRowInfo<TItem>[], dest: TreeRowInfo<TItem>, destIndexBefore: number, destIndexAfter: number) => void
-  onCopy: (src: TreeRowInfo<TItem>[], dest: TreeRowInfo<TItem>, destIndexBefore: number) => void
-  onContextMenu: (info: TreeRowInfo<TItem>|undefined, ev: React.MouseEvent<Element>) => void
-  onCollapsedChange: (info: TreeRowInfo<TItem>, collapsed: boolean) => void
-  onSelectedKeysChange: (selectedKeys: Set<Key>, selectedInfos: TreeRowInfo<TItem>[]) => void
-}
-
-export
-interface TreeProps<TItem> {
-  root: TItem
+interface TreeProps {
+  root: TreeNode
   rowHeight: number
   indent?: number
   selectedKeys: Set<Key>
-  delegate: TreeDelegate<TItem>
+  renderRow(info: TreeRowInfo): JSX.Element
+  onMove: (src: TreeRowInfo[], dest: TreeRowInfo, destIndexBefore: number, destIndexAfter: number) => void
+  onCopy: (src: TreeRowInfo[], dest: TreeRowInfo, destIndexBefore: number) => void
+  onContextMenu: (info: TreeRowInfo|undefined, ev: React.MouseEvent<Element>) => void
+  onCollapsedChange: (info: TreeRowInfo, collapsed: boolean) => void
+  onSelectedKeysChange: (selectedKeys: Set<Key>, selectedInfos: TreeRowInfo[]) => void
 }
 
 export
-class TreeView<TItem> extends React.Component<TreeProps<TItem>, {}> {
+class TreeView extends React.Component<TreeProps, {}> {
   private element: HTMLElement
   private dropIndicator: DropIndicator
-  private infoToPath = new Map<TreeRowInfo<TItem>, number[]>()
-  private pathToInfo = new Map<string, TreeRowInfo<TItem>>() // using joined path as key string
-  private visibleInfos: TreeRowInfo<TItem>[] = []
-  private keyToInfo = new Map<Key, TreeRowInfo<TItem>>()
-  private rootInfo: TreeRowInfo<TItem>
+  private infoToPath = new Map<TreeRowInfo, number[]>()
+  private pathToInfo = new Map<string, TreeRowInfo>() // using joined path as key string
+  private visibleInfos: TreeRowInfo[] = []
+  private keyToInfo = new Map<Key, TreeRowInfo>()
+  private rootInfo: TreeRowInfo
 
   private removeAncestorsFromSelection(selection: Set<Key>) {
     const newSelection = new Set(selection)
-    const {delegate} = this.props
     for (const {path} of this.keysToInfos(selection)) {
       for (let i = 1; i < path.length; ++i) {
         const subpath = path.slice(0, i)
         const ancestor = this.pathToInfo.get(subpath.join())
         if (ancestor) {
-          newSelection.delete(delegate.getKey(ancestor.item))
+          newSelection.delete(ancestor.node.key)
         }
       }
     }
@@ -83,23 +81,22 @@ class TreeView<TItem> extends React.Component<TreeProps<TItem>, {}> {
     this.keyToInfo.clear()
   }
 
-  private addRowInfo(rowInfo: TreeRowInfo<TItem>) {
-    const {delegate} = this.props
+  private addRowInfo(rowInfo: TreeRowInfo) {
     this.infoToPath.set(rowInfo, rowInfo.path)
     this.pathToInfo.set(rowInfo.path.join(), rowInfo)
     if (rowInfo.visible) {
       this.visibleInfos.push(rowInfo)
     }
-    this.keyToInfo.set(delegate.getKey(rowInfo.item), rowInfo)
+    this.keyToInfo.set(rowInfo.node.key, rowInfo)
   }
 
-  private renderItem(item: TItem, path: number[], visible: boolean): JSX.Element[] {
-    const {indent, rowHeight, delegate, selectedKeys} = this.propsWithDefaults()
-    const key = delegate.getKey(item)
+  private renderNode(node: TreeNode, path: number[], visible: boolean): JSX.Element[] {
+    const {indent, rowHeight, selectedKeys} = this.propsWithDefaults()
+    const {key} = node
 
     const isSelected = selectedKeys.has(key)
     const rowInfo = {
-      item,
+      node,
       selected: isSelected,
       path,
       visible,
@@ -118,7 +115,7 @@ class TreeView<TItem> extends React.Component<TreeProps<TItem>, {}> {
 
       if (!selectedKeys.has(key)) {
         const newSelected = new Set([key])
-        delegate.onSelectedKeysChange(newSelected, this.keysToInfos(newSelected))
+        this.props.onSelectedKeysChange(newSelected, this.keysToInfos(newSelected))
       }
     }
 
@@ -127,8 +124,8 @@ class TreeView<TItem> extends React.Component<TreeProps<TItem>, {}> {
     }
 
     const onTogglerClick = () => {
-      if (delegate.getChildren(item)) {
-        delegate.onCollapsedChange(rowInfo, !delegate.getCollapsed(item))
+      if (node.children) {
+        this.props.onCollapsedChange(rowInfo, !node.collapsed)
       }
     }
 
@@ -136,8 +133,7 @@ class TreeView<TItem> extends React.Component<TreeProps<TItem>, {}> {
       "ReactDraggableTree_row-selected": isSelected,
     })
 
-    const children = delegate.getChildren(item)
-    const collapsed = delegate.getCollapsed(item)
+    const {children, collapsed} = node
 
     let row = (
       <div
@@ -146,14 +142,14 @@ class TreeView<TItem> extends React.Component<TreeProps<TItem>, {}> {
         draggable={true} onDragStart={onDragStart} onDragEnd={onDragEnd}
       >
         <Toggler visible={!!children} collapsed={collapsed} onClick={onTogglerClick} />
-        {delegate.renderRow(rowInfo)}
+        {this.props.renderRow(rowInfo)}
       </div>
     )
 
     if (children) {
       const childrenVisible = visible && !collapsed
       const childRows = <div key={`children-${key}`} className="ReactDraggableTree_children" hidden={collapsed}>
-        {children.map((child, i) => this.renderItem(child, [...path, i], childrenVisible))}
+        {children.map((child, i) => this.renderNode(child, [...path, i], childrenVisible))}
       </div>
       return [row, childRows]
     } else {
@@ -162,7 +158,7 @@ class TreeView<TItem> extends React.Component<TreeProps<TItem>, {}> {
   }
 
   private keysToInfos(keys: Set<Key>) {
-    const infos: TreeRowInfo<TItem>[] = []
+    const infos: TreeRowInfo[] = []
     keys.forEach(key => {
       const info = this.keyToInfo.get(key)
       if (info) {
@@ -173,7 +169,7 @@ class TreeView<TItem> extends React.Component<TreeProps<TItem>, {}> {
     return infos
   }
 
-  private updateDropIndicator(target: DropTarget<TItem>|undefined) {
+  private updateDropIndicator(target: DropTarget|undefined) {
     if (target) {
       const {type, index, depth} = target
       this.dropIndicator.setState({type, index, depth})
@@ -183,24 +179,24 @@ class TreeView<TItem> extends React.Component<TreeProps<TItem>, {}> {
   }
 
   render() {
-    const {root, rowHeight, indent, delegate} = this.propsWithDefaults()
-    const children = delegate.getChildren(root) || []
+    const {root, rowHeight, indent} = this.propsWithDefaults()
+    const children = root.children || []
     this.clearRows()
-    const rootInfo = {item: root, selected: false, current: false, path: [], visible: false, visibleOffset: 0}
+    const rootInfo = {node: root, selected: false, current: false, path: [], visible: false, visibleOffset: 0}
     this.addRowInfo(rootInfo)
     this.rootInfo = rootInfo
 
     return (
       <div ref={e => this.element = e!} className="ReactDraggableTree" onDragOver={this.onDragOver} onDrop={this.onDrop} onContextMenu={this.onContextMenu}>
-        {children.map((child, i) => this.renderItem(child, [i], true))}
+        {children.map((child, i) => this.renderNode(child, [i], true))}
         <DropIndicator ref={e => this.dropIndicator = e!} rowHeight={rowHeight} indent={indent} />
       </div>
     )
   }
 
-  private onClickRow = (rowInfo: TreeRowInfo<TItem>, ev: React.MouseEvent<Element>) => {
-    const {selectedKeys, delegate} = this.props
-    const key = delegate.getKey(rowInfo.item)
+  private onClickRow = (rowInfo: TreeRowInfo, ev: React.MouseEvent<Element>) => {
+    const {selectedKeys} = this.props
+    const {key} = rowInfo.node
     let newSelected: Set<Key>
     if (ev.ctrlKey || ev.metaKey) {
       newSelected = new Set(selectedKeys)
@@ -210,7 +206,7 @@ class TreeView<TItem> extends React.Component<TreeProps<TItem>, {}> {
         newSelected.add(key)
       }
     } else if (ev.shiftKey && selectedKeys.size > 0) {
-      const visibleKeys = this.visibleInfos.map(info => delegate.getKey(info.item))
+      const visibleKeys = this.visibleInfos.map(info => info.node.key)
       const selectedIndices = this.keysToInfos(selectedKeys).map(info => info.visibleOffset)
       const thisIndex = visibleKeys.indexOf(key)
       const min = Math.min(thisIndex, ...selectedIndices)
@@ -225,20 +221,20 @@ class TreeView<TItem> extends React.Component<TreeProps<TItem>, {}> {
     }
     newSelected = this.removeAncestorsFromSelection(newSelected)
 
-    delegate.onSelectedKeysChange(newSelected, this.keysToInfos(newSelected))
+    this.props.onSelectedKeysChange(newSelected, this.keysToInfos(newSelected))
   }
 
   private onContextMenu = (ev: React.MouseEvent<Element>) => {
-    const {rowHeight, delegate, selectedKeys} = this.props
+    const {rowHeight, selectedKeys} = this.props
     const {visibleInfos} = this
     const rect = this.element.getBoundingClientRect()
     const y = ev.clientY - rect.top + this.element.scrollTop
     const i = Math.floor(y / rowHeight)
     const rowInfo = (0 <= i && i < visibleInfos.length) ? visibleInfos[i] : undefined
-    if (rowInfo && !selectedKeys.has(delegate.getKey(rowInfo.item))) {
+    if (rowInfo && !selectedKeys.has(rowInfo.node.key)) {
       this.onClickRow(rowInfo, ev)
     }
-    delegate.onContextMenu(rowInfo, ev)
+    this.props.onContextMenu(rowInfo, ev)
   }
 
   private onDragOver = (ev: React.DragEvent<Element>) => {
@@ -253,8 +249,7 @@ class TreeView<TItem> extends React.Component<TreeProps<TItem>, {}> {
     this.updateDropIndicator(undefined)
   }
 
-  private getDropTarget(ev: {clientX: number, clientY: number}): DropTarget<TItem> {
-    const {delegate} = this.props
+  private getDropTarget(ev: {clientX: number, clientY: number}): DropTarget {
     const {rowHeight, indent} = this.propsWithDefaults()
     const rect = this.element.getBoundingClientRect()
     const x = ev.clientX - rect.left + this.element.scrollLeft
@@ -265,7 +260,7 @@ class TreeView<TItem> extends React.Component<TreeProps<TItem>, {}> {
     if (overIndex < this.visibleInfos.length) {
       if (rowHeight * 0.25 < offset && offset < rowHeight * 0.75) {
         const dest = this.visibleInfos[overIndex]
-        if (delegate.getChildren(dest.item)) {
+        if (dest.node.children) {
           return {
             type: "over",
             index: overIndex,
@@ -280,13 +275,13 @@ class TreeView<TItem> extends React.Component<TreeProps<TItem>, {}> {
     const betweenIndex = clamp((offset < rowHeight / 2) ? overIndex : overIndex + 1, 0, this.visibleInfos.length)
 
     let path = (betweenIndex == this.visibleInfos.length)
-      ? [delegate.getChildren(this.rootInfo.item)!.length]
+      ? [this.rootInfo.node.children!.length]
       : this.visibleInfos[betweenIndex].path
     if (0 < betweenIndex) {
       const prev = this.visibleInfos[betweenIndex - 1]
       let prevPath = prev.path
-      const prevChildren = delegate.getChildren(prev.item)
-      const prevCollapsed = delegate.getCollapsed(prev.item)
+      const prevChildren = prev.node.children
+      const prevCollapsed = prev.node.collapsed
       if (prevChildren && prevChildren.length == 0 && !prevCollapsed) {
         prevPath = [...prevPath, -1]
       }
@@ -306,14 +301,14 @@ class TreeView<TItem> extends React.Component<TreeProps<TItem>, {}> {
     }
   }
 
-  private canDrop(destInfo: TreeRowInfo<TItem>, destIndex: number) {
-    const {selectedKeys, delegate} = this.props
+  private canDrop(destInfo: TreeRowInfo, destIndex: number) {
+    const {selectedKeys} = this.props
     const {path} = destInfo
     for (let i = 0; i < path.length; ++i) {
       const ancestorPath = path.slice(0, path.length - i)
       const ancestor = this.pathToInfo.get(ancestorPath.join())
       if (ancestor) {
-        const ancestorKey = delegate.getKey(ancestor.item)
+        const ancestorKey = ancestor.node.key
         if (selectedKeys.has(ancestorKey)) {
           return false
         }
@@ -323,8 +318,6 @@ class TreeView<TItem> extends React.Component<TreeProps<TItem>, {}> {
   }
 
   private onDrop = (ev: React.DragEvent<Element>) => {
-    const {delegate} = this.props
-
     this.updateDropIndicator(undefined)
 
     const data = ev.dataTransfer.getData(DRAG_MIME)
@@ -343,7 +336,7 @@ class TreeView<TItem> extends React.Component<TreeProps<TItem>, {}> {
     const copy = ev.altKey || ev.ctrlKey
 
     if (copy) {
-      delegate.onCopy(srcInfos, destInfo, destIndex)
+      this.props.onCopy(srcInfos, destInfo, destIndex)
     } else {
       let destIndexAfter = destIndex
       for (let info of srcInfos) {
@@ -354,7 +347,7 @@ class TreeView<TItem> extends React.Component<TreeProps<TItem>, {}> {
           }
         }
       }
-      delegate.onMove(srcInfos, destInfo, destIndex, destIndexAfter)
+      this.props.onMove(srcInfos, destInfo, destIndex, destIndexAfter)
     }
     ev.preventDefault()
   }
