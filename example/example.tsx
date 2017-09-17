@@ -6,9 +6,9 @@ import {TreeView, TreeRowInfo, TreeItem} from "../src"
 const classNames = require("classnames")
 import {ExampleItem} from './ExampleItem'
 
-const getStructure = (item: ExampleItem): TreeItem => {
+const toTreeItem = (item: ExampleItem): TreeItem => {
   return {
-    children: item.children && item.children.map(getStructure),
+    children: item.children && item.children.map(toTreeItem),
     key: item.key,
     collapsed: item.collapsed
   }
@@ -33,7 +33,7 @@ class ExampleTree extends React.Component<{}, ExampleTreeState> {
     const {root, selectedKeys} = this.state
     return (
       <TreeView
-        root={getStructure(root)}
+        root={toTreeItem(root)}
         selectedKeys={selectedKeys}
         rowHeight={40}
         renderRow={this.renderRow}
