@@ -7,7 +7,7 @@ export
 type Key = string | number
 
 export
-interface TreeItem {
+interface TreeNode {
   children: this[] | undefined
   collapsed: boolean
   key: Key
@@ -15,7 +15,7 @@ interface TreeItem {
 
 export
 interface TreeRowInfo {
-  item: TreeItem
+  node: TreeNode
   selected: boolean
   path: number[]
   visible: boolean
@@ -32,7 +32,7 @@ interface DropTarget {
 
 export
 interface TreeProps {
-  root: TreeItem
+  root: TreeNode
   rowHeight: number
   indent?: number
   selectedKeys: Set<Key>
@@ -61,7 +61,7 @@ class TreeView extends React.Component<TreeProps, {}> {
         const subpath = path.slice(0, i)
         const ancestor = this.pathToInfo.get(subpath.join())
         if (ancestor) {
-          newSelection.delete(ancestor.item.key)
+          newSelection.delete(ancestor.node.key)
         }
       }
     }
@@ -87,16 +87,16 @@ class TreeView extends React.Component<TreeProps, {}> {
     if (rowInfo.visible) {
       this.visibleInfos.push(rowInfo)
     }
-    this.keyToInfo.set(rowInfo.item.key, rowInfo)
+    this.keyToInfo.set(rowInfo.node.key, rowInfo)
   }
 
-  private renderItem(item: TreeItem, path: number[], visible: boolean): JSX.Element[] {
+  private renderNode(node: TreeNode, path: number[], visible: boolean): JSX.Element[] {
     const {indent, rowHeight, selectedKeys} = this.propsWithDefaults()
-    const {key} = item
+    const {key} = node
 
     const isSelected = selectedKeys.has(key)
     const rowInfo = {
-      item,
+      node,
       selected: isSelected,
       path,
       visible,
@@ -124,8 +124,8 @@ class TreeView extends React.Component<TreeProps, {}> {
     }
 
     const onTogglerClick = () => {
-      if (item.children) {
-        this.props.onCollapsedChange(rowInfo, !item.collapsed)
+      if (node.children) {
+        this.props.onCollapsedChange(rowInfo, !node.collapsed)
       }
     }
 
@@ -133,7 +133,7 @@ class TreeView extends React.Component<TreeProps, {}> {
       "ReactDraggableTree_row-selected": isSelected,
     })
 
-    const {children, collapsed} = item
+    const {children, collapsed} = node
 
     let row = (
       <div
@@ -149,7 +149,7 @@ class TreeView extends React.Component<TreeProps, {}> {
     if (children) {
       const childrenVisible = visible && !collapsed
       const childRows = <div key={`children-${key}`} className="ReactDraggableTree_children" hidden={collapsed}>
-        {children.map((child, i) => this.renderItem(child, [...path, i], childrenVisible))}
+        {children.map((child, i) => this.renderNode(child, [...path, i], childrenVisible))}
       </div>
       return [row, childRows]
     } else {
@@ -182,13 +182,13 @@ class TreeView extends React.Component<TreeProps, {}> {
     const {root, rowHeight, indent} = this.propsWithDefaults()
     const children = root.children || []
     this.clearRows()
-    const rootInfo = {item: root, selected: false, current: false, path: [], visible: false, visibleOffset: 0}
+    const rootInfo = {node: root, selected: false, current: false, path: [], visible: false, visibleOffset: 0}
     this.addRowInfo(rootInfo)
     this.rootInfo = rootInfo
 
     return (
       <div ref={e => this.element = e!} className="ReactDraggableTree" onDragOver={this.onDragOver} onDrop={this.onDrop} onContextMenu={this.onContextMenu}>
-        {children.map((child, i) => this.renderItem(child, [i], true))}
+        {children.map((child, i) => this.renderNode(child, [i], true))}
         <DropIndicator ref={e => this.dropIndicator = e!} rowHeight={rowHeight} indent={indent} />
       </div>
     )
@@ -196,7 +196,7 @@ class TreeView extends React.Component<TreeProps, {}> {
 
   private onClickRow = (rowInfo: TreeRowInfo, ev: React.MouseEvent<Element>) => {
     const {selectedKeys} = this.props
-    const {key} = rowInfo.item
+    const {key} = rowInfo.node
     let newSelected: Set<Key>
     if (ev.ctrlKey || ev.metaKey) {
       newSelected = new Set(selectedKeys)
@@ -206,7 +206,7 @@ class TreeView extends React.Component<TreeProps, {}> {
         newSelected.add(key)
       }
     } else if (ev.shiftKey && selectedKeys.size > 0) {
-      const visibleKeys = this.visibleInfos.map(info => info.item.key)
+      const visibleKeys = this.visibleInfos.map(info => info.node.key)
       const selectedIndices = this.keysToInfos(selectedKeys).map(info => info.visibleOffset)
       const thisIndex = visibleKeys.indexOf(key)
       const min = Math.min(thisIndex, ...selectedIndices)
@@ -231,7 +231,7 @@ class TreeView extends React.Component<TreeProps, {}> {
     const y = ev.clientY - rect.top + this.element.scrollTop
     const i = Math.floor(y / rowHeight)
     const rowInfo = (0 <= i && i < visibleInfos.length) ? visibleInfos[i] : undefined
-    if (rowInfo && !selectedKeys.has(rowInfo.item.key)) {
+    if (rowInfo && !selectedKeys.has(rowInfo.node.key)) {
       this.onClickRow(rowInfo, ev)
     }
     this.props.onContextMenu(rowInfo, ev)
@@ -260,7 +260,7 @@ class TreeView extends React.Component<TreeProps, {}> {
     if (overIndex < this.visibleInfos.length) {
       if (rowHeight * 0.25 < offset && offset < rowHeight * 0.75) {
         const dest = this.visibleInfos[overIndex]
-        if (dest.item.children) {
+        if (dest.node.children) {
           return {
             type: "over",
             index: overIndex,
@@ -275,13 +275,13 @@ class TreeView extends React.Component<TreeProps, {}> {
     const betweenIndex = clamp((offset < rowHeight / 2) ? overIndex : overIndex + 1, 0, this.visibleInfos.length)
 
     let path = (betweenIndex == this.visibleInfos.length)
-      ? [this.rootInfo.item.children!.length]
+      ? [this.rootInfo.node.children!.length]
       : this.visibleInfos[betweenIndex].path
     if (0 < betweenIndex) {
       const prev = this.visibleInfos[betweenIndex - 1]
       let prevPath = prev.path
-      const prevChildren = prev.item.children
-      const prevCollapsed = prev.item.collapsed
+      const prevChildren = prev.node.children
+      const prevCollapsed = prev.node.collapsed
       if (prevChildren && prevChildren.length == 0 && !prevCollapsed) {
         prevPath = [...prevPath, -1]
       }
@@ -308,7 +308,7 @@ class TreeView extends React.Component<TreeProps, {}> {
       const ancestorPath = path.slice(0, path.length - i)
       const ancestor = this.pathToInfo.get(ancestorPath.join())
       if (ancestor) {
-        const ancestorKey = ancestor.item.key
+        const ancestorKey = ancestor.node.key
         if (selectedKeys.has(ancestorKey)) {
           return false
         }

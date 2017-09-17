@@ -2,13 +2,13 @@ require("./example.css")
 require("../lib/index.css")
 import React = require("react")
 import ReactDOM = require("react-dom")
-import {TreeView, TreeRowInfo, TreeItem} from "../src"
+import {TreeView, TreeRowInfo, TreeNode} from "../src"
 const classNames = require("classnames")
 import {ExampleItem} from './ExampleItem'
 
-const toTreeItem = (item: ExampleItem): TreeItem => {
+const toTreeNode = (item: ExampleItem): TreeNode => {
   return {
-    children: item.children && item.children.map(toTreeItem),
+    children: item.children && item.children.map(toTreeNode),
     key: item.key,
     collapsed: item.collapsed
   }
@@ -33,7 +33,7 @@ class ExampleTree extends React.Component<{}, ExampleTreeState> {
     const {root, selectedKeys} = this.state
     return (
       <TreeView
-        root={toTreeItem(root)}
+        root={toTreeNode(root)}
         selectedKeys={selectedKeys}
         rowHeight={40}
         renderRow={this.renderRow}
@@ -63,7 +63,7 @@ class ExampleTree extends React.Component<{}, ExampleTreeState> {
     this.setState({selectedKeys})
   }
   onCollapsedChange = (info: TreeRowInfo, collapsed: boolean) => {
-    info.item.collapsed = collapsed
+    info.node.collapsed = collapsed
     this.setState({root: this.state.root})
   }
   onMove = (src: TreeRowInfo[], dest: TreeRowInfo, destIndex: number, destIndexAfter: number) => {
