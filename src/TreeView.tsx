@@ -16,44 +16,44 @@ interface TreeItem {
 }
 
 export
-interface TreeRowInfo<TItem extends TreeItem> {
-  item: TItem
+interface TreeRowInfo {
+  item: TreeItem
   selected: boolean
   path: number[]
   visible: boolean
   visibleOffset: number
 }
 
-interface DropTarget<TItem extends TreeItem> {
+interface DropTarget {
   type: "between" | "over"
   index: number
-  dest: TreeRowInfo<TItem>
+  dest: TreeRowInfo
   destIndex: number
   depth: number
 }
 
 export
-interface TreeProps<TItem extends TreeItem> {
-  root: TItem
+interface TreeProps {
+  root: TreeItem
   rowHeight: number
   indent?: number
   selectedKeys: Set<Key>
-  onMove: (src: TreeRowInfo<TItem>[], dest: TreeRowInfo<TItem>, destIndexBefore: number, destIndexAfter: number) => void
-  onCopy: (src: TreeRowInfo<TItem>[], dest: TreeRowInfo<TItem>, destIndexBefore: number) => void
-  onContextMenu: (info: TreeRowInfo<TItem>|undefined, ev: React.MouseEvent<Element>) => void
-  onCollapsedChange: (info: TreeRowInfo<TItem>, collapsed: boolean) => void
-  onSelectedKeysChange: (selectedKeys: Set<Key>, selectedInfos: TreeRowInfo<TItem>[]) => void
+  onMove: (src: TreeRowInfo[], dest: TreeRowInfo, destIndexBefore: number, destIndexAfter: number) => void
+  onCopy: (src: TreeRowInfo[], dest: TreeRowInfo, destIndexBefore: number) => void
+  onContextMenu: (info: TreeRowInfo|undefined, ev: React.MouseEvent<Element>) => void
+  onCollapsedChange: (info: TreeRowInfo, collapsed: boolean) => void
+  onSelectedKeysChange: (selectedKeys: Set<Key>, selectedInfos: TreeRowInfo[]) => void
 }
 
 export
-class TreeView<TItem extends TreeItem> extends React.Component<TreeProps<TItem>, {}> {
+class TreeView extends React.Component<TreeProps, {}> {
   private element: HTMLElement
   private dropIndicator: DropIndicator
-  private infoToPath = new Map<TreeRowInfo<TItem>, number[]>()
-  private pathToInfo = new Map<string, TreeRowInfo<TItem>>() // using joined path as key string
-  private visibleInfos: TreeRowInfo<TItem>[] = []
-  private keyToInfo = new Map<Key, TreeRowInfo<TItem>>()
-  private rootInfo: TreeRowInfo<TItem>
+  private infoToPath = new Map<TreeRowInfo, number[]>()
+  private pathToInfo = new Map<string, TreeRowInfo>() // using joined path as key string
+  private visibleInfos: TreeRowInfo[] = []
+  private keyToInfo = new Map<Key, TreeRowInfo>()
+  private rootInfo: TreeRowInfo
 
   private removeAncestorsFromSelection(selection: Set<Key>) {
     const newSelection = new Set(selection)
@@ -82,7 +82,7 @@ class TreeView<TItem extends TreeItem> extends React.Component<TreeProps<TItem>,
     this.keyToInfo.clear()
   }
 
-  private addRowInfo(rowInfo: TreeRowInfo<TItem>) {
+  private addRowInfo(rowInfo: TreeRowInfo) {
     this.infoToPath.set(rowInfo, rowInfo.path)
     this.pathToInfo.set(rowInfo.path.join(), rowInfo)
     if (rowInfo.visible) {
@@ -91,7 +91,7 @@ class TreeView<TItem extends TreeItem> extends React.Component<TreeProps<TItem>,
     this.keyToInfo.set(rowInfo.item.key, rowInfo)
   }
 
-  private renderItem(item: TItem, path: number[], visible: boolean): JSX.Element[] {
+  private renderItem(item: TreeItem, path: number[], visible: boolean): JSX.Element[] {
     const {indent, rowHeight, selectedKeys} = this.propsWithDefaults()
     const {key} = item
 
@@ -159,7 +159,7 @@ class TreeView<TItem extends TreeItem> extends React.Component<TreeProps<TItem>,
   }
 
   private keysToInfos(keys: Set<Key>) {
-    const infos: TreeRowInfo<TItem>[] = []
+    const infos: TreeRowInfo[] = []
     keys.forEach(key => {
       const info = this.keyToInfo.get(key)
       if (info) {
@@ -170,7 +170,7 @@ class TreeView<TItem extends TreeItem> extends React.Component<TreeProps<TItem>,
     return infos
   }
 
-  private updateDropIndicator(target: DropTarget<TItem>|undefined) {
+  private updateDropIndicator(target: DropTarget|undefined) {
     if (target) {
       const {type, index, depth} = target
       this.dropIndicator.setState({type, index, depth})
@@ -195,7 +195,7 @@ class TreeView<TItem extends TreeItem> extends React.Component<TreeProps<TItem>,
     )
   }
 
-  private onClickRow = (rowInfo: TreeRowInfo<TItem>, ev: React.MouseEvent<Element>) => {
+  private onClickRow = (rowInfo: TreeRowInfo, ev: React.MouseEvent<Element>) => {
     const {selectedKeys} = this.props
     const {key} = rowInfo.item
     let newSelected: Set<Key>
@@ -250,7 +250,7 @@ class TreeView<TItem extends TreeItem> extends React.Component<TreeProps<TItem>,
     this.updateDropIndicator(undefined)
   }
 
-  private getDropTarget(ev: {clientX: number, clientY: number}): DropTarget<TItem> {
+  private getDropTarget(ev: {clientX: number, clientY: number}): DropTarget {
     const {rowHeight, indent} = this.propsWithDefaults()
     const rect = this.element.getBoundingClientRect()
     const x = ev.clientX - rect.left + this.element.scrollLeft
@@ -302,7 +302,7 @@ class TreeView<TItem extends TreeItem> extends React.Component<TreeProps<TItem>,
     }
   }
 
-  private canDrop(destInfo: TreeRowInfo<TItem>, destIndex: number) {
+  private canDrop(destInfo: TreeRowInfo, destIndex: number) {
     const {selectedKeys} = this.props
     const {path} = destInfo
     for (let i = 0; i < path.length; ++i) {
