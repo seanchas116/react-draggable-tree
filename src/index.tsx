@@ -11,8 +11,6 @@ interface TreeItem {
   children: this[] | undefined
   collapsed: boolean
   key: Key
-  canInsert (other: this): boolean
-  renderRow(): JSX.Element
 }
 
 export
@@ -38,6 +36,7 @@ interface TreeProps {
   rowHeight: number
   indent?: number
   selectedKeys: Set<Key>
+  renderRow(info: TreeRowInfo): JSX.Element
   onMove: (src: TreeRowInfo[], dest: TreeRowInfo, destIndexBefore: number, destIndexAfter: number) => void
   onCopy: (src: TreeRowInfo[], dest: TreeRowInfo, destIndexBefore: number) => void
   onContextMenu: (info: TreeRowInfo|undefined, ev: React.MouseEvent<Element>) => void
@@ -143,7 +142,7 @@ class TreeView extends React.Component<TreeProps, {}> {
         draggable={true} onDragStart={onDragStart} onDragEnd={onDragEnd}
       >
         <Toggler visible={!!children} collapsed={collapsed} onClick={onTogglerClick} />
-        {item.renderRow()}
+        {this.props.renderRow(rowInfo)}
       </div>
     )
 

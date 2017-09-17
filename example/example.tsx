@@ -2,66 +2,15 @@ require("./example.css")
 require("../lib/index.css")
 import React = require("react")
 import ReactDOM = require("react-dom")
-import {TreeView, TreeDelegate, TreeRowInfo} from "../src"
+import {TreeView, TreeRowInfo, TreeItem} from "../src"
 const classNames = require("classnames")
 import {ExampleItem} from './ExampleItem'
 
-class ExampleTreeDelegate implements TreeDelegate<ExampleItem> {
-  constructor(public view: ExampleTree) {
-  }
-  renderRow(info: TreeRowInfo<ExampleItem>) {
-    return ExampleRow(info)
-  }
-  getChildren(item: ExampleItem) {
-    return item.children
-  }
-  getKey(item: ExampleItem) {
-    return item.key
-  }
-  getCollapsed(item: ExampleItem) {
-    return !!item.collapsed
-  }
-  onContextMenu(info: TreeRowInfo<ExampleItem>|undefined, ev: React.MouseEvent<Element>) {
-    if (info) {
-      console.log(`Context menu at ${info.path}`)
-    } else {
-      console.log(`Context menu at blank space`)
-    }
-  }
-  onSelectedKeysChange(selectedKeys: Set<number>) {
-    this.view.setState({selectedKeys})
-  }
-  onCollapsedChange(info: TreeRowInfo<ExampleItem>, collapsed: boolean) {
-    info.item.collapsed = collapsed
-    this.view.setState({root: this.view.state.root})
-  }
-  onMove(src: TreeRowInfo<ExampleItem>[], dest: TreeRowInfo<ExampleItem>, destIndex: number, destIndexAfter: number) {
-    const {root} = this.view.state
-    const items: ExampleItem[] = []
-    for (let i = src.length - 1; i >= 0; --i) {
-      const {path} = src[i]
-      const index = path[path.length - 1]
-      const parent = root.getDescendant(path.slice(0, -1))!
-      const [item] = parent.children!.splice(index, 1)
-      items.unshift(item)
-    }
-    dest.item.children!.splice(destIndexAfter, 0, ...items)
-    dest.item.collapsed = false
-    this.view.setState({root})
-  }
-  onCopy(src: TreeRowInfo<ExampleItem>[], dest: TreeRowInfo<ExampleItem>, destIndex: number) {
-    const {root} = this.view.state
-    const items: ExampleItem[] = []
-    for (let i = src.length - 1; i >= 0; --i) {
-      const {path} = src[i]
-      const index = path[path.length - 1]
-      const parent = root.getDescendant(path.slice(0, -1))!
-      const item = parent.children![index].clone()
-      items.unshift(item)
-    }
-    dest.item.children!.splice(destIndex, 0, ...items)
-    dest.item.collapsed = false
-    this.view.setState({root})
+const getStructure = (item: ExampleItem): TreeItem => {
+  return {
+    children: item.children && item.children.map(getStructure),
+    key: item.key,
+    collapsed: item.collapsed
   }
 }
 
@@ -71,8 +20,6 @@ interface ExampleTreeState {
 }
 
 class ExampleTree extends React.Component<{}, ExampleTreeState> {
-  delegate = new ExampleTreeDelegate(this)
-
   constructor() {
     super()
     const root = ExampleItem.generate(4, 2, 4)
@@ -84,21 +31,71 @@ class ExampleTree extends React.Component<{}, ExampleTreeState> {
 
   render() {
     const {root, selectedKeys} = this.state
-    const ExampleTreeView = TreeView as new () => TreeView<ExampleItem>
     return (
-      <ExampleTreeView
-        root={root}
+      <TreeView
+        root={getStructure(root)}
         selectedKeys={selectedKeys}
         rowHeight={40}
-        delegate={this.delegate}
+        renderRow={this.renderRow}
+        onContextMenu={this.onContextMenu}
+        onSelectedKeysChange={this.onSelectedKeysChange}
+        onCollapsedChange={this.onCollapsedChange}
+        onMove={this.onMove}
+        onCopy={this.onCopy}
       />
     )
   }
-}
 
-function ExampleRow(props: {item: ExampleItem, selected: boolean}) {
-  const {item, selected} = props
-  return <div className={classNames("example-cell", {selected})}>{item.text}</div>
+  renderRow = (info: TreeRowInfo) => {
+    const item = this.state.root.getDescendant(info.path)!
+    const {selected} = info
+    return <div className={classNames("example-cell", {selected})}>{item.text}</div>
+  }
+
+  onContextMenu = (info: TreeRowInfo|undefined, ev: React.MouseEvent<Element>) => {
+    if (info) {
+      console.log(`Context menu at ${info.path}`)
+    } else {
+      console.log(`Context menu at blank space`)
+    }
+  }
+  onSelectedKeysChange = (selectedKeys: Set<number>) => {
+    this.setState({selectedKeys})
+  }
+  onCollapsedChange = (info: TreeRowInfo, collapsed: boolean) => {
+    info.item.collapsed = collapsed
+    this.setState({root: this.state.root})
+  }
+  onMove = (src: TreeRowInfo[], dest: TreeRowInfo, destIndex: number, destIndexAfter: number) => {
+    const {root} = this.state
+    const items: ExampleItem[] = []
+    for (let i = src.length - 1; i >= 0; --i) {
+      const {path} = src[i]
+      const index = path[path.length - 1]
+      const parent = root.getDescendant(path.slice(0, -1))!
+      const [item] = parent.children!.splice(index, 1)
+      items.unshift(item)
+    }
+    const destItem = root.getDescendant(dest.path)!
+    destItem.children!.splice(destIndexAfter, 0, ...items)
+    destItem.collapsed = false
+    this.setState({root})
+  }
+  onCopy = (src: TreeRowInfo[], dest: TreeRowInfo, destIndex: number) => {
+    const {root} = this.state
+    const items: ExampleItem[] = []
+    for (let i = src.length - 1; i >= 0; --i) {
+      const {path} = src[i]
+      const index = path[path.length - 1]
+      const parent = root.getDescendant(path.slice(0, -1))!
+      const item = parent.children![index].clone()
+      items.unshift(item)
+    }
+    const destItem = root.getDescendant(dest.path)!
+    destItem.children!.splice(destIndex, 0, ...items)
+    destItem.collapsed = false
+    this.setState({root})
+  }
 }
 
 window.addEventListener("DOMContentLoaded", () => {
