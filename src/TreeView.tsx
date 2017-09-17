@@ -191,9 +191,9 @@ class TreeView<TItem> extends React.Component<TreeProps<TItem>, {}> {
     this.rootInfo = rootInfo
 
     return (
-      <div ref={e => this.element = e} className="ReactDraggableTree" onDragOver={this.onDragOver} onDrop={this.onDrop} onContextMenu={this.onContextMenu}>
+      <div ref={e => this.element = e!} className="ReactDraggableTree" onDragOver={this.onDragOver} onDrop={this.onDrop} onContextMenu={this.onContextMenu}>
         {children.map((child, i) => this.renderItem(child, [i], true))}
-        <DropIndicator ref={e => this.dropIndicator = e} rowHeight={rowHeight} indent={indent} />
+        <DropIndicator ref={e => this.dropIndicator = e!} rowHeight={rowHeight} indent={indent} />
       </div>
     )
   }
