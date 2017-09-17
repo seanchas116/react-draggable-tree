@@ -102,7 +102,7 @@ class ExampleTree extends React.Component<{}, ExampleTreeState> {
     this.setState({selectedKeys})
   }
   onCollapsedChange = (info: TreeRowInfo, collapsed: boolean) => {
-    info.node.collapsed = collapsed
+    this.state.root.getDescendant(info.path)!.collapsed = collapsed
     this.setState({root: this.state.root})
   }
   onMove = (src: TreeRowInfo[], dest: TreeRowInfo, destIndex: number, destIndexAfter: number) => {
