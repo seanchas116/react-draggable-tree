@@ -36,10 +36,10 @@ interface TreeProps {
   rowHeight: number
   indent?: number
   selectedKeys: Set<Key>
-  renderRow(info: TreeRowInfo): JSX.Element
+  renderRow: (info: TreeRowInfo) => JSX.Element
   onMove: (src: TreeRowInfo[], dest: TreeRowInfo, destIndexBefore: number, destIndexAfter: number) => void
   onCopy: (src: TreeRowInfo[], dest: TreeRowInfo, destIndexBefore: number) => void
-  onContextMenu: (info: TreeRowInfo|undefined, ev: React.MouseEvent<Element>) => void
+  onContextMenu?: (info: TreeRowInfo|undefined, ev: React.MouseEvent<Element>) => void
   onCollapsedChange: (info: TreeRowInfo, collapsed: boolean) => void
   onSelectedKeysChange: (selectedKeys: Set<Key>, selectedInfos: TreeRowInfo[]) => void
 }
@@ -234,7 +234,9 @@ class TreeView extends React.Component<TreeProps, {}> {
     if (rowInfo && !selectedKeys.has(rowInfo.node.key)) {
       this.onClickRow(rowInfo, ev)
     }
-    this.props.onContextMenu(rowInfo, ev)
+    if (this.props.onContextMenu) {
+      this.props.onContextMenu(rowInfo, ev)
+    }
   }
 
   private onDragOver = (ev: React.DragEvent<Element>) => {
