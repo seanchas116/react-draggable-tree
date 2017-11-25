@@ -123,9 +123,10 @@ class TreeView extends React.Component<TreeProps, {}> {
       this.updateDropIndicator(undefined)
     }
 
-    const onTogglerClick = () => {
+    const onTogglerClick = (ev: React.MouseEvent<Element>) => {
       if (node.children) {
         this.props.onCollapsedChange(rowInfo, !node.collapsed)
+        ev.stopPropagation()
       }
     }
 
@@ -388,7 +389,7 @@ function isPathEqual(a: number[], b: number[]) {
 interface TogglerProps {
   visible: boolean
   collapsed: boolean
-  onClick: () => void
+  onClick: (ev: React.MouseEvent<Element>) => void
 }
 
 function Toggler(props: TogglerProps) {
