@@ -59,8 +59,8 @@ interface ExampleTreeState {
 }
 
 class ExampleTree extends React.Component<{}, ExampleTreeState> {
-  constructor() {
-    super()
+  constructor(props: {}) {
+    super(props)
     const root = ExampleItem.generate(4, 2, 4)
     this.state = {
       root,
