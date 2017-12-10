@@ -18,8 +18,8 @@ export interface TreeProps {
     indent?: number;
     selectedKeys: Set<Key>;
     renderRow: (info: TreeRowInfo) => JSX.Element;
-    onMove: (src: TreeRowInfo[], dest: TreeRowInfo, destIndexBefore: number, destIndexAfter: number) => void;
-    onCopy: (src: TreeRowInfo[], dest: TreeRowInfo, destIndexBefore: number) => void;
+    onMove: (src: TreeRowInfo[], dest: TreeRowInfo, destIndex: number, destPathAfterMove: number[]) => void;
+    onCopy: (src: TreeRowInfo[], dest: TreeRowInfo, destIndex: number) => void;
     onContextMenu?: (info: TreeRowInfo | undefined, ev: React.MouseEvent<Element>) => void;
     onCollapsedChange: (info: TreeRowInfo, collapsed: boolean) => void;
     onSelectedKeysChange: (selectedKeys: Set<Key>, selectedInfos: TreeRowInfo[]) => void;
