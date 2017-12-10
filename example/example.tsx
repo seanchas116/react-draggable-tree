@@ -105,7 +105,7 @@ class ExampleTree extends React.Component<{}, ExampleTreeState> {
     this.state.root.getDescendant(info.path)!.collapsed = collapsed
     this.setState({root: this.state.root})
   }
-  onMove = (src: TreeRowInfo[], dest: TreeRowInfo, destIndex: number, destIndexAfter: number) => {
+  onMove = (src: TreeRowInfo[], dest: TreeRowInfo, destIndex: number, destPathAfterMove: number[]) => {
     const {root} = this.state
     const items: ExampleItem[] = []
     for (let i = src.length - 1; i >= 0; --i) {
@@ -115,8 +115,8 @@ class ExampleTree extends React.Component<{}, ExampleTreeState> {
       const [item] = parent.children!.splice(index, 1)
       items.unshift(item)
     }
-    const destItem = root.getDescendant(dest.path)!
-    destItem.children!.splice(destIndexAfter, 0, ...items)
+    const destItem = root.getDescendant(destPathAfterMove.slice(0, -1))!
+    destItem.children!.splice(destPathAfterMove[destPathAfterMove.length - 1], 0, ...items)
     destItem.collapsed = false
     this.setState({root})
   }

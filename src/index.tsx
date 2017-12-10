@@ -37,8 +37,8 @@ interface TreeProps {
   indent?: number
   selectedKeys: Set<Key>
   renderRow: (info: TreeRowInfo) => JSX.Element
-  onMove: (src: TreeRowInfo[], dest: TreeRowInfo, destIndexBefore: number, destIndexAfter: number) => void
-  onCopy: (src: TreeRowInfo[], dest: TreeRowInfo, destIndexBefore: number) => void
+  onMove: (src: TreeRowInfo[], dest: TreeRowInfo, destIndex: number, destPathAfterMove: number[]) => void
+  onCopy: (src: TreeRowInfo[], dest: TreeRowInfo, destIndex: number) => void
   onContextMenu?: (info: TreeRowInfo|undefined, ev: React.MouseEvent<Element>) => void
   onCollapsedChange: (info: TreeRowInfo, collapsed: boolean) => void
   onSelectedKeysChange: (selectedKeys: Set<Key>, selectedInfos: TreeRowInfo[]) => void
@@ -341,16 +341,22 @@ class TreeView extends React.Component<TreeProps, {}> {
     if (copy) {
       this.props.onCopy(srcInfos, destInfo, destIndex)
     } else {
-      let destIndexAfter = destIndex
-      for (let info of srcInfos) {
-        if (isPathEqual(info.path.slice(0, -1), destInfo.path)) {
-          const srcIndex = info.path[info.path.length - 1]
-          if (srcIndex < destIndex) {
-            destIndexAfter--
+      const destPathBefore = [...destInfo.path, destIndex]
+      const destPathAfter = [...destPathBefore]
+
+      for (const srcInfo of srcInfos) {
+        const srcParent = srcInfo.path.slice(0, -1)
+        const srcIndex = srcInfo.path[srcInfo.path.length - 1]
+
+        for (let i = 0; i < destPathBefore.length; ++i) {
+          const destAncestor = destPathBefore.slice(0, i)
+          const destIndex = destPathBefore[i]
+          if (isPathEqual(srcParent, destAncestor) && srcIndex < destIndex) {
+            --destPathAfter[i]
           }
         }
       }
-      this.props.onMove(srcInfos, destInfo, destIndex, destIndexAfter)
+      this.props.onMove(srcInfos, destInfo, destIndex, destPathAfter)
     }
     ev.preventDefault()
   }
