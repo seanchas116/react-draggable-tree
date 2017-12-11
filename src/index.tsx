@@ -35,6 +35,10 @@ interface TreeProps {
   root: TreeNode
   rowHeight: number
   indent?: number
+  className?: string
+  rowClassName?: string
+  rowSelectedClassName?: string
+  childrenClassName?: string
   selectedKeys: Set<Key>
   renderRow: (info: TreeRowInfo) => JSX.Element
   onMove: (src: TreeRowInfo[], dest: TreeRowInfo, destIndex: number, destPathAfterMove: number[]) => void
@@ -130,7 +134,7 @@ class TreeView extends React.Component<TreeProps, {}> {
       }
     }
 
-    const rowClasses = classNames("ReactDraggableTree_row", {
+    const rowClasses = classNames("ReactDraggableTree_row", this.props.rowClassName, isSelected && this.props.rowSelectedClassName, {
       "ReactDraggableTree_row-selected": isSelected,
     })
 
@@ -149,7 +153,8 @@ class TreeView extends React.Component<TreeProps, {}> {
 
     if (children) {
       const childrenVisible = visible && !collapsed
-      const childRows = <div key={`children-${key}`} className="ReactDraggableTree_children" hidden={collapsed}>
+      const childrenClassName = classNames("ReactDraggableTree_children", this.props.childrenClassName)
+      const childRows = <div key={`children-${key}`} className={childrenClassName} hidden={collapsed}>
         {children.map((child, i) => this.renderNode(child, [...path, i], childrenVisible))}
       </div>
       return [row, childRows]
@@ -187,8 +192,10 @@ class TreeView extends React.Component<TreeProps, {}> {
     this.addRowInfo(rootInfo)
     this.rootInfo = rootInfo
 
+    const className = classNames("ReactDraggableTree", this.props.className)
+
     return (
-      <div ref={e => this.element = e!} className="ReactDraggableTree" onDragOver={this.onDragOver} onDrop={this.onDrop} onContextMenu={this.onContextMenu}>
+      <div ref={e => this.element = e!} className={className} onDragOver={this.onDragOver} onDrop={this.onDrop} onContextMenu={this.onContextMenu}>
         {children.map((child, i) => this.renderNode(child, [i], true))}
         <DropIndicator ref={e => this.dropIndicator = e!} rowHeight={rowHeight} indent={indent} />
       </div>
