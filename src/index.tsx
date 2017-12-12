@@ -436,12 +436,14 @@ class DropIndicator extends React.Component<DropIndicatorProps, DropIndicatorSta
     const {rowHeight, indent} = this.props
     const offset = index * rowHeight
     const dropOverStyle = {
+      left: "0",
       top: `${offset}px`,
+      width: "100%",
       height: `${rowHeight}px`,
     }
     const dropBetweenStyle = {
       top: `${offset - 1}px`,
-      height: "2px",
+      height: "0",
       left: `${(depth + 1) * indent}px`,
       width: `calc(100% - ${(depth + 1) * indent}px)`
     }
