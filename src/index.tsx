@@ -43,7 +43,7 @@ interface TreeProps {
   dropBetweenIndicatorClassName?: string
   toggler?: React.ComponentType<TogglerProps>
   selectedKeys: Set<Key>
-  renderRow: (info: TreeRowInfo) => React.ReactNode
+  row: React.ComponentType<TreeRowInfo>
   onMove: (src: TreeRowInfo[], dest: TreeRowInfo, destIndex: number, destPathAfterMove: number[]) => void
   onCopy: (src: TreeRowInfo[], dest: TreeRowInfo, destIndex: number) => void
   onContextMenu?: (info: TreeRowInfo|undefined, ev: React.MouseEvent<Element>) => void
