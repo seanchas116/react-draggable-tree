@@ -16,8 +16,15 @@ export interface TreeProps {
     root: TreeNode;
     rowHeight: number;
     indent?: number;
+    className?: string;
+    rowClassName?: string;
+    rowSelectedClassName?: string;
+    childrenClassName?: string;
+    dropOverIndicatorClassName?: string;
+    dropBetweenIndicatorClassName?: string;
+    toggler?: React.ComponentType<TogglerProps>;
     selectedKeys: Set<Key>;
-    renderRow: (info: TreeRowInfo) => JSX.Element;
+    rowContent: React.ComponentType<TreeRowInfo>;
     onMove: (src: TreeRowInfo[], dest: TreeRowInfo, destIndex: number, destPathAfterMove: number[]) => void;
     onCopy: (src: TreeRowInfo[], dest: TreeRowInfo, destIndex: number) => void;
     onContextMenu?: (info: TreeRowInfo | undefined, ev: React.MouseEvent<Element>) => void;
@@ -46,4 +53,9 @@ export declare class TreeView extends React.Component<TreeProps, {}> {
     private getDropTarget(ev);
     private canDrop(destInfo, destIndex);
     private onDrop;
+}
+export interface TogglerProps {
+    visible: boolean;
+    collapsed: boolean;
+    onClick: (ev: React.MouseEvent<Element>) => void;
 }
