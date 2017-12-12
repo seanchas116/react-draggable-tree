@@ -41,8 +41,9 @@ interface TreeProps {
   childrenClassName?: string
   dropOverIndicatorClassName?: string
   dropBetweenIndicatorClassName?: string
+  toggler?: React.ComponentType<TogglerProps>
   selectedKeys: Set<Key>
-  renderRow: (info: TreeRowInfo) => JSX.Element
+  renderRow: (info: TreeRowInfo) => React.ReactNode
   onMove: (src: TreeRowInfo[], dest: TreeRowInfo, destIndex: number, destPathAfterMove: number[]) => void
   onCopy: (src: TreeRowInfo[], dest: TreeRowInfo, destIndex: number) => void
   onContextMenu?: (info: TreeRowInfo|undefined, ev: React.MouseEvent<Element>) => void
@@ -141,6 +142,7 @@ class TreeView extends React.Component<TreeProps, {}> {
     })
 
     const {children, collapsed} = node
+    const CustomToggler = this.props.toggler || Toggler
 
     let row = (
       <div
@@ -148,7 +150,7 @@ class TreeView extends React.Component<TreeProps, {}> {
         onClick={ev => this.onClickRow(rowInfo, ev)}
         draggable={true} onDragStart={onDragStart} onDragEnd={onDragEnd}
       >
-        <Toggler visible={!!children} collapsed={collapsed} onClick={onTogglerClick} />
+        <CustomToggler visible={!!children} collapsed={collapsed} onClick={onTogglerClick} />
         {this.props.renderRow(rowInfo)}
       </div>
     )
@@ -404,7 +406,7 @@ function isPathEqual(a: number[], b: number[]) {
   return true
 }
 
-interface TogglerProps {
+export interface TogglerProps {
   visible: boolean
   collapsed: boolean
   onClick: (ev: React.MouseEvent<Element>) => void
