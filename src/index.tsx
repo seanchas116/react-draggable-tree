@@ -39,6 +39,8 @@ interface TreeProps {
   rowClassName?: string
   rowSelectedClassName?: string
   childrenClassName?: string
+  dropOverIndicatorClassName?: string
+  dropBetweenIndicatorClassName?: string
   selectedKeys: Set<Key>
   renderRow: (info: TreeRowInfo) => JSX.Element
   onMove: (src: TreeRowInfo[], dest: TreeRowInfo, destIndex: number, destPathAfterMove: number[]) => void
@@ -197,7 +199,10 @@ class TreeView extends React.Component<TreeProps, {}> {
     return (
       <div ref={e => this.element = e!} className={className} onDragOver={this.onDragOver} onDrop={this.onDrop} onContextMenu={this.onContextMenu}>
         {children.map((child, i) => this.renderNode(child, [i], true))}
-        <DropIndicator ref={e => this.dropIndicator = e!} rowHeight={rowHeight} indent={indent} />
+        <DropIndicator
+          ref={e => this.dropIndicator = e!} rowHeight={rowHeight} indent={indent}
+          dropOverClassName={this.props.dropOverIndicatorClassName} dropBetweenClassName={this.props.dropBetweenIndicatorClassName}
+        />
       </div>
     )
   }
@@ -416,6 +421,8 @@ function Toggler(props: TogglerProps) {
 interface DropIndicatorProps {
   rowHeight: number
   indent: number
+  dropOverClassName?: string
+  dropBetweenClassName?: string
 }
 
 interface DropIndicatorState {
@@ -449,8 +456,14 @@ class DropIndicator extends React.Component<DropIndicatorProps, DropIndicatorSta
     }
     return (
       <div>
-        <div className="ReactDraggableTree_dropOver" hidden={type != "over"} style={dropOverStyle} />
-        <div className="ReactDraggableTree_dropBetween" hidden={type != "between"} style={dropBetweenStyle} />
+        <div
+          className={classNames("ReactDraggableTree_dropOver", this.props.dropOverClassName)}
+          hidden={type != "over"} style={dropOverStyle}
+        />
+        <div
+          className={classNames("ReactDraggableTree_dropBetween", this.props.dropBetweenClassName)}
+          hidden={type != "between"} style={dropBetweenStyle}
+        />
       </div>
     )
   }
