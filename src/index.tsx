@@ -43,7 +43,7 @@ interface TreeProps {
   dropBetweenIndicatorClassName?: string
   toggler?: React.ComponentType<TogglerProps>
   selectedKeys: Set<Key>
-  row: React.ComponentType<TreeRowInfo>
+  rowContent: React.ComponentType<TreeRowInfo>
   onMove: (src: TreeRowInfo[], dest: TreeRowInfo, destIndex: number, destPathAfterMove: number[]) => void
   onCopy: (src: TreeRowInfo[], dest: TreeRowInfo, destIndex: number) => void
   onContextMenu?: (info: TreeRowInfo|undefined, ev: React.MouseEvent<Element>) => void
@@ -144,6 +144,8 @@ class TreeView extends React.Component<TreeProps, {}> {
     const {children, collapsed} = node
     const CustomToggler = this.props.toggler || Toggler
 
+    const RowContent = this.props.rowContent
+
     let row = (
       <div
         key={`row-${key}`} className={rowClasses} style={style}
@@ -151,7 +153,7 @@ class TreeView extends React.Component<TreeProps, {}> {
         draggable={true} onDragStart={onDragStart} onDragEnd={onDragEnd}
       >
         <CustomToggler visible={!!children} collapsed={collapsed} onClick={onTogglerClick} />
-        {this.props.renderRow(rowInfo)}
+        <RowContent {...rowInfo} />
       </div>
     )
 

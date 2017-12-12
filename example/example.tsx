@@ -76,7 +76,7 @@ class ExampleTree extends React.Component<{}, ExampleTreeState> {
         selectedKeys={selectedKeys}
         rowHeight={40}
         className='example-tree'
-        row={this.renderRow}
+        rowContent={this.renderRow}
         onContextMenu={this.onContextMenu}
         onSelectedKeysChange={this.onSelectedKeysChange}
         onCollapsedChange={this.onCollapsedChange}
