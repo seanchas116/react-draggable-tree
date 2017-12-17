@@ -35,8 +35,15 @@ interface TreeProps {
   root: TreeNode
   rowHeight: number
   indent?: number
+  className?: string
+  rowClassName?: string
+  rowSelectedClassName?: string
+  childrenClassName?: string
+  dropOverIndicatorClassName?: string
+  dropBetweenIndicatorClassName?: string
+  toggler?: React.ComponentType<TogglerProps>
   selectedKeys: Set<Key>
-  renderRow: (info: TreeRowInfo) => JSX.Element
+  rowContent: React.ComponentType<TreeRowInfo>
   onMove: (src: TreeRowInfo[], dest: TreeRowInfo, destIndex: number, destPathAfterMove: number[]) => void
   onCopy: (src: TreeRowInfo[], dest: TreeRowInfo, destIndex: number) => void
   onContextMenu?: (info: TreeRowInfo|undefined, ev: React.MouseEvent<Element>) => void
@@ -130,11 +137,14 @@ class TreeView extends React.Component<TreeProps, {}> {
       }
     }
 
-    const rowClasses = classNames("ReactDraggableTree_row", {
+    const rowClasses = classNames("ReactDraggableTree_row", this.props.rowClassName, isSelected && this.props.rowSelectedClassName, {
       "ReactDraggableTree_row-selected": isSelected,
     })
 
     const {children, collapsed} = node
+    const CustomToggler = this.props.toggler || Toggler
+
+    const RowContent = this.props.rowContent
 
     let row = (
       <div
@@ -142,14 +152,15 @@ class TreeView extends React.Component<TreeProps, {}> {
         onClick={ev => this.onClickRow(rowInfo, ev)}
         draggable={true} onDragStart={onDragStart} onDragEnd={onDragEnd}
       >
-        <Toggler visible={!!children} collapsed={collapsed} onClick={onTogglerClick} />
-        {this.props.renderRow(rowInfo)}
+        <CustomToggler visible={!!children} collapsed={collapsed} onClick={onTogglerClick} />
+        <RowContent {...rowInfo} />
       </div>
     )
 
     if (children) {
       const childrenVisible = visible && !collapsed
-      const childRows = <div key={`children-${key}`} className="ReactDraggableTree_children" hidden={collapsed}>
+      const childrenClassName = classNames("ReactDraggableTree_children", this.props.childrenClassName)
+      const childRows = <div key={`children-${key}`} className={childrenClassName} hidden={collapsed}>
         {children.map((child, i) => this.renderNode(child, [...path, i], childrenVisible))}
       </div>
       return [row, childRows]
@@ -187,10 +198,15 @@ class TreeView extends React.Component<TreeProps, {}> {
     this.addRowInfo(rootInfo)
     this.rootInfo = rootInfo
 
+    const className = classNames("ReactDraggableTree", this.props.className)
+
     return (
-      <div ref={e => this.element = e!} className="ReactDraggableTree" onDragOver={this.onDragOver} onDrop={this.onDrop} onContextMenu={this.onContextMenu}>
+      <div ref={e => this.element = e!} className={className} onDragOver={this.onDragOver} onDrop={this.onDrop} onContextMenu={this.onContextMenu}>
         {children.map((child, i) => this.renderNode(child, [i], true))}
-        <DropIndicator ref={e => this.dropIndicator = e!} rowHeight={rowHeight} indent={indent} />
+        <DropIndicator
+          ref={e => this.dropIndicator = e!} rowHeight={rowHeight} indent={indent}
+          dropOverClassName={this.props.dropOverIndicatorClassName} dropBetweenClassName={this.props.dropBetweenIndicatorClassName}
+        />
       </div>
     )
   }
@@ -392,7 +408,7 @@ function isPathEqual(a: number[], b: number[]) {
   return true
 }
 
-interface TogglerProps {
+export interface TogglerProps {
   visible: boolean
   collapsed: boolean
   onClick: (ev: React.MouseEvent<Element>) => void
@@ -409,6 +425,8 @@ function Toggler(props: TogglerProps) {
 interface DropIndicatorProps {
   rowHeight: number
   indent: number
+  dropOverClassName?: string
+  dropBetweenClassName?: string
 }
 
 interface DropIndicatorState {
@@ -429,19 +447,27 @@ class DropIndicator extends React.Component<DropIndicatorProps, DropIndicatorSta
     const {rowHeight, indent} = this.props
     const offset = index * rowHeight
     const dropOverStyle = {
+      left: "0",
       top: `${offset}px`,
+      width: "100%",
       height: `${rowHeight}px`,
     }
     const dropBetweenStyle = {
       top: `${offset - 1}px`,
-      height: "2px",
+      height: "0",
       left: `${(depth + 1) * indent}px`,
       width: `calc(100% - ${(depth + 1) * indent}px)`
     }
     return (
       <div>
-        <div className="ReactDraggableTree_dropOver" hidden={type != "over"} style={dropOverStyle} />
-        <div className="ReactDraggableTree_dropBetween" hidden={type != "between"} style={dropBetweenStyle} />
+        <div
+          className={classNames("ReactDraggableTree_dropOver", this.props.dropOverClassName)}
+          hidden={type != "over"} style={dropOverStyle}
+        />
+        <div
+          className={classNames("ReactDraggableTree_dropBetween", this.props.dropBetweenClassName)}
+          hidden={type != "between"} style={dropBetweenStyle}
+        />
       </div>
     )
   }

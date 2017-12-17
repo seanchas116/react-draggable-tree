@@ -39,15 +39,11 @@
 .ReactDraggableTree_dropOver {
   position: absolute;
   box-sizing: border-box;
-  left: 0;
-  width: 100%;
   pointer-events: none;
   border: 2px solid #2196F3;
 }
 .ReactDraggableTree_dropBetween {
   position: absolute;
-  left: 0;
-  width: 100%;
   pointer-events: none;
-  background-color: #2196F3;
+  border: 1px solid #2196F3;
 }

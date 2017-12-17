@@ -1,5 +1,5 @@
-require("./example.css")
 require("../lib/index.css")
+require("./example.css")
 import React = require("react")
 import ReactDOM = require("react-dom")
 const classNames = require("classnames")
@@ -75,7 +75,8 @@ class ExampleTree extends React.Component<{}, ExampleTreeState> {
         root={toTreeNode(root)}
         selectedKeys={selectedKeys}
         rowHeight={40}
-        renderRow={this.renderRow}
+        className='example-tree'
+        rowContent={this.renderRow}
         onContextMenu={this.onContextMenu}
         onSelectedKeysChange={this.onSelectedKeysChange}
         onCollapsedChange={this.onCollapsedChange}
