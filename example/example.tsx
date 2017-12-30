@@ -1,5 +1,5 @@
-require("../lib/index.css")
-require("./example.css")
+import "../lib/index.css"
+import "./example.css"
 import * as React from "react"
 import * as ReactDOM from "react-dom"
 import * as classNames from "classnames"
