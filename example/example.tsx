@@ -1,9 +1,9 @@
 require("../lib/index.css")
 require("./example.css")
-import React = require("react")
-import ReactDOM = require("react-dom")
-const classNames = require("classnames")
-const loremIpsum = require("lorem-ipsum")
+import * as React from "react"
+import * as ReactDOM from "react-dom"
+import * as classNames from "classnames"
+import * as loremIpsum from "lorem-ipsum"
 import {TreeView, TreeRowInfo, TreeNode} from "../src"
 
 export
