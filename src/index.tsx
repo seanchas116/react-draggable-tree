@@ -1,5 +1,5 @@
 import React = require("react")
-const classNames = require("classnames")
+import * as classNames from "classnames"
 
 const DRAG_MIME = "x-react-draggable-tree-drag"
 
