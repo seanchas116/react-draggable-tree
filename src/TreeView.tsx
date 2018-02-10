@@ -45,6 +45,27 @@ class TreeView extends React.Component<TreeProps, {}> {
   private keyToInfo = new Map<Key, TreeRowInfo>()
   private rootInfo: TreeRowInfo
 
+  render () {
+    const { root, rowHeight, indent } = this.propsWithDefaults()
+    const children = root.children || []
+    this.clearRows()
+    const rootInfo = { node: root, selected: false, current: false, path: [], visible: false, visibleOffset: 0 }
+    this.addRowInfo(rootInfo)
+    this.rootInfo = rootInfo
+
+    const className = classNames('ReactDraggableTree', this.props.className)
+
+    return (
+      <div ref={e => this.element = e!} className={className} onDragOver={this.onDragOver} onDrop={this.onDrop} onContextMenu={this.onContextMenu}>
+        {children.map((child, i) => this.renderNode(child, [i], true))}
+        <DropIndicator
+          ref={e => this.dropIndicator = e!} rowHeight={rowHeight} indent={indent}
+          dropOverClassName={this.props.dropOverIndicatorClassName} dropBetweenClassName={this.props.dropBetweenIndicatorClassName}
+        />
+      </div>
+    )
+  }
+
   private removeAncestorsFromSelection (selection: Set<Key>) {
     const newSelection = new Set(selection)
     for (const { path } of this.keysToInfos(selection)) {
@@ -174,27 +195,6 @@ class TreeView extends React.Component<TreeProps, {}> {
     }
   }
 
-  render () {
-    const { root, rowHeight, indent } = this.propsWithDefaults()
-    const children = root.children || []
-    this.clearRows()
-    const rootInfo = { node: root, selected: false, current: false, path: [], visible: false, visibleOffset: 0 }
-    this.addRowInfo(rootInfo)
-    this.rootInfo = rootInfo
-
-    const className = classNames('ReactDraggableTree', this.props.className)
-
-    return (
-      <div ref={e => this.element = e!} className={className} onDragOver={this.onDragOver} onDrop={this.onDrop} onContextMenu={this.onContextMenu}>
-        {children.map((child, i) => this.renderNode(child, [i], true))}
-        <DropIndicator
-          ref={e => this.dropIndicator = e!} rowHeight={rowHeight} indent={indent}
-          dropOverClassName={this.props.dropOverIndicatorClassName} dropBetweenClassName={this.props.dropBetweenIndicatorClassName}
-        />
-      </div>
-    )
-  }
-
   private onClickRow = (rowInfo: TreeRowInfo, ev: React.MouseEvent<Element>) => {
     const { selectedKeys } = this.props
     const { key } = rowInfo.node
@@ -277,7 +277,7 @@ class TreeView extends React.Component<TreeProps, {}> {
 
     const betweenIndex = clamp((offset < rowHeight / 2) ? overIndex : overIndex + 1, 0, this.visibleInfos.length)
 
-    let path = (betweenIndex == this.visibleInfos.length)
+    let path = (betweenIndex === this.visibleInfos.length)
       ? [this.rootInfo.node.children!.length]
       : this.visibleInfos[betweenIndex].path
     if (0 < betweenIndex) {
@@ -285,7 +285,7 @@ class TreeView extends React.Component<TreeProps, {}> {
       let prevPath = prev.path
       const prevChildren = prev.node.children
       const prevCollapsed = prev.node.collapsed
-      if (prevChildren && prevChildren.length == 0 && !prevCollapsed) {
+      if (prevChildren && prevChildren.length === 0 && !prevCollapsed) {
         prevPath = [...prevPath, -1]
       }
       if (path.length < prevPath.length) {

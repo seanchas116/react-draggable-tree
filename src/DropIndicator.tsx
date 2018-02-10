@@ -41,11 +41,11 @@ export class DropIndicator extends React.Component<DropIndicatorProps, DropIndic
       <div>
         <div
           className={classNames('ReactDraggableTree_dropOver', this.props.dropOverClassName)}
-          hidden={type != 'over'} style={dropOverStyle}
+          hidden={type !== 'over'} style={dropOverStyle}
         />
         <div
           className={classNames('ReactDraggableTree_dropBetween', this.props.dropBetweenClassName)}
-          hidden={type != 'between'} style={dropBetweenStyle}
+          hidden={type !== 'between'} style={dropBetweenStyle}
         />
       </div>
     )
