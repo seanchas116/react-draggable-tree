@@ -1,4 +1,4 @@
-import React = require("react");
+import React = require('react');
 import { TreeRowInfo, TreeNode, Key } from './types';
 import { TogglerProps } from './Toggler';
 export interface TreeProps {
@@ -28,6 +28,7 @@ export declare class TreeView extends React.Component<TreeProps, {}> {
     private visibleInfos;
     private keyToInfo;
     private rootInfo;
+    render(): JSX.Element;
     private removeAncestorsFromSelection(selection);
     private propsWithDefaults();
     private clearRows();
@@ -35,7 +36,6 @@ export declare class TreeView extends React.Component<TreeProps, {}> {
     private renderNode(node, path, visible);
     private keysToInfos(keys);
     private updateDropIndicator(target);
-    render(): JSX.Element;
     private onClickRow;
     private onContextMenu;
     private onDragOver;

@@ -1,4 +1,4 @@
-import React = require("react");
+import React = require('react');
 export interface TogglerProps {
     visible: boolean;
     collapsed: boolean;
