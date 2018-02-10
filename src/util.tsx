@@ -1,9 +1,9 @@
 
-export function clamp(x: number, min: number, max: number) {
+export function clamp (x: number, min: number, max: number) {
   return Math.max(min, Math.min(x, max))
 }
 
-export function comparePaths(a: number[], b: number[]) {
+export function comparePaths (a: number[], b: number[]) {
   for (let i = 0; true; ++i) {
     if (a.length == i && b.length == i) {
       return 0
@@ -17,7 +17,7 @@ export function comparePaths(a: number[], b: number[]) {
   }
 }
 
-export function isPathEqual(a: number[], b: number[]) {
+export function isPathEqual (a: number[], b: number[]) {
   if (a.length != b.length) {
     return
   }
