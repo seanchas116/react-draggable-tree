@@ -1,4 +1,4 @@
-import React = require("react");
+import React = require('react');
 export interface DropIndicatorProps {
     rowHeight: number;
     indent: number;
@@ -6,7 +6,7 @@ export interface DropIndicatorProps {
     dropBetweenClassName?: string;
 }
 export interface DropIndicatorState {
-    type: "none" | "over" | "between";
+    type: 'none' | 'over' | 'between';
     index: number;
     depth: number;
 }

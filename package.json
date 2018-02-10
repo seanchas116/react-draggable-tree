@@ -8,6 +8,7 @@
     "example": "cd example && webpack-dev-server --inline",
     "example:build": "cd example && webpack",
     "pages": "npm run example:build && gh-pages -d example",
+    "lint": "$(npm bin)/tslint src/*.ts src/*.tsx -p src/tsconfig.json",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
@@ -25,6 +26,8 @@
     "react-dom": "^16.2.0",
     "style-loader": "^0.20.1",
     "ts-loader": "^3.5.0",
+    "tslint": "^5.9.1",
+    "tslint-config-standard": "^7.0.0",
     "typescript": "^2.7.1",
     "webpack": "^3.10.0",
     "webpack-dev-server": "^2.11.1"
