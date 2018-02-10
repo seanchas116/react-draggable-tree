@@ -8,7 +8,7 @@
     "example": "cd example && webpack-dev-server --inline",
     "example:build": "cd example && webpack",
     "pages": "npm run example:build && gh-pages -d example",
-    "lint": "$(npm bin)/tslint src/*.ts src/*.tsx",
+    "lint": "$(npm bin)/tslint src/*.ts src/*.tsx -p src/tsconfig.json",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
