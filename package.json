@@ -1,50 +1,23 @@
 {
   "name": "react-draggable-tree",
-  "version": "0.4.0",
-  "main": "lib/index.js",
-  "typings": "lib/index.d.ts",
-  "scripts": {
-    "build": "cd src && tsc",
-    "example": "cd example && webpack-dev-server --inline",
-    "example:build": "cd example && webpack",
-    "pages": "npm run example:build && gh-pages -d example",
-    "lint": "$(npm bin)/tslint src/*.ts src/*.tsx -p src/tsconfig.json",
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "author": "",
-  "license": "MIT",
-  "devDependencies": {
-    "@types/classnames": "^2.2.3",
-    "@types/lorem-ipsum": "^1.0.2",
-    "@types/node": "^9.4.4",
-    "@types/react": "^16.0.36",
-    "@types/react-dom": "^16.0.3",
-    "css-loader": "^0.28.9",
-    "gh-pages": "^1.1.0",
-    "lorem-ipsum": "^1.0.4",
-    "react": "^16.2.0",
-    "react-dom": "^16.2.0",
-    "style-loader": "^0.20.1",
-    "ts-loader": "^3.5.0",
-    "tslint": "^5.9.1",
-    "tslint-config-standard": "^7.0.0",
-    "typescript": "^2.7.1",
-    "webpack": "^3.10.0",
-    "webpack-dev-server": "^2.11.1"
-  },
-  "dependencies": {
-    "classnames": "^2.2.5"
-  },
-  "directories": {
-    "example": "example"
+  "version": "0.5.0",
+  "description": "Draggable tree view for React",
+  "homepage": "https://github.com/sketchglass/react-draggable-tree#readme",
+  "bugs": {
+    "url": "https://github.com/sketchglass/react-draggable-tree/issues"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/sketchglass/react-draggable-tree.git"
   },
-  "bugs": {
-    "url": "https://github.com/sketchglass/react-draggable-tree/issues"
+  "license": "MIT",
+  "author": "",
+  "main": "lib/index.js",
+  "typings": "lib/index.d.ts",
+  "directories": {
+    "example": "example"
   },
-  "homepage": "https://github.com/sketchglass/react-draggable-tree#readme",
-  "description": "Draggable tree view for React"
+  "scripts": {},
+  "dependencies": {},
+  "devDependencies": {}
 }

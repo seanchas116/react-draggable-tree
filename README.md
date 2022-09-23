@@ -2,30 +2,6 @@
 
 [![NPM](https://nodei.co/npm/react-draggable-tree.png)](https://nodei.co/npm/react-draggable-tree/)
 
-Draggable tree view for React
+> See [this branch](<(https://github.com/seanchas116/react-draggable-tree/tree/legacy)>) for older version (<= 0.4).
 
-Select, move and copy items intuitively
-
-TypeScript `.d.ts` included
-
-* [Example](https://sketchglass.github.io/react-draggable-tree/example.html)
-* [Example Source](example/example.tsx)
-* [API](lib/index.d.ts)
-
-## Install
-
-```
-npm install --save react-draggable-tree
-```
-
-## Develop
-
-```
-npm install
-```
-
-### Run Example
-
-```
-npm run example
-```
+WIP
