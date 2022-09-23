@@ -14,7 +14,7 @@ function first<T>(array: readonly T[]): T | undefined {
   return array[0];
 }
 
-const DRAG_MIME = "application/x.macaron-tree-drag";
+const DRAG_MIME = "application/x.react-draggable-tree-drag";
 
 //// ItemRow
 
