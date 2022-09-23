@@ -44,19 +44,23 @@ class Changes extends TypedEmitter<{
   change(): void;
 }> {}
 
-const changes = new Changes();
-
 class ExampleTreeViewItem implements TreeViewItem {
-  constructor(parent: ExampleTreeViewItem | undefined, node: Node) {
+  constructor(
+    changes: Changes,
+    parent: ExampleTreeViewItem | undefined,
+    node: Node
+  ) {
     this.key = node.key;
+    this.changes = changes;
     this.parent = parent;
     this.node = node;
     this.children = node.collapsed
       ? []
-      : node.children.map((c) => new ExampleTreeViewItem(this, c));
+      : node.children.map((c) => new ExampleTreeViewItem(changes, this, c));
   }
 
   readonly key: string;
+  readonly changes: Changes;
   readonly parent: ExampleTreeViewItem | undefined;
   readonly node: Node;
   readonly children: ExampleTreeViewItem[] = [];
@@ -104,7 +108,7 @@ class ExampleTreeViewItem implements TreeViewItem {
     for (const node of this.node.root.selectedDescendants) {
       this.node.insertBefore(node, beforeNode);
     }
-    changes.emit("change");
+    this.changes.emit("change");
   }
 
   renderRow({
@@ -114,15 +118,23 @@ class ExampleTreeViewItem implements TreeViewItem {
     depth: number;
     indentation: number;
   }): React.ReactNode {
-    return <TreeRow node={this.node} depth={depth} indentation={indentation} />;
+    return (
+      <TreeRow
+        changes={this.changes}
+        node={this.node}
+        depth={depth}
+        indentation={indentation}
+      />
+    );
   }
 }
 
 const TreeRow: React.FC<{
+  changes: Changes;
   node: Node;
   depth: number;
   indentation: number;
-}> = ({ node, depth, indentation }) => {
+}> = ({ changes, node, depth, indentation }) => {
   const onCollapseButtonClick = action((e: React.MouseEvent<HTMLElement>) => {
     e.stopPropagation();
     node.collapsed = !node.collapsed;
@@ -209,20 +221,21 @@ const renderIndicators = {
 };
 
 const BasicObserver: React.FC = observer(() => {
+  const [changes] = useState(() => new Changes());
   const [root] = useState(() => generateExampleNode(4, 3, 5));
   const [item, setItem] = useState(
-    () => new ExampleTreeViewItem(undefined, root)
+    () => new ExampleTreeViewItem(changes, undefined, root)
   );
 
   useEffect(() => {
     const onStructureChanged = () => {
-      setItem(new ExampleTreeViewItem(undefined, root));
+      setItem(new ExampleTreeViewItem(changes, undefined, root));
     };
     changes.on("change", onStructureChanged);
     return () => {
       changes.off("change", onStructureChanged);
     };
-  }, [root]);
+  }, []);
 
   return (
     <Wrap>
@@ -242,8 +255,21 @@ export const Basic: React.VFC = () => {
 };
 
 const ManyItemsObserver: React.VFC = observer(() => {
+  const [changes] = useState(() => new Changes());
   const [root] = useState(() => generateExampleNode(5, 5, 5));
-  const item = new ExampleTreeViewItem(undefined, root);
+  const [item, setItem] = useState(
+    () => new ExampleTreeViewItem(changes, undefined, root)
+  );
+
+  useEffect(() => {
+    const onStructureChanged = () => {
+      setItem(new ExampleTreeViewItem(changes, undefined, root));
+    };
+    changes.on("change", onStructureChanged);
+    return () => {
+      changes.off("change", onStructureChanged);
+    };
+  }, []);
 
   return (
     <Wrap>
@@ -263,8 +289,21 @@ export const ManyItems: React.VFC = () => {
 };
 
 const NonReorderableObserver: React.VFC = observer(() => {
-  const [root] = useState(() => generateExampleNode(4, 3, 4));
-  const item = new ExampleTreeViewItem(undefined, root);
+  const [changes] = useState(() => new Changes());
+  const [root] = useState(() => generateExampleNode(4, 3, 5));
+  const [item, setItem] = useState(
+    () => new ExampleTreeViewItem(changes, undefined, root)
+  );
+
+  useEffect(() => {
+    const onStructureChanged = () => {
+      setItem(new ExampleTreeViewItem(changes, undefined, root));
+    };
+    changes.on("change", onStructureChanged);
+    return () => {
+      changes.off("change", onStructureChanged);
+    };
+  }, []);
 
   return (
     <Wrap>
