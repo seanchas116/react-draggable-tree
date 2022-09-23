@@ -12,11 +12,11 @@ export interface TreeViewItem {
 
   canDropData?(params: {
     event: React.DragEvent;
-    draggedItem: TreeViewItem | undefined;
+    draggedItem: TreeViewItem | undefined; // undefined if the drag is not initiated from a tree view
   }): boolean;
   handleDrop?(params: {
     event: React.DragEvent;
-    draggedItem: TreeViewItem | undefined;
+    draggedItem: TreeViewItem | undefined; // undefined if the drag is not initiated from a tree view
     before: TreeViewItem | undefined;
   }): void;
 }
