@@ -6,8 +6,6 @@ import { TreeViewItem } from "./TreeViewItem";
 import { Node } from "./Node";
 import { TypedEmitter } from "tiny-typed-emitter";
 
-const DRAG_MIME = "application/x.macaron-tree-drag";
-
 function generateExampleNode(
   depth: number,
   minChildCount: number,
@@ -70,8 +68,7 @@ class ExampleTreeViewItem implements TreeViewItem {
       this.changes.emit("change");
     }
 
-    event.dataTransfer.effectAllowed = "copyMove";
-    event.dataTransfer.setData(DRAG_MIME, "drag");
+    return true;
   }
 
   canDropData({
@@ -82,11 +79,7 @@ class ExampleTreeViewItem implements TreeViewItem {
     draggedItem?: TreeViewItem;
   }) {
     console.log("canDropData", (draggedItem as ExampleTreeViewItem)?.node.name);
-
-    return (
-      this.node.type === "branch" &&
-      event.dataTransfer.types.includes(DRAG_MIME)
-    );
+    return !!draggedItem && this.node.type === "branch";
   }
 
   handleDrop({
@@ -98,7 +91,11 @@ class ExampleTreeViewItem implements TreeViewItem {
     draggedItem?: TreeViewItem;
     before: TreeViewItem | undefined;
   }) {
-    console.log("handleDrop", (draggedItem as ExampleTreeViewItem)?.node.name);
+    if (!draggedItem) {
+      return;
+    }
+
+    console.log("handleDrop", (draggedItem as ExampleTreeViewItem).node.name);
 
     const beforeNode = (before as ExampleTreeViewItem | undefined)?.node;
 

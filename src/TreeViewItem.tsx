@@ -7,7 +7,7 @@ export interface TreeViewItem {
 
   renderRow(params: { depth: number; indentation: number }): ReactNode;
 
-  handleDragStart?(params: { event: React.DragEvent }): void;
+  handleDragStart?(params: { event: React.DragEvent }): boolean;
   handleDragEnd?(): void;
 
   canDropData?(params: {

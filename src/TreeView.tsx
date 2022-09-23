@@ -14,6 +14,8 @@ function first<T>(array: readonly T[]): T | undefined {
   return array[0];
 }
 
+const DRAG_MIME = "application/x.macaron-tree-drag";
+
 //// ItemRow
 
 interface ItemRow {
@@ -340,7 +342,13 @@ function TreeRow({
   const { item, depth } = rows[index];
 
   const onDragStart = (e: React.DragEvent<HTMLElement>) => {
-    item.handleDragStart?.({ event: e });
+    if (!item.handleDragStart?.({ event: e })) {
+      e.preventDefault();
+      return;
+    }
+
+    e.dataTransfer.effectAllowed = "copyMove";
+    e.dataTransfer.setData(DRAG_MIME, "drag");
     dragState.draggedItem = item;
 
     if (dragImageRef.current) {
@@ -352,12 +360,17 @@ function TreeRow({
   };
 
   const onDragOver = (e: React.DragEvent<HTMLElement>) => {
+    const draggedItem = e.dataTransfer.types.includes(DRAG_MIME)
+      ? dragState.draggedItem
+      : undefined;
+
     dragState.dropLocation = dropLocationSolver.getForRow(
       rows,
       index,
       e,
-      dragState.draggedItem
+      draggedItem
     );
+
     if (dragState.dropLocation) {
       e.preventDefault();
       e.stopPropagation();
@@ -365,23 +378,31 @@ function TreeRow({
   };
 
   const onDragEnter = (e: React.DragEvent<HTMLElement>) => {
+    const draggedItem = e.dataTransfer.types.includes(DRAG_MIME)
+      ? dragState.draggedItem
+      : undefined;
+
     dragState.dropLocation = dropLocationSolver.getForRow(
       rows,
       index,
       e,
-      dragState.draggedItem
+      draggedItem
     );
     e.preventDefault();
     e.stopPropagation();
   };
   const onDrop = (e: React.DragEvent<HTMLElement>) => {
+    const draggedItem = e.dataTransfer.types.includes(DRAG_MIME)
+      ? dragState.draggedItem
+      : undefined;
+
     const dropLocation = dropLocationSolver.getForRow(
       rows,
       index,
       e,
-      dragState.draggedItem
+      draggedItem
     );
-    if (dropLocation?.handleDrop(e, dragState.draggedItem)) {
+    if (dropLocation?.handleDrop(e, draggedItem)) {
       e.preventDefault();
       e.stopPropagation();
     }
