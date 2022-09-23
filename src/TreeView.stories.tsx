@@ -41,8 +41,7 @@ function generateExampleNode(
 }
 
 class Changes extends TypedEmitter<{
-  structureChanged(): void;
-  nodeChanged(node: Node): void;
+  change(): void;
 }> {}
 
 const changes = new Changes();
@@ -105,7 +104,7 @@ class ExampleTreeViewItem implements TreeViewItem {
     for (const node of this.node.root.selectedDescendants) {
       this.node.insertBefore(node, beforeNode);
     }
-    changes.emit("structureChanged");
+    changes.emit("change");
   }
 
   renderRow({
@@ -123,24 +122,11 @@ const TreeRow: React.FC<{
   node: Node;
   depth: number;
   indentation: number;
-}> = observer(({ node, depth, indentation }) => {
-  const [selected, setSelected] = useState(node.selected);
-  useEffect(() => {
-    const onSelectedChanged = (changedNode: Node) => {
-      if (changedNode === node) {
-        setSelected(node.selected);
-      }
-    };
-    changes.on("nodeChanged", onSelectedChanged);
-    return () => {
-      changes.off("nodeChanged", onSelectedChanged);
-    };
-  }, [node]);
-
+}> = ({ node, depth, indentation }) => {
   const onCollapseButtonClick = action((e: React.MouseEvent<HTMLElement>) => {
     e.stopPropagation();
     node.collapsed = !node.collapsed;
-    changes.emit("nodeChanged", node);
+    changes.emit("change");
   });
 
   const onClick = action((event: React.MouseEvent<HTMLElement>) => {
@@ -150,7 +136,7 @@ const TreeRow: React.FC<{
       node.root.deselect();
     }
     node.select();
-    changes.emit("nodeChanged", node);
+    changes.emit("change");
   });
 
   return (
@@ -174,7 +160,7 @@ const TreeRow: React.FC<{
       {node.name}
     </div>
   );
-});
+};
 
 export default {
   component: TreeView,
@@ -232,9 +218,9 @@ const BasicObserver: React.FC = observer(() => {
     const onStructureChanged = () => {
       setItem(new ExampleTreeViewItem(undefined, root));
     };
-    changes.on("structureChanged", onStructureChanged);
+    changes.on("change", onStructureChanged);
     return () => {
-      changes.off("structureChanged", onStructureChanged);
+      changes.off("change", onStructureChanged);
     };
   }, [root]);
 
