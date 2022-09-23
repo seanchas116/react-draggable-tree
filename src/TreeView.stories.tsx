@@ -1,7 +1,5 @@
 import { loremIpsum } from "lorem-ipsum";
-import { action, runInAction } from "mobx";
-import { observer } from "mobx-react-lite";
-import React, { useEffect, useState, useSyncExternalStore } from "react";
+import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import { TreeView } from "./TreeView";
 import { TreeViewItem } from "./TreeViewItem";
@@ -66,12 +64,11 @@ class ExampleTreeViewItem implements TreeViewItem {
   readonly children: ExampleTreeViewItem[] = [];
 
   handleDragStart({ event }: { event: React.DragEvent }) {
-    runInAction(() => {
-      if (!this.node.selected) {
-        this.node.root.deselect();
-        this.node.select();
-      }
-    });
+    if (!this.node.selected) {
+      this.node.root.deselect();
+      this.node.select();
+      this.changes.emit("change");
+    }
 
     event.dataTransfer.effectAllowed = "copyMove";
     event.dataTransfer.setData(DRAG_MIME, "drag");
@@ -135,13 +132,13 @@ const TreeRow: React.FC<{
   depth: number;
   indentation: number;
 }> = ({ changes, node, depth, indentation }) => {
-  const onCollapseButtonClick = action((e: React.MouseEvent<HTMLElement>) => {
+  const onCollapseButtonClick = (e: React.MouseEvent<HTMLElement>) => {
     e.stopPropagation();
     node.collapsed = !node.collapsed;
     changes.emit("change");
-  });
+  };
 
-  const onClick = action((event: React.MouseEvent<HTMLElement>) => {
+  const onClick = (event: React.MouseEvent<HTMLElement>) => {
     // TODO: shift + click
 
     if (!(event.metaKey || event.shiftKey)) {
@@ -149,7 +146,7 @@ const TreeRow: React.FC<{
     }
     node.select();
     changes.emit("change");
-  });
+  };
 
   return (
     <div
@@ -220,7 +217,7 @@ const renderIndicators = {
   },
 };
 
-const BasicObserver: React.FC = observer(() => {
+const BasicObserver: React.FC = () => {
   const [changes] = useState(() => new Changes());
   const [root] = useState(() => generateExampleNode(4, 3, 5));
   const [item, setItem] = useState(
@@ -248,13 +245,13 @@ const BasicObserver: React.FC = observer(() => {
       />
     </Wrap>
   );
-});
+};
 
-export const Basic: React.VFC = () => {
+export const Basic: React.FC = () => {
   return <BasicObserver />;
 };
 
-const ManyItemsObserver: React.VFC = observer(() => {
+const ManyItemsObserver: React.FC = () => {
   const [changes] = useState(() => new Changes());
   const [root] = useState(() => generateExampleNode(5, 5, 5));
   const [item, setItem] = useState(
@@ -282,13 +279,13 @@ const ManyItemsObserver: React.VFC = observer(() => {
       />
     </Wrap>
   );
-});
+};
 
-export const ManyItems: React.VFC = () => {
+export const ManyItems: React.FC = () => {
   return <ManyItemsObserver />;
 };
 
-const NonReorderableObserver: React.VFC = observer(() => {
+const NonReorderableObserver: React.FC = () => {
   const [changes] = useState(() => new Changes());
   const [root] = useState(() => generateExampleNode(4, 3, 5));
   const [item, setItem] = useState(
@@ -317,8 +314,8 @@ const NonReorderableObserver: React.VFC = observer(() => {
       />
     </Wrap>
   );
-});
+};
 
-export const NonReorderable: React.VFC = () => {
+export const NonReorderable: React.FC = () => {
   return <NonReorderableObserver />;
 };
