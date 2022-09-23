@@ -1,7 +1,7 @@
 import { loremIpsum } from "lorem-ipsum";
 import { action, runInAction } from "mobx";
 import { observer } from "mobx-react-lite";
-import React, { useState, useSyncExternalStore } from "react";
+import React, { useEffect, useState, useSyncExternalStore } from "react";
 import styled from "styled-components";
 import { TreeView } from "./TreeView";
 import { TreeViewItem } from "./TreeViewItem";
@@ -36,6 +36,7 @@ function generateExampleNode(
   const node = new Node();
   node.name = text;
   node.append(...children);
+  node.type = hasChild ? "branch" : "leaf";
   return node;
 }
 
@@ -102,7 +103,7 @@ class ExampleTreeViewItem implements TreeViewItem {
     const beforeNode = (before as ExampleTreeViewItem | undefined)?.node;
 
     for (const node of this.node.root.selectedDescendants) {
-      node.insertBefore(this.node, beforeNode);
+      this.node.insertBefore(node, beforeNode);
     }
     changes.emit("structureChanged");
   }
@@ -123,6 +124,19 @@ const TreeRow: React.FC<{
   depth: number;
   indentation: number;
 }> = observer(({ node, depth, indentation }) => {
+  const [selected, setSelected] = useState(node.selected);
+  useEffect(() => {
+    const onSelectedChanged = (changedNode: Node) => {
+      if (changedNode === node) {
+        setSelected(node.selected);
+      }
+    };
+    changes.on("nodeChanged", onSelectedChanged);
+    return () => {
+      changes.off("nodeChanged", onSelectedChanged);
+    };
+  }, [node]);
+
   const onCollapseButtonClick = action((e: React.MouseEvent<HTMLElement>) => {
     e.stopPropagation();
     node.collapsed = !node.collapsed;
@@ -210,7 +224,19 @@ const renderIndicators = {
 
 const BasicObserver: React.FC = observer(() => {
   const [root] = useState(() => generateExampleNode(4, 3, 5));
-  const item = new ExampleTreeViewItem(undefined, root);
+  const [item, setItem] = useState(
+    () => new ExampleTreeViewItem(undefined, root)
+  );
+
+  useEffect(() => {
+    const onStructureChanged = () => {
+      setItem(new ExampleTreeViewItem(undefined, root));
+    };
+    changes.on("structureChanged", onStructureChanged);
+    return () => {
+      changes.off("structureChanged", onStructureChanged);
+    };
+  }, [root]);
 
   return (
     <Wrap>
