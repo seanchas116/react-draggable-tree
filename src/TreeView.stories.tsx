@@ -40,6 +40,29 @@ class Changes extends TypedEmitter<{
   change(): void;
 }> {}
 
+export interface ExampleTreeViewItem extends TreeViewItem {
+  readonly node: Node;
+}
+
+function createExampleTreeViewItem(
+  node: Node,
+  parent?: ExampleTreeViewItem
+): ExampleTreeViewItem {
+  const item: ExampleTreeViewItem = {
+    key: node.key,
+    parent,
+    children: [],
+    node,
+  };
+  if (!node.collapsed) {
+    item.children = node.children.map((child) =>
+      createExampleTreeViewItem(child, item)
+    );
+  }
+  return item;
+}
+
+/*
 class ExampleTreeViewItem implements TreeViewItem {
   constructor(
     changes: Changes,
@@ -122,6 +145,7 @@ class ExampleTreeViewItem implements TreeViewItem {
     );
   }
 }
+*/
 
 const TreeRow: React.FC<{
   changes: Changes;
@@ -179,7 +203,7 @@ const Wrap = styled.div`
   font-size: 16px;
 `;
 
-const StyledTreeView = styled(TreeView)`
+const StyledTreeView: typeof TreeView = styled(TreeView)`
   min-height: 100%;
 `;
 
@@ -216,13 +240,11 @@ const DropOverIndicator: React.FC = () => {
 const BasicObserver: React.FC = () => {
   const [changes] = useState(() => new Changes());
   const [root] = useState(() => generateExampleNode(4, 3, 5));
-  const [item, setItem] = useState(
-    () => new ExampleTreeViewItem(changes, undefined, root)
-  );
+  const [item, setItem] = useState(() => createExampleTreeViewItem(root));
 
   useEffect(() => {
     const onStructureChanged = () => {
-      setItem(new ExampleTreeViewItem(changes, undefined, root));
+      setItem(createExampleTreeViewItem(root));
     };
     changes.on("change", onStructureChanged);
     return () => {
@@ -239,6 +261,44 @@ const BasicObserver: React.FC = () => {
         }}
         DropBetweenIndicator={DropBetweenIndicator}
         DropOverIndicator={DropOverIndicator}
+        handleDragStart={(item) => {
+          if (!item.node.selected) {
+            item.node.root.deselect();
+            item.node.select();
+            changes.emit("change");
+          }
+          return true;
+        }}
+        canDropData={(item, { draggedItem }) => {
+          console.log(
+            "canDropData",
+            (draggedItem as ExampleTreeViewItem)?.node.name
+          );
+          return !!draggedItem && item.node.type === "branch";
+        }}
+        handleDrop={(item, { draggedItem, before }) => {
+          if (!draggedItem) {
+            return;
+          }
+
+          console.log(
+            "handleDrop",
+            (draggedItem as ExampleTreeViewItem).node.name
+          );
+
+          for (const node of item.node.root.selectedDescendants) {
+            item.node.insertBefore(node, before?.node);
+          }
+          changes.emit("change");
+        }}
+        renderRow={(item, { depth, indentation }) => (
+          <TreeRow
+            changes={changes}
+            node={item.node}
+            depth={depth}
+            indentation={indentation}
+          />
+        )}
       />
     </Wrap>
   );
@@ -248,6 +308,7 @@ export const Basic: React.FC = () => {
   return <BasicObserver />;
 };
 
+/*
 const ManyItemsObserver: React.FC = () => {
   const [changes] = useState(() => new Changes());
   const [root] = useState(() => generateExampleNode(5, 5, 5));
@@ -318,3 +379,4 @@ const NonReorderableObserver: React.FC = () => {
 export const NonReorderable: React.FC = () => {
   return <NonReorderableObserver />;
 };
+*/
