@@ -30,18 +30,18 @@ export class Node {
       return;
     }
 
-    const previous = this.previousSibling;
+    const prev = this.previousSibling;
     const next = this.nextSibling;
 
-    if (previous) {
-      previous.nextSibling = next;
+    if (prev) {
+      prev.nextSibling = next;
     } else {
       parent.firstChild = next;
     }
     if (next) {
-      next.previousSibling = previous;
+      next.previousSibling = prev;
     } else {
-      parent.lastChild = previous;
+      parent.lastChild = prev;
     }
     this.parent = undefined;
     this.previousSibling = undefined;
@@ -52,37 +52,27 @@ export class Node {
     if (child === next) {
       return;
     }
-
     if (child.includes(this)) {
       throw new Error("Cannot insert node to its descendant");
     }
-
-    child.remove();
-
     if (next && next.parent !== this) {
       throw new Error("The ref node is not a child of this node");
     }
-    if (next) {
-      const prev = next.previousSibling as Node | undefined;
-      child.previousSibling = prev;
-      child.nextSibling = next;
-      next.previousSibling = child;
-      if (prev) {
-        prev.nextSibling = child;
-      } else {
-        this.firstChild = child;
-      }
+    child.remove();
+
+    let prev = next ? next.previousSibling : this.lastChild;
+    if (prev) {
+      prev.nextSibling = child;
     } else {
-      child.previousSibling = this.lastChild;
-      if (child.previousSibling) {
-        child.previousSibling.nextSibling = child;
-      }
-      child.nextSibling = undefined;
-      this.lastChild = child;
-      if (!this.firstChild) {
-        this.firstChild = child;
-      }
+      this.firstChild = child;
     }
+    if (next) {
+      next.previousSibling = child;
+    } else {
+      this.lastChild = child;
+    }
+    child.previousSibling = prev;
+    child.nextSibling = next;
     child.parent = this;
   }
 
