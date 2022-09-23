@@ -183,35 +183,34 @@ const StyledTreeView = styled(TreeView)`
   min-height: 100%;
 `;
 
-const renderIndicators = {
-  DropBetweenIndicator: () => {
-    return (
-      <div
-        style={{
-          position: "absolute",
-          left: "0",
-          right: "0",
-          top: "-1px",
-          bottom: "-1px",
-          background: "red",
-        }}
-      />
-    );
-  },
-  DropOverIndicator: () => {
-    return (
-      <div
-        style={{
-          position: "absolute",
-          left: "0",
-          right: "0",
-          top: "0",
-          bottom: "0",
-          border: "1px solid red",
-        }}
-      />
-    );
-  },
+const DropBetweenIndicator: React.FC = () => {
+  return (
+    <div
+      style={{
+        position: "absolute",
+        left: "0",
+        right: "0",
+        top: "-1px",
+        bottom: "-1px",
+        background: "red",
+      }}
+    />
+  );
+};
+
+const DropOverIndicator: React.FC = () => {
+  return (
+    <div
+      style={{
+        position: "absolute",
+        left: "0",
+        right: "0",
+        top: "0",
+        bottom: "0",
+        border: "1px solid red",
+      }}
+    />
+  );
 };
 
 const BasicObserver: React.FC = () => {
@@ -238,7 +237,8 @@ const BasicObserver: React.FC = () => {
         onBackgroundClick={() => {
           item.node.deselect();
         }}
-        {...renderIndicators}
+        DropBetweenIndicator={DropBetweenIndicator}
+        DropOverIndicator={DropOverIndicator}
       />
     </Wrap>
   );
@@ -272,7 +272,8 @@ const ManyItemsObserver: React.FC = () => {
         onBackgroundClick={() => {
           item.node.deselect();
         }}
-        {...renderIndicators}
+        DropBetweenIndicator={DropBetweenIndicator}
+        DropOverIndicator={DropOverIndicator}
       />
     </Wrap>
   );
@@ -307,7 +308,8 @@ const NonReorderableObserver: React.FC = () => {
         onBackgroundClick={() => {
           item.node.deselect();
         }}
-        {...renderIndicators}
+        DropBetweenIndicator={DropBetweenIndicator}
+        DropOverIndicator={DropOverIndicator}
       />
     </Wrap>
   );
