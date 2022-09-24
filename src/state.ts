@@ -45,35 +45,6 @@ export class DropLocation<T extends TreeViewItem> {
   readonly parent: T;
   readonly before: T | undefined;
   readonly indicator: DropIndicator;
-
-  canDropData(
-    event: React.DragEvent,
-    draggedItem: T | undefined,
-    treeProps: TreeViewProps<T>
-  ): boolean {
-    return (
-      treeProps.canDropData?.(this.parent, {
-        event,
-        draggedItem,
-      }) ?? false
-    );
-  }
-
-  handleDrop(
-    event: React.DragEvent,
-    draggedItem: T | undefined,
-    treeProps: TreeViewProps<T>
-  ): boolean {
-    if (!this.canDropData(event, draggedItem, treeProps)) {
-      return false;
-    }
-    treeProps.handleDrop?.(this.parent, {
-      event,
-      draggedItem,
-      before: this.before,
-    });
-    return true;
-  }
 }
 
 export class TreeViewState<T extends TreeViewItem> extends TypedEmitter<{
@@ -118,6 +89,35 @@ export class TreeViewState<T extends TreeViewItem> extends TypedEmitter<{
 
   get dropIndicatorOffset(): number {
     return this.props.dropIndicatorOffset ?? 0;
+  }
+
+  private canDropData(
+    location: DropLocation<T>,
+    event: React.DragEvent,
+    draggedItem: T | undefined
+  ): boolean {
+    return (
+      this.props.canDropData?.(location.parent, {
+        event,
+        draggedItem,
+      }) ?? false
+    );
+  }
+
+  private handleDrop(
+    location: DropLocation<T>,
+    event: React.DragEvent,
+    draggedItem: T | undefined
+  ): boolean {
+    if (!this.canDropData(location, event, draggedItem)) {
+      return false;
+    }
+    this.props.handleDrop?.(location.parent, {
+      event,
+      draggedItem,
+      before: location.before,
+    });
+    return true;
   }
 
   private getHeaderBottom(): number {
@@ -269,15 +269,15 @@ export class TreeViewState<T extends TreeViewItem> extends TypedEmitter<{
     const locationAfter = this.getDropLocationBetween(index + 1, dropDepth);
 
     if (!this.props.nonReorderable) {
-      if (locationOver.canDropData(event, draggedItem, this.props)) {
+      if (this.canDropData(locationOver, event, draggedItem)) {
         if (
-          locationBefore.canDropData(event, draggedItem, this.props) &&
+          this.canDropData(locationBefore, event, draggedItem) &&
           dropPos < 1 / 4
         ) {
           return locationBefore;
         }
         if (
-          locationAfter.canDropData(event, draggedItem, this.props) &&
+          this.canDropData(locationAfter, event, draggedItem) &&
           3 / 4 < dropPos
         ) {
           return locationAfter;
@@ -285,22 +285,20 @@ export class TreeViewState<T extends TreeViewItem> extends TypedEmitter<{
         return locationOver;
       } else {
         if (
-          locationBefore.canDropData(event, draggedItem, this.props) &&
+          this.canDropData(locationBefore, event, draggedItem) &&
           dropPos < 1 / 2
         ) {
           return locationBefore;
         }
-        if (locationAfter.canDropData(event, draggedItem, this.props)) {
+        if (this.canDropData(locationAfter, event, draggedItem)) {
           return locationAfter;
         }
       }
     } else {
       const locationOverParent = this.getDropLocationOver(item.parent);
-      if (locationOver.canDropData(event, draggedItem, this.props)) {
+      if (this.canDropData(locationOver, event, draggedItem)) {
         return locationOver;
-      } else if (
-        locationOverParent.canDropData(event, draggedItem, this.props)
-      ) {
+      } else if (this.canDropData(locationOverParent, event, draggedItem)) {
         return locationOverParent;
       }
     }
@@ -379,7 +377,7 @@ export class TreeViewState<T extends TreeViewItem> extends TypedEmitter<{
       : undefined;
 
     const dropLocation = this.getDropLocationForRow(index, e, draggedItem);
-    if (dropLocation?.handleDrop(e, draggedItem, this.props)) {
+    if (dropLocation && this.handleDrop(dropLocation, e, draggedItem)) {
       e.preventDefault();
       e.stopPropagation();
     }
@@ -401,14 +399,14 @@ export class TreeViewState<T extends TreeViewItem> extends TypedEmitter<{
   }
   onBackgroundDragOver(e: React.DragEvent<HTMLElement>) {
     this.dropLocation = this.getDropLocationForBackground(e);
-    if (this.dropLocation.canDropData(e, this.draggedItem, this.props)) {
+    if (this.canDropData(this.dropLocation, e, this.draggedItem)) {
       e.preventDefault();
       e.stopPropagation();
     }
   }
   onBackgroundDrop(e: React.DragEvent<HTMLElement>) {
     const dropLocation = this.getDropLocationForBackground(e);
-    if (dropLocation.handleDrop(e, this.draggedItem, this.props)) {
+    if (this.handleDrop(dropLocation, e, this.draggedItem)) {
       e.preventDefault();
       e.stopPropagation();
       return;
