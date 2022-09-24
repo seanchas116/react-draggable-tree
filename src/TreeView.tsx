@@ -10,16 +10,14 @@ const DRAG_MIME = "application/x.react-draggable-tree-drag";
 
 function TreeRow<T extends TreeViewItem>({
   state,
-  rows,
   index,
   dragImageRef,
 }: {
   state: TreeViewState<T>;
-  rows: ItemRow<T>[];
   index: number;
   dragImageRef: React.RefObject<HTMLDivElement>;
 }) {
-  const { item, depth } = rows[index];
+  const { item, depth } = state.rows[index];
 
   const onDragStart = (e: React.DragEvent<HTMLElement>) => {
     if (!state.props.handleDragStart?.(item, { event: e })) {
@@ -44,7 +42,7 @@ function TreeRow<T extends TreeViewItem>({
       ? state.draggedItem
       : undefined;
 
-    state.dropLocation = state.getForRow(rows, index, e, draggedItem);
+    state.dropLocation = state.getForRow(index, e, draggedItem);
 
     if (state.dropLocation) {
       e.preventDefault();
@@ -57,7 +55,7 @@ function TreeRow<T extends TreeViewItem>({
       ? state.draggedItem
       : undefined;
 
-    state.dropLocation = state.getForRow(rows, index, e, draggedItem);
+    state.dropLocation = state.getForRow(index, e, draggedItem);
     e.preventDefault();
     e.stopPropagation();
   };
@@ -66,7 +64,7 @@ function TreeRow<T extends TreeViewItem>({
       ? state.draggedItem
       : undefined;
 
-    const dropLocation = state.getForRow(rows, index, e, draggedItem);
+    const dropLocation = state.getForRow(index, e, draggedItem);
     if (dropLocation?.handleDrop(e, draggedItem, state.props)) {
       e.preventDefault();
       e.stopPropagation();
@@ -98,14 +96,12 @@ function TreeRow<T extends TreeViewItem>({
 
 function Background<T extends TreeViewItem>({
   state,
-  rows,
 }: {
   state: TreeViewState<T>;
-  rows: ItemRow<T>[];
   onClick?: () => void;
 }) {
   const onDragEnter = (e: React.DragEvent<HTMLElement>) => {
-    state.dropLocation = state.getForBackground(rows, e);
+    state.dropLocation = state.getForBackground(e);
     e.preventDefault();
     e.stopPropagation();
   };
@@ -115,14 +111,14 @@ function Background<T extends TreeViewItem>({
     e.stopPropagation();
   };
   const onDragOver = (e: React.DragEvent<HTMLElement>) => {
-    state.dropLocation = state.getForBackground(rows, e);
+    state.dropLocation = state.getForBackground(e);
     if (state.dropLocation.canDropData(e, state.draggedItem, state.props)) {
       e.preventDefault();
       e.stopPropagation();
     }
   };
   const onDrop = (e: React.DragEvent<HTMLElement>) => {
-    const dropLocation = state.getForBackground(rows, e);
+    const dropLocation = state.getForBackground(e);
     if (dropLocation.handleDrop(e, state.draggedItem, state.props)) {
       e.preventDefault();
       e.stopPropagation();
@@ -218,11 +214,7 @@ export function TreeView<T extends TreeViewItem>(
   const dragImageRef = createRef<HTMLDivElement>();
 
   const [state] = useState(() => new TreeViewState(props));
-  state.props = props;
-
-  const itemRows = props.rootItem.children.flatMap((item) =>
-    getItemRows(item, 0)
-  );
+  state.update(props);
 
   return (
     <TreeViewWrap
@@ -244,7 +236,7 @@ export function TreeView<T extends TreeViewItem>(
         }}
         ref={dragImageRef}
       />
-      <Background state={state} rows={itemRows} />
+      <Background state={state} />
       <div
         style={{
           position: "relative",
@@ -253,11 +245,10 @@ export function TreeView<T extends TreeViewItem>(
         <div ref={(e) => (state.headerDOM = e ?? undefined)}>
           {props.header}
         </div>
-        {itemRows.map((row, i) => (
+        {state.rows.map((row, i) => (
           <TreeRow
             key={row.item.key}
             state={state}
-            rows={itemRows}
             index={i}
             dragImageRef={dragImageRef}
           />

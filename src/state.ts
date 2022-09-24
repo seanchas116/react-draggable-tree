@@ -77,14 +77,24 @@ export class DropLocation<T extends TreeViewItem> {
 export class TreeViewState<T extends TreeViewItem> extends TypedEmitter<{
   dropLocationChange(location: DropLocation<T> | undefined): void;
 }> {
-  constructor(treeProps: TreeViewProps<T>) {
+  constructor(props: TreeViewProps<T>) {
     super();
-    this.props = treeProps;
+    this.props = props;
+    this.rows = props.rootItem.children.flatMap((item) => getItemRows(item, 0));
+  }
+
+  update(props: TreeViewProps<T>) {
+    if (this.props === props) {
+      return;
+    }
+    this.props = props;
+    this.rows = props.rootItem.children.flatMap((item) => getItemRows(item, 0));
   }
 
   private _dropLocation: DropLocation<T> | undefined = undefined;
   draggedItem: T | undefined = undefined;
   props: TreeViewProps<T>;
+  rows: readonly ItemRow<T>[];
   readonly itemToDOM = new WeakMap<T, HTMLElement>();
   headerDOM: HTMLElement | undefined;
 
@@ -148,11 +158,10 @@ export class TreeViewState<T extends TreeViewItem> extends TypedEmitter<{
   }
 
   private getDropLocationBetween(
-    rows: readonly ItemRow<T>[],
     index: number,
     dropDepth: number
   ): DropLocation<T> {
-    if (rows.length === 0) {
+    if (this.rows.length === 0) {
       return new DropLocation(this.props.rootItem, undefined, {
         type: "bar",
         top: 0,
@@ -162,18 +171,18 @@ export class TreeViewState<T extends TreeViewItem> extends TypedEmitter<{
 
     if (index === 0) {
       return new DropLocation(
-        assertNonNull(rows[0].item.parent),
-        rows[0].item,
+        assertNonNull(this.rows[0].item.parent),
+        this.rows[0].item,
         {
           type: "bar",
-          top: this.getItemDOMTop(rows[0].item),
-          depth: rows[0].depth,
+          top: this.getItemDOMTop(this.rows[0].item),
+          depth: this.rows[0].depth,
         }
       );
     }
 
-    const rowPrev = rows[index - 1];
-    const rowNext = index < rows.length ? rows[index] : undefined;
+    const rowPrev = this.rows[index - 1];
+    const rowNext = index < this.rows.length ? this.rows[index] : undefined;
 
     if (!rowNext || rowNext.depth < rowPrev.depth) {
       if (rowNext && dropDepth <= rowNext.depth) {
@@ -238,12 +247,11 @@ export class TreeViewState<T extends TreeViewItem> extends TypedEmitter<{
   }
 
   getForRow(
-    rows: readonly ItemRow<T>[],
     index: number,
     event: React.DragEvent,
     draggedItem: T | undefined
   ): DropLocation<T> | undefined {
-    const row = rows[index];
+    const row = this.rows[index];
     const item = row.item;
 
     if (!item.parent) {
@@ -254,13 +262,9 @@ export class TreeViewState<T extends TreeViewItem> extends TypedEmitter<{
     const dropPos = (event.clientY - rect.top) / rect.height;
     const dropDepth = this.getDropDepth(event);
 
-    const locationBefore = this.getDropLocationBetween(rows, index, dropDepth);
+    const locationBefore = this.getDropLocationBetween(index, dropDepth);
     const locationOver = this.getDropLocationOver(item);
-    const locationAfter = this.getDropLocationBetween(
-      rows,
-      index + 1,
-      dropDepth
-    );
+    const locationAfter = this.getDropLocationBetween(index + 1, dropDepth);
 
     if (!this.props.nonReorderable) {
       if (locationOver.canDropData(event, draggedItem, this.props)) {
@@ -300,21 +304,18 @@ export class TreeViewState<T extends TreeViewItem> extends TypedEmitter<{
     }
   }
 
-  getForBackground(
-    rows: readonly ItemRow<T>[],
-    e: React.DragEvent<HTMLElement>
-  ) {
+  getForBackground(e: React.DragEvent<HTMLElement>) {
     const rect = e.currentTarget.getBoundingClientRect();
     const top = e.clientY - rect.top;
 
     if (top <= this.getHeaderBottom()) {
-      return new DropLocation(this.props.rootItem, first(rows)?.item, {
+      return new DropLocation(this.props.rootItem, first(this.rows)?.item, {
         type: "bar",
         top: this.getHeaderBottom(),
         depth: 0,
       });
     }
 
-    return this.getDropLocationBetween(rows, rows.length, this.getDropDepth(e));
+    return this.getDropLocationBetween(this.rows.length, this.getDropDepth(e));
   }
 }
