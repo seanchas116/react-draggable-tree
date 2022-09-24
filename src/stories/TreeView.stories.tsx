@@ -1,8 +1,7 @@
 import { loremIpsum } from "lorem-ipsum";
 import React, { useEffect, useState } from "react";
 import styled from "styled-components";
-import { TreeView } from "../TreeView";
-import { TreeViewItem } from "../TreeViewItem";
+import { TreeView, TreeViewItem } from "../lib";
 import { Node } from "./Node";
 import { TypedEmitter } from "tiny-typed-emitter";
 

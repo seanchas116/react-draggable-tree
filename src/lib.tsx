@@ -1,5 +1,3 @@
-import React from "react";
-
-export function TreeView(): JSX.Element | null {
-  return <div>WIP</div>;
-}
+export type { TreeViewItem } from "./TreeViewItem";
+export type { TreeViewProps } from "./props";
+export { TreeView } from "./TreeView";
