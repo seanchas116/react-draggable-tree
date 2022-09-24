@@ -174,14 +174,12 @@ export const Basic: React.FC = () => {
           return !!draggedItem && item.node.type === "branch";
         }}
         handleDrop={(item, { draggedItem, before }) => {
-          if (!draggedItem) {
-            return;
+          if (draggedItem) {
+            for (const node of item.node.root.selectedDescendants) {
+              item.node.insertBefore(node, before?.node);
+            }
+            update();
           }
-
-          for (const node of item.node.root.selectedDescendants) {
-            item.node.insertBefore(node, before?.node);
-          }
-          update();
         }}
         renderRow={(item, { depth, indentation }) => (
           <TreeRow
@@ -225,14 +223,12 @@ export const NonReorderable: React.FC = () => {
           return !!draggedItem && item.node.type === "branch";
         }}
         handleDrop={(item, { draggedItem, before }) => {
-          if (!draggedItem) {
-            return;
+          if (draggedItem) {
+            for (const node of item.node.root.selectedDescendants) {
+              item.node.insertBefore(node, before?.node);
+            }
+            update();
           }
-
-          for (const node of item.node.root.selectedDescendants) {
-            item.node.insertBefore(node, before?.node);
-          }
-          update();
         }}
         renderRow={(item, { depth, indentation }) => (
           <TreeRow
