@@ -3,6 +3,7 @@ import { TypedEmitter } from "tiny-typed-emitter";
 import { TreeViewItem } from "./TreeViewItem";
 import { assertNonNull, first } from "./utils";
 import { TreeViewProps } from "./props";
+import { DropIndication } from "./DropIndicator";
 
 const DRAG_MIME = "application/x.react-draggable-tree-drag";
 
@@ -23,22 +24,10 @@ function getItemRows<T extends TreeViewItem>(
   ];
 }
 
-export type DropIndicator =
-  | {
-      type: "bar";
-      top: number;
-      depth: number;
-    }
-  | {
-      type: "over";
-      top: number;
-      height: number;
-    };
-
 export interface DropLocation<T extends TreeViewItem> {
   parent: T;
   before: T | undefined;
-  indicator: DropIndicator;
+  indication: DropIndication;
 }
 
 export class TreeViewState<T extends TreeViewItem> extends TypedEmitter<{
@@ -149,7 +138,7 @@ export class TreeViewState<T extends TreeViewItem> extends TypedEmitter<{
     return {
       parent: item,
       before: item.children[0],
-      indicator: {
+      indication: {
         type: "over",
         top: this.getItemDOMTop(item),
         height: this.getItemDOMHeight(item),
@@ -165,7 +154,7 @@ export class TreeViewState<T extends TreeViewItem> extends TypedEmitter<{
       return {
         parent: this.props.rootItem,
         before: undefined,
-        indicator: {
+        indication: {
           type: "bar",
           top: 0,
           depth: 0,
@@ -177,7 +166,7 @@ export class TreeViewState<T extends TreeViewItem> extends TypedEmitter<{
       return {
         parent: assertNonNull(this.rows[0].item.parent),
         before: this.rows[0].item,
-        indicator: {
+        indication: {
           type: "bar",
           top: this.getItemDOMTop(this.rows[0].item),
           depth: this.rows[0].depth,
@@ -196,7 +185,7 @@ export class TreeViewState<T extends TreeViewItem> extends TypedEmitter<{
         return {
           parent: assertNonNull(rowNext.item.parent),
           before: rowNext.item,
-          indicator: {
+          indication: {
             type: "bar",
             top: this.getItemDOMTop(rowNext.item),
             depth: rowNext.depth,
@@ -227,7 +216,7 @@ export class TreeViewState<T extends TreeViewItem> extends TypedEmitter<{
       return {
         parent: assertNonNull(parent),
         before: undefined,
-        indicator: {
+        indication: {
           type: "bar",
           top: this.getItemDOMBottom(rowPrev.item),
           depth: depth,
@@ -245,7 +234,7 @@ export class TreeViewState<T extends TreeViewItem> extends TypedEmitter<{
       return {
         parent: assertNonNull(rowNext.item.parent),
         before: rowNext.item,
-        indicator: {
+        indication: {
           type: "bar",
           top: this.getItemDOMTop(rowNext.item),
           depth: rowNext.depth,
@@ -320,7 +309,7 @@ export class TreeViewState<T extends TreeViewItem> extends TypedEmitter<{
       return {
         parent: this.props.rootItem,
         before: first(this.rows)?.item,
-        indicator: {
+        indication: {
           type: "bar",
           top: this.getHeaderBottom(),
           depth: 0,

@@ -77,45 +77,16 @@ function DropIndicator<T extends TreeViewItem>({
     };
   }, [state, setDropLocation]);
 
-  const indicator = dropLocation?.indicator;
+  const indicator = dropLocation?.indication;
   if (!indicator) {
     return null;
   }
 
-  if (indicator.type === "bar") {
-    const left =
-      indicator.depth * state.indentation + state.dropIndicatorOffset;
-    return (
-      <div
-        style={{
-          position: "absolute",
-          pointerEvents: "none",
-          zIndex: 50,
-          left: `${left}px`,
-          right: "0",
-          top: `${indicator.top}px`,
-        }}
-      >
-        {state.props.renderDropBetweenIndicator()}
-      </div>
-    );
-  } else {
-    return (
-      <div
-        style={{
-          position: "absolute",
-          pointerEvents: "none",
-          zIndex: 50,
-          top: `${indicator.top}px`,
-          left: 0,
-          right: 0,
-          height: `${indicator.height}px`,
-        }}
-      >
-        {state.props.renderDropOverIndicator()}
-      </div>
-    );
-  }
+  return state.props.renderDropIndicator({
+    indication: indicator,
+    indentation: state.indentation,
+    dropIndicatorOffset: state.dropIndicatorOffset,
+  });
 }
 
 //// TreeView

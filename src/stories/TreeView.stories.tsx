@@ -1,6 +1,7 @@
 import { loremIpsum } from "lorem-ipsum";
 import React, { useState } from "react";
 import styled from "styled-components";
+import { DropIndication } from "../DropIndicator";
 import { TreeView, TreeViewItem } from "../lib";
 import { Node } from "./Node";
 
@@ -116,34 +117,42 @@ const StyledTreeView: typeof TreeView = styled(TreeView)`
   min-height: 100%;
 `;
 
-const DropBetweenIndicator: React.FC = () => {
-  return (
-    <div
-      style={{
-        position: "absolute",
-        left: "0",
-        right: "0",
-        top: "-1px",
-        bottom: "-1px",
-        background: "red",
-      }}
-    />
-  );
-};
-
-const DropOverIndicator: React.FC = () => {
-  return (
-    <div
-      style={{
-        position: "absolute",
-        left: "0",
-        right: "0",
-        top: "0",
-        bottom: "0",
-        border: "1px solid red",
-      }}
-    />
-  );
+const DropIndicator: React.FC<{
+  indication: DropIndication;
+  indentation: number;
+  dropIndicatorOffset: number;
+}> = ({ indication, indentation, dropIndicatorOffset }) => {
+  if (indication.type === "bar") {
+    const left = indication.depth * indentation + dropIndicatorOffset;
+    return (
+      <div
+        style={{
+          position: "absolute",
+          pointerEvents: "none",
+          left: `${left}px`,
+          right: "0",
+          top: `${indication.top}px`,
+          height: "2px",
+          background: "red",
+        }}
+      />
+    );
+  } else {
+    return (
+      <div
+        style={{
+          position: "absolute",
+          pointerEvents: "none",
+          top: `${indication.top}px`,
+          left: 0,
+          right: 0,
+          height: `${indication.height}px`,
+          boxSizing: "border-box",
+          border: "1px solid red",
+        }}
+      />
+    );
+  }
 };
 
 export const Basic: React.FC = () => {
@@ -160,8 +169,7 @@ export const Basic: React.FC = () => {
         onBackgroundClick={() => {
           item.node.deselect();
         }}
-        renderDropBetweenIndicator={() => <DropBetweenIndicator />}
-        renderDropOverIndicator={() => <DropOverIndicator />}
+        renderDropIndicator={(props) => <DropIndicator {...props} />}
         handleDragStart={(item) => {
           if (!item.node.selected) {
             item.node.root.deselect();
@@ -209,8 +217,7 @@ export const NonReorderable: React.FC = () => {
         onBackgroundClick={() => {
           item.node.deselect();
         }}
-        renderDropBetweenIndicator={() => <DropBetweenIndicator />}
-        renderDropOverIndicator={() => <DropOverIndicator />}
+        renderDropIndicator={(props) => <DropIndicator {...props} />}
         handleDragStart={(item) => {
           if (!item.node.selected) {
             item.node.root.deselect();

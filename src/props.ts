@@ -1,4 +1,5 @@
 import React from "react";
+import { DropIndication } from "./DropIndicator";
 import { TreeViewItem } from "./TreeViewItem";
 
 export interface TreeViewProps<T extends TreeViewItem> {
@@ -9,8 +10,11 @@ export interface TreeViewProps<T extends TreeViewItem> {
   indentation?: number;
   dropIndicatorOffset?: number;
   nonReorderable?: boolean;
-  renderDropBetweenIndicator: () => React.ReactNode;
-  renderDropOverIndicator: () => React.ReactNode;
+  renderDropIndicator: (props: {
+    indication: DropIndication;
+    indentation: number;
+    dropIndicatorOffset: number;
+  }) => JSX.Element;
   className?: string;
   hidden?: boolean;
   style?: React.CSSProperties;
