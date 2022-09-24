@@ -161,8 +161,8 @@ const BasicObserver: React.FC = () => {
         onBackgroundClick={() => {
           item.node.deselect();
         }}
-        DropBetweenIndicator={DropBetweenIndicator}
-        DropOverIndicator={DropOverIndicator}
+        renderDropBetweenIndicator={() => <DropBetweenIndicator />}
+        renderDropOverIndicator={() => <DropOverIndicator />}
         handleDragStart={(item) => {
           if (!item.node.selected) {
             item.node.root.deselect();

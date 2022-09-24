@@ -96,7 +96,7 @@ function DropIndicator<T extends TreeViewItem>({
           top: `${indicator.top}px`,
         }}
       >
-        <state.props.DropBetweenIndicator />
+        {state.props.renderDropBetweenIndicator()}
       </div>
     );
   } else {
@@ -112,7 +112,7 @@ function DropIndicator<T extends TreeViewItem>({
           height: `${indicator.height}px`,
         }}
       >
-        <state.props.DropOverIndicator />
+        {state.props.renderDropOverIndicator()}
       </div>
     );
   }
