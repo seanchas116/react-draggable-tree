@@ -59,10 +59,10 @@ class DropLocation<T extends TreeViewItem> {
   canDropData(
     event: React.DragEvent,
     draggedItem: T | undefined,
-    canDropData: TreeViewProps<T>["canDropData"]
+    treeProps: TreeViewProps<T>
   ): boolean {
     return (
-      canDropData?.(this.parent, {
+      treeProps.canDropData?.(this.parent, {
         event,
         draggedItem,
       }) ?? false
@@ -72,13 +72,16 @@ class DropLocation<T extends TreeViewItem> {
   handleDrop(
     event: React.DragEvent,
     draggedItem: T | undefined,
-    canDropData: TreeViewProps<T>["canDropData"],
-    handleDrop: TreeViewProps<T>["handleDrop"]
+    treeProps: TreeViewProps<T>
   ): boolean {
-    if (!this.canDropData(event, draggedItem, canDropData)) {
+    if (!this.canDropData(event, draggedItem, treeProps)) {
       return false;
     }
-    handleDrop?.(this.parent, { event, draggedItem, before: this.before });
+    treeProps.handleDrop?.(this.parent, {
+      event,
+      draggedItem,
+      before: this.before,
+    });
     return true;
   }
 }
@@ -115,15 +118,15 @@ class DragState<T extends TreeViewItem> extends TypedEmitter<{
   }
 }
 
+const defaultIndentation = 16;
+const defaultDropIndicatorOffset = 0;
+
 class DropLocationSolver<T extends TreeViewItem> {
-  constructor(rootItem: T) {
-    this.rootItem = rootItem;
+  constructor(treeProps: TreeViewProps<T>) {
+    this.treeProps = treeProps;
   }
 
-  rootItem: T;
-  reorderable = false;
-  indentation = 0;
-  dropIndicatorOffset = 0;
+  treeProps: TreeViewProps<T>;
   readonly itemToDOM = new WeakMap<T, HTMLElement>();
   headerDOM: HTMLElement | undefined;
 
@@ -149,11 +152,13 @@ class DropLocationSolver<T extends TreeViewItem> {
   }
 
   private getDropDepth(e: React.DragEvent): number {
+    const dropIndicatorOffset =
+      this.treeProps.dropIndicatorOffset ?? defaultDropIndicatorOffset;
+    const indentation = this.treeProps.indentation ?? defaultIndentation;
+
     const rect = e.currentTarget.getBoundingClientRect();
     return Math.max(
-      Math.round(
-        (e.clientX - rect.left - this.dropIndicatorOffset) / this.indentation
-      ),
+      Math.round((e.clientX - rect.left - dropIndicatorOffset) / indentation),
       0
     );
   }
@@ -172,7 +177,7 @@ class DropLocationSolver<T extends TreeViewItem> {
     dropDepth: number
   ): DropLocation<T> {
     if (rows.length === 0) {
-      return new DropLocation(this.rootItem, undefined, {
+      return new DropLocation(this.treeProps.rootItem, undefined, {
         type: "bar",
         top: 0,
         depth: 0,
@@ -261,7 +266,7 @@ class DropLocationSolver<T extends TreeViewItem> {
     index: number,
     event: React.DragEvent,
     draggedItem: T | undefined,
-    canDropData: TreeViewProps<T>["canDropData"]
+    props: TreeViewProps<T>
   ): DropLocation<T> | undefined {
     const row = rows[index];
     const item = row.item;
@@ -282,16 +287,16 @@ class DropLocationSolver<T extends TreeViewItem> {
       dropDepth
     );
 
-    if (this.reorderable) {
-      if (locationOver.canDropData(event, draggedItem, canDropData)) {
+    if (!this.treeProps.nonReorderable) {
+      if (locationOver.canDropData(event, draggedItem, props)) {
         if (
-          locationBefore.canDropData(event, draggedItem, canDropData) &&
+          locationBefore.canDropData(event, draggedItem, props) &&
           dropPos < 1 / 4
         ) {
           return locationBefore;
         }
         if (
-          locationAfter.canDropData(event, draggedItem, canDropData) &&
+          locationAfter.canDropData(event, draggedItem, props) &&
           3 / 4 < dropPos
         ) {
           return locationAfter;
@@ -299,22 +304,20 @@ class DropLocationSolver<T extends TreeViewItem> {
         return locationOver;
       } else {
         if (
-          locationBefore.canDropData(event, draggedItem, canDropData) &&
+          locationBefore.canDropData(event, draggedItem, props) &&
           dropPos < 1 / 2
         ) {
           return locationBefore;
         }
-        if (locationAfter.canDropData(event, draggedItem, canDropData)) {
+        if (locationAfter.canDropData(event, draggedItem, props)) {
           return locationAfter;
         }
       }
     } else {
       const locationOverParent = this.getDropLocationOver(item.parent);
-      if (locationOver.canDropData(event, draggedItem, canDropData)) {
+      if (locationOver.canDropData(event, draggedItem, props)) {
         return locationOver;
-      } else if (
-        locationOverParent.canDropData(event, draggedItem, canDropData)
-      ) {
+      } else if (locationOverParent.canDropData(event, draggedItem, props)) {
         return locationOverParent;
       }
     }
@@ -328,7 +331,7 @@ class DropLocationSolver<T extends TreeViewItem> {
     const top = e.clientY - rect.top;
 
     if (top <= this.getHeaderBottom()) {
-      return new DropLocation(this.rootItem, first(rows)?.item, {
+      return new DropLocation(this.treeProps.rootItem, first(rows)?.item, {
         type: "bar",
         top: this.getHeaderBottom(),
         depth: 0,
@@ -342,34 +345,24 @@ class DropLocationSolver<T extends TreeViewItem> {
 //// TreeRow
 
 function TreeRow<T extends TreeViewItem>({
-  indentation,
+  treeProps,
   dropLocationSolver,
   dragState,
   rows,
   index,
   dragImageRef,
-  renderRow,
-  handleDragStart,
-  handleDragEnd,
-  canDropData,
-  handleDrop,
 }: {
-  indentation: number;
+  treeProps: TreeViewProps<T>;
   dropLocationSolver: DropLocationSolver<T>;
   dragState: DragState<T>;
   rows: ItemRow<T>[];
   index: number;
   dragImageRef: React.RefObject<HTMLDivElement>;
-  renderRow: TreeViewProps<T>["renderRow"];
-  handleDragStart: TreeViewProps<T>["handleDragStart"];
-  handleDragEnd: TreeViewProps<T>["handleDragEnd"];
-  canDropData: TreeViewProps<T>["canDropData"];
-  handleDrop: TreeViewProps<T>["handleDrop"];
 }) {
   const { item, depth } = rows[index];
 
   const onDragStart = (e: React.DragEvent<HTMLElement>) => {
-    if (!handleDragStart?.(item, { event: e })) {
+    if (!treeProps.handleDragStart?.(item, { event: e })) {
       e.preventDefault();
       return;
     }
@@ -383,7 +376,7 @@ function TreeRow<T extends TreeViewItem>({
     }
   };
   const onDragEnd = () => {
-    handleDragEnd?.(item);
+    treeProps.handleDragEnd?.(item);
   };
 
   const onDragOver = (e: React.DragEvent<HTMLElement>) => {
@@ -396,7 +389,7 @@ function TreeRow<T extends TreeViewItem>({
       index,
       e,
       draggedItem,
-      canDropData
+      treeProps
     );
 
     if (dragState.dropLocation) {
@@ -415,7 +408,7 @@ function TreeRow<T extends TreeViewItem>({
       index,
       e,
       draggedItem,
-      canDropData
+      treeProps
     );
     e.preventDefault();
     e.stopPropagation();
@@ -430,9 +423,9 @@ function TreeRow<T extends TreeViewItem>({
       index,
       e,
       draggedItem,
-      canDropData
+      treeProps
     );
-    if (dropLocation?.handleDrop(e, draggedItem, canDropData, handleDrop)) {
+    if (dropLocation?.handleDrop(e, draggedItem, treeProps)) {
       e.preventDefault();
       e.stopPropagation();
     }
@@ -451,9 +444,9 @@ function TreeRow<T extends TreeViewItem>({
       onDrop={onDrop}
       onDragOver={onDragOver}
     >
-      {renderRow(item, {
+      {treeProps.renderRow(item, {
         depth,
-        indentation,
+        indentation: treeProps.indentation ?? defaultIndentation,
       })}
     </div>
   );
@@ -465,16 +458,13 @@ function Background<T extends TreeViewItem>({
   dropLocationSolver,
   dragState,
   rows,
-  onClick,
-  canDropData,
-  handleDrop,
+  treeProps,
 }: {
   dropLocationSolver: DropLocationSolver<T>;
   dragState: DragState<T>;
   rows: ItemRow<T>[];
   onClick?: () => void;
-  canDropData: TreeViewProps<T>["canDropData"];
-  handleDrop: TreeViewProps<T>["handleDrop"];
+  treeProps: TreeViewProps<T>;
 }) {
   const onDragEnter = (e: React.DragEvent<HTMLElement>) => {
     dragState.dropLocation = dropLocationSolver.getForBackground(rows, e);
@@ -489,7 +479,7 @@ function Background<T extends TreeViewItem>({
   const onDragOver = (e: React.DragEvent<HTMLElement>) => {
     dragState.dropLocation = dropLocationSolver.getForBackground(rows, e);
     if (
-      dragState.dropLocation.canDropData(e, dragState.draggedItem, canDropData)
+      dragState.dropLocation.canDropData(e, dragState.draggedItem, treeProps)
     ) {
       e.preventDefault();
       e.stopPropagation();
@@ -497,9 +487,7 @@ function Background<T extends TreeViewItem>({
   };
   const onDrop = (e: React.DragEvent<HTMLElement>) => {
     const dropLocation = dropLocationSolver.getForBackground(rows, e);
-    if (
-      dropLocation.handleDrop(e, dragState.draggedItem, canDropData, handleDrop)
-    ) {
+    if (dropLocation.handleDrop(e, dragState.draggedItem, treeProps)) {
       e.preventDefault();
       e.stopPropagation();
       return;
@@ -519,7 +507,7 @@ function Background<T extends TreeViewItem>({
       onDragLeave={onDragLeave}
       onDragOver={onDragOver}
       onDrop={onDrop}
-      onClick={onClick}
+      onClick={treeProps.onBackgroundClick}
     />
   );
 }
@@ -527,17 +515,11 @@ function Background<T extends TreeViewItem>({
 //// DropIndicator
 
 function DropIndicator<T extends TreeViewItem>({
-  indentation,
-  dropIndicatorOffset,
+  treeProps,
   dragState,
-  DropBetweenIndicator,
-  DropOverIndicator,
 }: {
-  indentation: number;
-  dropIndicatorOffset: number;
+  treeProps: TreeViewProps<T>;
   dragState: DragState<T>;
-  DropBetweenIndicator: React.ComponentType;
-  DropOverIndicator: React.ComponentType;
 }) {
   const [dropLocation, setDropLocation] =
     useState<DropLocation<T> | undefined>();
@@ -554,6 +536,10 @@ function DropIndicator<T extends TreeViewItem>({
     return null;
   }
 
+  const indentation = treeProps.indentation ?? defaultIndentation;
+  const dropIndicatorOffset =
+    treeProps.dropIndicatorOffset ?? defaultDropIndicatorOffset;
+
   if (indicator.type === "bar") {
     const left = indicator.depth * indentation + dropIndicatorOffset;
     return (
@@ -567,7 +553,7 @@ function DropIndicator<T extends TreeViewItem>({
           top: `${indicator.top}px`,
         }}
       >
-        <DropBetweenIndicator />
+        <treeProps.DropBetweenIndicator />
       </div>
     );
   } else {
@@ -583,7 +569,7 @@ function DropIndicator<T extends TreeViewItem>({
           height: `${indicator.height}px`,
         }}
       >
-        <DropOverIndicator />
+        <treeProps.DropOverIndicator />
       </div>
     );
   }
@@ -602,7 +588,7 @@ export interface TreeViewProps<T extends TreeViewItem> {
   footer?: React.ReactNode;
   indentation?: number;
   dropIndicatorOffset?: number;
-  reorderable?: boolean;
+  nonReorderable?: boolean;
   DropBetweenIndicator: React.ComponentType;
   DropOverIndicator: React.ComponentType;
   className?: string;
@@ -635,42 +621,25 @@ export interface TreeViewProps<T extends TreeViewItem> {
   ) => void;
 }
 
-export function TreeView<T extends TreeViewItem>({
-  rootItem,
-  header,
-  footer,
-  reorderable = true,
-  indentation = 16,
-  dropIndicatorOffset = 0,
-  DropBetweenIndicator,
-  DropOverIndicator,
-  className,
-  hidden,
-  style,
-  onBackgroundClick,
-  renderRow,
-  handleDragStart,
-  handleDragEnd,
-  canDropData,
-  handleDrop,
-}: TreeViewProps<T>): JSX.Element | null {
+export function TreeView<T extends TreeViewItem>(
+  props: TreeViewProps<T>
+): JSX.Element | null {
   const dragImageRef = createRef<HTMLDivElement>();
 
-  const [dropLocationSolver] = useState(() => new DropLocationSolver(rootItem));
-  dropLocationSolver.rootItem = rootItem;
-  dropLocationSolver.reorderable = reorderable;
-  dropLocationSolver.indentation = indentation;
-  dropLocationSolver.dropIndicatorOffset = dropIndicatorOffset;
+  const [dropLocationSolver] = useState(() => new DropLocationSolver(props));
+  dropLocationSolver.treeProps = props;
 
   const [dragState] = useState(() => new DragState<T>());
 
-  const itemRows = rootItem.children.flatMap((item) => getItemRows(item, 0));
+  const itemRows = props.rootItem.children.flatMap((item) =>
+    getItemRows(item, 0)
+  );
 
   return (
     <TreeViewWrap
-      className={className}
-      hidden={hidden}
-      style={style}
+      className={props.className}
+      hidden={props.hidden}
+      style={props.style}
       onMouseMove={() => {
         dragState.dropLocation = undefined;
       }}
@@ -689,10 +658,8 @@ export function TreeView<T extends TreeViewItem>({
       <Background
         dropLocationSolver={dropLocationSolver}
         dragState={dragState}
+        treeProps={props}
         rows={itemRows}
-        onClick={onBackgroundClick}
-        canDropData={canDropData}
-        handleDrop={handleDrop}
       />
       <div
         style={{
@@ -700,33 +667,22 @@ export function TreeView<T extends TreeViewItem>({
         }}
       >
         <div ref={(e) => (dropLocationSolver.headerDOM = e ?? undefined)}>
-          {header}
+          {props.header}
         </div>
         {itemRows.map((row, i) => (
           <TreeRow
             key={row.item.key}
-            indentation={indentation}
+            treeProps={props}
             dropLocationSolver={dropLocationSolver}
             dragState={dragState}
             rows={itemRows}
             index={i}
             dragImageRef={dragImageRef}
-            renderRow={renderRow}
-            handleDragStart={handleDragStart}
-            handleDragEnd={handleDragEnd}
-            canDropData={canDropData}
-            handleDrop={handleDrop}
           />
         ))}
-        {footer}
+        {props.footer}
       </div>
-      <DropIndicator
-        indentation={indentation}
-        dropIndicatorOffset={dropIndicatorOffset}
-        dragState={dragState}
-        DropBetweenIndicator={DropBetweenIndicator}
-        DropOverIndicator={DropOverIndicator}
-      />
+      <DropIndicator dragState={dragState} treeProps={props} />
     </TreeViewWrap>
   );
 }
