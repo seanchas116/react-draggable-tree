@@ -1,8 +1,6 @@
-import styled from "styled-components";
-import React, { createRef, useEffect, useState } from "react";
+import React from "react";
 import { TypedEmitter } from "tiny-typed-emitter";
 import { TreeViewItem } from "./TreeViewItem";
-import { defaultIndentation, defaultDropIndicatorOffset } from "./constants";
 import { assertNonNull, first } from "./utils";
 import { TreeViewProps } from "./props";
 
@@ -102,6 +100,14 @@ export class TreeViewState<T extends TreeViewItem> extends TypedEmitter<{
     this.emit("dropLocationChange", dropLocation);
   }
 
+  get indentation(): number {
+    return this.props.indentation ?? 16;
+  }
+
+  get dropIndicatorOffset(): number {
+    return this.props.dropIndicatorOffset ?? 0;
+  }
+
   private getHeaderBottom(): number {
     if (!this.headerDOM) {
       return 0;
@@ -124,13 +130,11 @@ export class TreeViewState<T extends TreeViewItem> extends TypedEmitter<{
   }
 
   private getDropDepth(e: React.DragEvent): number {
-    const dropIndicatorOffset =
-      this.props.dropIndicatorOffset ?? defaultDropIndicatorOffset;
-    const indentation = this.props.indentation ?? defaultIndentation;
-
     const rect = e.currentTarget.getBoundingClientRect();
     return Math.max(
-      Math.round((e.clientX - rect.left - dropIndicatorOffset) / indentation),
+      Math.round(
+        (e.clientX - rect.left - this.dropIndicatorOffset) / this.indentation
+      ),
       0
     );
   }
