@@ -83,7 +83,7 @@ export class TreeViewState<T extends TreeViewItem> extends TypedEmitter<{
     this.rows = props.rootItem.children.flatMap((item) => getItemRows(item, 0));
   }
 
-  update(props: TreeViewProps<T>) {
+  setProps(props: TreeViewProps<T>) {
     if (this.props === props) {
       return;
     }
@@ -91,10 +91,10 @@ export class TreeViewState<T extends TreeViewItem> extends TypedEmitter<{
     this.rows = props.rootItem.children.flatMap((item) => getItemRows(item, 0));
   }
 
-  private _dropLocation: DropLocation<T> | undefined = undefined;
-  draggedItem: T | undefined = undefined;
   props: TreeViewProps<T>;
   rows: readonly ItemRow<T>[];
+  draggedItem: T | undefined = undefined;
+  private _dropLocation: DropLocation<T> | undefined = undefined;
   readonly itemToDOM = new WeakMap<T, HTMLElement>();
   headerDOM: HTMLElement | undefined;
 

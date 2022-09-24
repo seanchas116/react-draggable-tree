@@ -214,7 +214,7 @@ export function TreeView<T extends TreeViewItem>(
   const dragImageRef = createRef<HTMLDivElement>();
 
   const [state] = useState(() => new TreeViewState(props));
-  state.update(props);
+  state.setProps(props);
 
   return (
     <TreeViewWrap
