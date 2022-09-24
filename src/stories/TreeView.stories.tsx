@@ -149,8 +149,7 @@ const DropOverIndicator: React.FC = () => {
 export const Basic: React.FC = () => {
   const [root] = useState(() => generateExampleNode(5, 3, 5));
   const [item, setItem] = useState(() => createExampleTreeViewItem(root));
-
-  const onChange = () => {
+  const update = () => {
     setItem(createExampleTreeViewItem(root));
   };
 
@@ -167,7 +166,7 @@ export const Basic: React.FC = () => {
           if (!item.node.selected) {
             item.node.root.deselect();
             item.node.select();
-            onChange();
+            update();
           }
           return true;
         }}
@@ -182,14 +181,14 @@ export const Basic: React.FC = () => {
           for (const node of item.node.root.selectedDescendants) {
             item.node.insertBefore(node, before?.node);
           }
-          onChange();
+          update();
         }}
         renderRow={(item, { depth, indentation }) => (
           <TreeRow
             node={item.node}
             depth={depth}
             indentation={indentation}
-            onChange={onChange}
+            onChange={update}
           />
         )}
       />
@@ -200,8 +199,7 @@ export const Basic: React.FC = () => {
 export const NonReorderable: React.FC = () => {
   const [root] = useState(() => generateExampleNode(5, 3, 5));
   const [item, setItem] = useState(() => createExampleTreeViewItem(root));
-
-  const onChange = () => {
+  const update = () => {
     setItem(createExampleTreeViewItem(root));
   };
 
@@ -219,7 +217,7 @@ export const NonReorderable: React.FC = () => {
           if (!item.node.selected) {
             item.node.root.deselect();
             item.node.select();
-            onChange();
+            update();
           }
           return true;
         }}
@@ -234,14 +232,14 @@ export const NonReorderable: React.FC = () => {
           for (const node of item.node.root.selectedDescendants) {
             item.node.insertBefore(node, before?.node);
           }
-          onChange();
+          update();
         }}
         renderRow={(item, { depth, indentation }) => (
           <TreeRow
             node={item.node}
             depth={depth}
             indentation={indentation}
-            onChange={onChange}
+            onChange={update}
           />
         )}
       />
