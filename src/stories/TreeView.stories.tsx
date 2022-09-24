@@ -34,7 +34,7 @@ function generateExampleNode(
   return node;
 }
 
-export interface ExampleTreeViewItem extends TreeViewItem {
+interface ExampleTreeViewItem extends TreeViewItem {
   readonly node: Node;
 }
 
