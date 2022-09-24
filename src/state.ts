@@ -35,16 +35,10 @@ export type DropIndicator =
       height: number;
     };
 
-export class DropLocation<T extends TreeViewItem> {
-  constructor(parent: T, before: T | undefined, indicator: DropIndicator) {
-    this.parent = parent;
-    this.before = before;
-    this.indicator = indicator;
-  }
-
-  readonly parent: T;
-  readonly before: T | undefined;
-  readonly indicator: DropIndicator;
+export interface DropLocation<T extends TreeViewItem> {
+  parent: T;
+  before: T | undefined;
+  indicator: DropIndicator;
 }
 
 export class TreeViewState<T extends TreeViewItem> extends TypedEmitter<{
@@ -152,11 +146,15 @@ export class TreeViewState<T extends TreeViewItem> extends TypedEmitter<{
   }
 
   private getDropLocationOver(item: T): DropLocation<T> {
-    return new DropLocation(item, item.children[0], {
-      type: "over",
-      top: this.getItemDOMTop(item),
-      height: this.getItemDOMHeight(item),
-    });
+    return {
+      parent: item,
+      before: item.children[0],
+      indicator: {
+        type: "over",
+        top: this.getItemDOMTop(item),
+        height: this.getItemDOMHeight(item),
+      },
+    };
   }
 
   private getDropLocationBetween(
@@ -164,23 +162,27 @@ export class TreeViewState<T extends TreeViewItem> extends TypedEmitter<{
     dropDepth: number
   ): DropLocation<T> {
     if (this.rows.length === 0) {
-      return new DropLocation(this.props.rootItem, undefined, {
-        type: "bar",
-        top: 0,
-        depth: 0,
-      });
+      return {
+        parent: this.props.rootItem,
+        before: undefined,
+        indicator: {
+          type: "bar",
+          top: 0,
+          depth: 0,
+        },
+      };
     }
 
     if (index === 0) {
-      return new DropLocation(
-        assertNonNull(this.rows[0].item.parent),
-        this.rows[0].item,
-        {
+      return {
+        parent: assertNonNull(this.rows[0].item.parent),
+        before: this.rows[0].item,
+        indicator: {
           type: "bar",
           top: this.getItemDOMTop(this.rows[0].item),
           depth: this.rows[0].depth,
-        }
-      );
+        },
+      };
     }
 
     const rowPrev = this.rows[index - 1];
@@ -191,15 +193,15 @@ export class TreeViewState<T extends TreeViewItem> extends TypedEmitter<{
         //   Prev
         // ----
         // Next
-        return new DropLocation(
-          assertNonNull(rowNext.item.parent),
-          rowNext.item,
-          {
+        return {
+          parent: assertNonNull(rowNext.item.parent),
+          before: rowNext.item,
+          indicator: {
             type: "bar",
             top: this.getItemDOMTop(rowNext.item),
             depth: rowNext.depth,
-          }
-        );
+          },
+        };
       }
 
       //     Prev
@@ -222,11 +224,15 @@ export class TreeViewState<T extends TreeViewItem> extends TypedEmitter<{
         parent = parent?.parent;
       }
 
-      return new DropLocation(assertNonNull(parent), undefined, {
-        type: "bar",
-        top: this.getItemDOMBottom(rowPrev.item),
-        depth: depth,
-      });
+      return {
+        parent: assertNonNull(parent),
+        before: undefined,
+        indicator: {
+          type: "bar",
+          top: this.getItemDOMBottom(rowPrev.item),
+          depth: depth,
+        },
+      };
     } else {
       //  Prev
       //  ----
@@ -236,15 +242,15 @@ export class TreeViewState<T extends TreeViewItem> extends TypedEmitter<{
       //    ----
       //    Next
       //
-      return new DropLocation(
-        assertNonNull(rowNext.item.parent),
-        rowNext.item,
-        {
+      return {
+        parent: assertNonNull(rowNext.item.parent),
+        before: rowNext.item,
+        indicator: {
           type: "bar",
           top: this.getItemDOMTop(rowNext.item),
           depth: rowNext.depth,
-        }
-      );
+        },
+      };
     }
   }
 
@@ -304,16 +310,22 @@ export class TreeViewState<T extends TreeViewItem> extends TypedEmitter<{
     }
   }
 
-  private getDropLocationForBackground(e: React.DragEvent<HTMLElement>) {
+  private getDropLocationForBackground(
+    e: React.DragEvent<HTMLElement>
+  ): DropLocation<T> {
     const rect = e.currentTarget.getBoundingClientRect();
     const top = e.clientY - rect.top;
 
     if (top <= this.getHeaderBottom()) {
-      return new DropLocation(this.props.rootItem, first(this.rows)?.item, {
-        type: "bar",
-        top: this.getHeaderBottom(),
-        depth: 0,
-      });
+      return {
+        parent: this.props.rootItem,
+        before: first(this.rows)?.item,
+        indicator: {
+          type: "bar",
+          top: this.getHeaderBottom(),
+          depth: 0,
+        },
+      };
     }
 
     return this.getDropLocationBetween(this.rows.length, this.getDropDepth(e));
