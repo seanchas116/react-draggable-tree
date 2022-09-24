@@ -146,8 +146,8 @@ const DropOverIndicator: React.FC = () => {
   );
 };
 
-const BasicObserver: React.FC = () => {
-  const [root] = useState(() => generateExampleNode(4, 3, 5));
+export const Basic: React.FC = () => {
+  const [root] = useState(() => generateExampleNode(5, 3, 5));
   const [item, setItem] = useState(() => createExampleTreeViewItem(root));
 
   const onChange = () => {
@@ -172,21 +172,12 @@ const BasicObserver: React.FC = () => {
           return true;
         }}
         canDropData={(item, { draggedItem }) => {
-          console.log(
-            "canDropData",
-            (draggedItem as ExampleTreeViewItem)?.node.name
-          );
           return !!draggedItem && item.node.type === "branch";
         }}
         handleDrop={(item, { draggedItem, before }) => {
           if (!draggedItem) {
             return;
           }
-
-          console.log(
-            "handleDrop",
-            (draggedItem as ExampleTreeViewItem).node.name
-          );
 
           for (const node of item.node.root.selectedDescendants) {
             item.node.insertBefore(node, before?.node);
@@ -206,79 +197,54 @@ const BasicObserver: React.FC = () => {
   );
 };
 
-export const Basic: React.FC = () => {
-  return <BasicObserver />;
-};
-
-/*
-const ManyItemsObserver: React.FC = () => {
-  const [changes] = useState(() => new Changes());
-  const [root] = useState(() => generateExampleNode(5, 5, 5));
-  const [item, setItem] = useState(
-    () => new ExampleTreeViewItem(changes, undefined, root)
-  );
-
-  useEffect(() => {
-    const onStructureChanged = () => {
-      setItem(new ExampleTreeViewItem(changes, undefined, root));
-    };
-    changes.on("change", onStructureChanged);
-    return () => {
-      changes.off("change", onStructureChanged);
-    };
-  }, []);
-
-  return (
-    <Wrap>
-      <StyledTreeView
-        rootItem={item}
-        onBackgroundClick={() => {
-          item.node.deselect();
-        }}
-        DropBetweenIndicator={DropBetweenIndicator}
-        DropOverIndicator={DropOverIndicator}
-      />
-    </Wrap>
-  );
-};
-
-export const ManyItems: React.FC = () => {
-  return <ManyItemsObserver />;
-};
-
-const NonReorderableObserver: React.FC = () => {
-  const [changes] = useState(() => new Changes());
-  const [root] = useState(() => generateExampleNode(4, 3, 5));
-  const [item, setItem] = useState(
-    () => new ExampleTreeViewItem(changes, undefined, root)
-  );
-
-  useEffect(() => {
-    const onStructureChanged = () => {
-      setItem(new ExampleTreeViewItem(changes, undefined, root));
-    };
-    changes.on("change", onStructureChanged);
-    return () => {
-      changes.off("change", onStructureChanged);
-    };
-  }, []);
-
-  return (
-    <Wrap>
-      <StyledTreeView
-        rootItem={item}
-        reorderable={false}
-        onBackgroundClick={() => {
-          item.node.deselect();
-        }}
-        DropBetweenIndicator={DropBetweenIndicator}
-        DropOverIndicator={DropOverIndicator}
-      />
-    </Wrap>
-  );
-};
-
 export const NonReorderable: React.FC = () => {
-  return <NonReorderableObserver />;
+  const [root] = useState(() => generateExampleNode(5, 3, 5));
+  const [item, setItem] = useState(() => createExampleTreeViewItem(root));
+
+  const onChange = () => {
+    setItem(createExampleTreeViewItem(root));
+  };
+
+  return (
+    <Wrap>
+      <StyledTreeView
+        nonReorderable
+        rootItem={item}
+        onBackgroundClick={() => {
+          item.node.deselect();
+        }}
+        renderDropBetweenIndicator={() => <DropBetweenIndicator />}
+        renderDropOverIndicator={() => <DropOverIndicator />}
+        handleDragStart={(item) => {
+          if (!item.node.selected) {
+            item.node.root.deselect();
+            item.node.select();
+            onChange();
+          }
+          return true;
+        }}
+        canDropData={(item, { draggedItem }) => {
+          return !!draggedItem && item.node.type === "branch";
+        }}
+        handleDrop={(item, { draggedItem, before }) => {
+          if (!draggedItem) {
+            return;
+          }
+
+          for (const node of item.node.root.selectedDescendants) {
+            item.node.insertBefore(node, before?.node);
+          }
+          onChange();
+        }}
+        renderRow={(item, { depth, indentation }) => (
+          <TreeRow
+            node={item.node}
+            depth={depth}
+            indentation={indentation}
+            onChange={onChange}
+          />
+        )}
+      />
+    </Wrap>
+  );
 };
-*/
