@@ -2,22 +2,46 @@
   "name": "react-draggable-tree",
   "version": "0.5.0",
   "description": "Draggable tree view for React",
-  "homepage": "https://github.com/sketchglass/react-draggable-tree#readme",
+  "homepage": "https://github.com/seanchas116/react-draggable-tree#readme",
   "bugs": {
-    "url": "https://github.com/sketchglass/react-draggable-tree/issues"
+    "url": "https://github.com/seanchas116/react-draggable-tree/issues"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/sketchglass/react-draggable-tree.git"
+    "url": "git+https://github.com/seanchas116/react-draggable-tree.git"
   },
   "license": "MIT",
-  "author": "",
-  "main": "lib/index.js",
-  "typings": "lib/index.d.ts",
-  "directories": {
-    "example": "example"
+  "author": "Ryohei Ikegami",
+  "type": "module",
+  "main": "dist/react-draggable-tree.js",
+  "typings": "dist/react-draggable-tree.esm.js",
+  "scripts": {
+    "build": "tsc && vite build",
+    "build-storybook": "build-storybook",
+    "storybook": "start-storybook -p 6006"
   },
-  "scripts": {},
-  "dependencies": {},
-  "devDependencies": {}
+  "devDependencies": {
+    "@babel/core": "^7.19.1",
+    "@storybook/addon-actions": "^6.5.12",
+    "@storybook/addon-essentials": "^6.5.12",
+    "@storybook/addon-interactions": "^6.5.12",
+    "@storybook/addon-links": "^6.5.12",
+    "@storybook/builder-vite": "^0.2.2",
+    "@storybook/react": "^6.5.12",
+    "@storybook/testing-library": "^0.0.13",
+    "@types/node": "^18.7.18",
+    "@types/react": "^18.0.17",
+    "@types/react-dom": "^18.0.6",
+    "@types/styled-components": "^5.1.26",
+    "@vitejs/plugin-react": "^2.1.0",
+    "babel-loader": "^8.2.5",
+    "lorem-ipsum": "^2.0.8",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "styled-components": "^5.3.5",
+    "tiny-typed-emitter": "^2.1.0",
+    "typescript": "^4.6.4",
+    "vite": "^3.1.0",
+    "vite-plugin-dts": "^1.5.0"
+  }
 }
