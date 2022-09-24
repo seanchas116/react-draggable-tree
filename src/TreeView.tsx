@@ -18,71 +18,16 @@ function TreeRow<T extends TreeViewItem>({
   dragImageRef: React.RefObject<HTMLDivElement>;
 }) {
   const { item, depth } = state.rows[index];
-
-  const onDragStart = (e: React.DragEvent<HTMLElement>) => {
-    if (!state.props.handleDragStart?.(item, { event: e })) {
-      e.preventDefault();
-      return;
-    }
-
-    e.dataTransfer.effectAllowed = "copyMove";
-    e.dataTransfer.setData(DRAG_MIME, "drag");
-    state.draggedItem = item;
-
-    if (dragImageRef.current) {
-      e.dataTransfer.setDragImage(dragImageRef.current, 0, 0);
-    }
-  };
-  const onDragEnd = () => {
-    state.props.handleDragEnd?.(item);
-  };
-
-  const onDragOver = (e: React.DragEvent<HTMLElement>) => {
-    const draggedItem = e.dataTransfer.types.includes(DRAG_MIME)
-      ? state.draggedItem
-      : undefined;
-
-    state.dropLocation = state.getDropLocationForRow(index, e, draggedItem);
-
-    if (state.dropLocation) {
-      e.preventDefault();
-      e.stopPropagation();
-    }
-  };
-
-  const onDragEnter = (e: React.DragEvent<HTMLElement>) => {
-    const draggedItem = e.dataTransfer.types.includes(DRAG_MIME)
-      ? state.draggedItem
-      : undefined;
-
-    state.dropLocation = state.getDropLocationForRow(index, e, draggedItem);
-    e.preventDefault();
-    e.stopPropagation();
-  };
-  const onDrop = (e: React.DragEvent<HTMLElement>) => {
-    const draggedItem = e.dataTransfer.types.includes(DRAG_MIME)
-      ? state.draggedItem
-      : undefined;
-
-    const dropLocation = state.getDropLocationForRow(index, e, draggedItem);
-    if (dropLocation?.handleDrop(e, draggedItem, state.props)) {
-      e.preventDefault();
-      e.stopPropagation();
-    }
-    state.dropLocation = undefined;
-    state.draggedItem = undefined;
-  };
-
   return (
     <div
       ref={(e) => e && state.itemToDOM.set(item, e)}
       //draggable={!currentFocus.isTextInput}
       draggable
-      onDragStart={onDragStart}
-      onDragEnd={onDragEnd}
-      onDragEnter={onDragEnter}
-      onDrop={onDrop}
-      onDragOver={onDragOver}
+      onDragStart={state.onRowDragStart.bind(state, index)}
+      onDragEnd={state.onRowDragEnd.bind(state, index)}
+      onDragEnter={state.onRowDragEnter.bind(state, index)}
+      onDrop={state.onRowDrop.bind(state, index)}
+      onDragOver={state.onRowDragOver.bind(state, index)}
     >
       {state.props.renderRow(item, {
         depth,
@@ -98,34 +43,7 @@ function Background<T extends TreeViewItem>({
   state,
 }: {
   state: TreeViewState<T>;
-  onClick?: () => void;
 }) {
-  const onDragEnter = (e: React.DragEvent<HTMLElement>) => {
-    state.dropLocation = state.getDropLocationForBackground(e);
-    e.preventDefault();
-    e.stopPropagation();
-  };
-  const onDragLeave = (e: React.DragEvent<HTMLElement>) => {
-    state.dropLocation = undefined;
-    e.preventDefault();
-    e.stopPropagation();
-  };
-  const onDragOver = (e: React.DragEvent<HTMLElement>) => {
-    state.dropLocation = state.getDropLocationForBackground(e);
-    if (state.dropLocation.canDropData(e, state.draggedItem, state.props)) {
-      e.preventDefault();
-      e.stopPropagation();
-    }
-  };
-  const onDrop = (e: React.DragEvent<HTMLElement>) => {
-    const dropLocation = state.getDropLocationForBackground(e);
-    if (dropLocation.handleDrop(e, state.draggedItem, state.props)) {
-      e.preventDefault();
-      e.stopPropagation();
-      return;
-    }
-  };
-
   return (
     <div
       style={{
@@ -135,10 +53,10 @@ function Background<T extends TreeViewItem>({
         right: 0,
         bottom: 0,
       }}
-      onDragEnter={onDragEnter}
-      onDragLeave={onDragLeave}
-      onDragOver={onDragOver}
-      onDrop={onDrop}
+      onDragEnter={state.onBackgroundDragEnter}
+      onDragLeave={state.onBackgroundDragLeave}
+      onDragOver={state.onBackgroundDragOver}
+      onDrop={state.onBackgroundDrop}
       onClick={state.props.onBackgroundClick}
     />
   );

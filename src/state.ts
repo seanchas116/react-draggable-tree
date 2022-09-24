@@ -4,6 +4,8 @@ import { TreeViewItem } from "./TreeViewItem";
 import { assertNonNull, first } from "./utils";
 import { TreeViewProps } from "./props";
 
+const DRAG_MIME = "application/x.react-draggable-tree-drag";
+
 //// ItemRow
 
 export interface ItemRow<T extends TreeViewItem> {
@@ -317,5 +319,99 @@ export class TreeViewState<T extends TreeViewItem> extends TypedEmitter<{
     }
 
     return this.getDropLocationBetween(this.rows.length, this.getDropDepth(e));
+  }
+
+  //// Row drag and drop
+
+  onRowDragStart(
+    index: number,
+    e: React.DragEvent<HTMLElement>,
+    dragImage?: Element
+  ) {
+    const item = this.rows[index].item;
+
+    if (!this.props.handleDragStart?.(item, { event: e })) {
+      e.preventDefault();
+      return;
+    }
+
+    e.dataTransfer.effectAllowed = "copyMove";
+    e.dataTransfer.setData(DRAG_MIME, "drag");
+    this.draggedItem = item;
+
+    if (dragImage) {
+      e.dataTransfer.setDragImage(dragImage, 0, 0);
+    }
+  }
+
+  onRowDragEnd(index: number) {
+    const item = this.rows[index].item;
+
+    this.props.handleDragEnd?.(item);
+  }
+
+  onRowDragOver(index: number, e: React.DragEvent<HTMLElement>) {
+    const draggedItem = e.dataTransfer.types.includes(DRAG_MIME)
+      ? this.draggedItem
+      : undefined;
+
+    this.dropLocation = this.getDropLocationForRow(index, e, draggedItem);
+
+    if (this.dropLocation) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+  }
+
+  onRowDragEnter(index: number, e: React.DragEvent<HTMLElement>) {
+    const draggedItem = e.dataTransfer.types.includes(DRAG_MIME)
+      ? this.draggedItem
+      : undefined;
+
+    this.dropLocation = this.getDropLocationForRow(index, e, draggedItem);
+    e.preventDefault();
+    e.stopPropagation();
+  }
+
+  onRowDrop(index: number, e: React.DragEvent<HTMLElement>) {
+    const draggedItem = e.dataTransfer.types.includes(DRAG_MIME)
+      ? this.draggedItem
+      : undefined;
+
+    const dropLocation = this.getDropLocationForRow(index, e, draggedItem);
+    if (dropLocation?.handleDrop(e, draggedItem, this.props)) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+    this.dropLocation = undefined;
+    this.draggedItem = undefined;
+  }
+
+  //// Background drop
+
+  onBackgroundDragEnter(e: React.DragEvent<HTMLElement>) {
+    this.dropLocation = this.getDropLocationForBackground(e);
+    e.preventDefault();
+    e.stopPropagation();
+  }
+  onBackgroundDragLeave(e: React.DragEvent<HTMLElement>) {
+    this.dropLocation = undefined;
+    e.preventDefault();
+    e.stopPropagation();
+  }
+  onBackgroundDragOver(e: React.DragEvent<HTMLElement>) {
+    this.dropLocation = this.getDropLocationForBackground(e);
+    if (this.dropLocation.canDropData(e, this.draggedItem, this.props)) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+  }
+  onBackgroundDrop(e: React.DragEvent<HTMLElement>) {
+    const dropLocation = this.getDropLocationForBackground(e);
+    if (dropLocation.handleDrop(e, this.draggedItem, this.props)) {
+      e.preventDefault();
+      e.stopPropagation();
+      return;
+    }
   }
 }
