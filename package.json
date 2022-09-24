@@ -7,6 +7,8 @@
     "storybook": "NODE_OPTIONS=--openssl-legacy-provider start-storybook -p 6006",
     "build-storybook": "NODE_OPTIONS=--openssl-legacy-provider build-storybook"
   },
+  "main": "dist/react-draggable-tree.js",
+  "typings": "dist/react-draggable-tree.esm.js",
   "devDependencies": {
     "@babel/core": "^7.19.1",
     "@storybook/addon-actions": "^6.5.12",
