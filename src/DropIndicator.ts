@@ -1,6 +1,6 @@
 export type DropIndication =
   | {
-      type: "bar";
+      type: "between";
       top: number;
       depth: number;
     }

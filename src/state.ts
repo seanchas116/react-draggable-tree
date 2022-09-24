@@ -155,7 +155,7 @@ export class TreeViewState<T extends TreeViewItem> extends TypedEmitter<{
         parent: this.props.rootItem,
         before: undefined,
         indication: {
-          type: "bar",
+          type: "between",
           top: 0,
           depth: 0,
         },
@@ -167,7 +167,7 @@ export class TreeViewState<T extends TreeViewItem> extends TypedEmitter<{
         parent: assertNonNull(this.rows[0].item.parent),
         before: this.rows[0].item,
         indication: {
-          type: "bar",
+          type: "between",
           top: this.getItemDOMTop(this.rows[0].item),
           depth: this.rows[0].depth,
         },
@@ -186,7 +186,7 @@ export class TreeViewState<T extends TreeViewItem> extends TypedEmitter<{
           parent: assertNonNull(rowNext.item.parent),
           before: rowNext.item,
           indication: {
-            type: "bar",
+            type: "between",
             top: this.getItemDOMTop(rowNext.item),
             depth: rowNext.depth,
           },
@@ -217,7 +217,7 @@ export class TreeViewState<T extends TreeViewItem> extends TypedEmitter<{
         parent: assertNonNull(parent),
         before: undefined,
         indication: {
-          type: "bar",
+          type: "between",
           top: this.getItemDOMBottom(rowPrev.item),
           depth: depth,
         },
@@ -235,7 +235,7 @@ export class TreeViewState<T extends TreeViewItem> extends TypedEmitter<{
         parent: assertNonNull(rowNext.item.parent),
         before: rowNext.item,
         indication: {
-          type: "bar",
+          type: "between",
           top: this.getItemDOMTop(rowNext.item),
           depth: rowNext.depth,
         },
@@ -310,7 +310,7 @@ export class TreeViewState<T extends TreeViewItem> extends TypedEmitter<{
         parent: this.props.rootItem,
         before: first(this.rows)?.item,
         indication: {
-          type: "bar",
+          type: "between",
           top: this.getHeaderBottom(),
           depth: 0,
         },

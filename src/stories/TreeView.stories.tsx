@@ -122,7 +122,7 @@ const DropIndicator: React.FC<{
   indentation: number;
   dropIndicatorOffset: number;
 }> = ({ indication, indentation, dropIndicatorOffset }) => {
-  if (indication.type === "bar") {
+  if (indication.type === "between") {
     const left = indication.depth * indentation + dropIndicatorOffset;
     return (
       <div
