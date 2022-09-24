@@ -1,7 +1,7 @@
 import { loremIpsum } from "lorem-ipsum";
 import React, { useState } from "react";
 import styled from "styled-components";
-import { DropIndication } from "../DropIndicator";
+import { DropIndication } from "../DropIndication";
 import { TreeView, TreeViewItem } from "../lib";
 import { Node } from "./Node";
 

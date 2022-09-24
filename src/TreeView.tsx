@@ -1,7 +1,7 @@
 import React, { createRef, useEffect, useState } from "react";
 import { TreeViewItem } from "./TreeViewItem";
-import { TreeViewProps } from "./props";
-import { TreeViewState, DropLocation } from "./state";
+import { TreeViewProps } from "./TreeViewProps";
+import { TreeViewState, DropLocation } from "./TreeViewState";
 
 //// TreeRow
 

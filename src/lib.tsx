@@ -1,3 +1,3 @@
 export type { TreeViewItem } from "./TreeViewItem";
-export type { TreeViewProps } from "./props";
+export type { TreeViewProps } from "./TreeViewProps";
 export { TreeView } from "./TreeView";

@@ -2,8 +2,8 @@ import React from "react";
 import { TypedEmitter } from "tiny-typed-emitter";
 import { TreeViewItem } from "./TreeViewItem";
 import { assertNonNull, first } from "./utils";
-import { TreeViewProps } from "./props";
-import { DropIndication } from "./DropIndicator";
+import { TreeViewProps } from "./TreeViewProps";
+import { DropIndication } from "./DropIndication";
 
 const DRAG_MIME = "application/x.react-draggable-tree-drag";
 
