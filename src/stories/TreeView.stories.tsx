@@ -2,7 +2,7 @@ import { loremIpsum } from "lorem-ipsum";
 import React, { useState } from "react";
 import styled from "styled-components";
 import { DropIndication } from "../DropIndication";
-import { TreeView, TreeViewItem } from "../lib";
+import { TreeView, TreeViewItem } from "../react-draggable-tree";
 import { Node } from "./Node";
 
 function generateExampleNode(

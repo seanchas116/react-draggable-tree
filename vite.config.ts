@@ -7,7 +7,7 @@ import dts from "vite-plugin-dts";
 export default defineConfig({
   build: {
     lib: {
-      entry: path.resolve(__dirname, "src/lib.tsx"),
+      entry: path.resolve(__dirname, "src/react-draggable-tree.tsx"),
       name: "ReactDraggableTree",
       fileName: "react-draggable-tree",
     },
