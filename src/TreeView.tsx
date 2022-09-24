@@ -42,7 +42,7 @@ function TreeRow<T extends TreeViewItem>({
       ? state.draggedItem
       : undefined;
 
-    state.dropLocation = state.getForRow(index, e, draggedItem);
+    state.dropLocation = state.getDropLocationForRow(index, e, draggedItem);
 
     if (state.dropLocation) {
       e.preventDefault();
@@ -55,7 +55,7 @@ function TreeRow<T extends TreeViewItem>({
       ? state.draggedItem
       : undefined;
 
-    state.dropLocation = state.getForRow(index, e, draggedItem);
+    state.dropLocation = state.getDropLocationForRow(index, e, draggedItem);
     e.preventDefault();
     e.stopPropagation();
   };
@@ -64,7 +64,7 @@ function TreeRow<T extends TreeViewItem>({
       ? state.draggedItem
       : undefined;
 
-    const dropLocation = state.getForRow(index, e, draggedItem);
+    const dropLocation = state.getDropLocationForRow(index, e, draggedItem);
     if (dropLocation?.handleDrop(e, draggedItem, state.props)) {
       e.preventDefault();
       e.stopPropagation();
@@ -101,7 +101,7 @@ function Background<T extends TreeViewItem>({
   onClick?: () => void;
 }) {
   const onDragEnter = (e: React.DragEvent<HTMLElement>) => {
-    state.dropLocation = state.getForBackground(e);
+    state.dropLocation = state.getDropLocationForBackground(e);
     e.preventDefault();
     e.stopPropagation();
   };
@@ -111,14 +111,14 @@ function Background<T extends TreeViewItem>({
     e.stopPropagation();
   };
   const onDragOver = (e: React.DragEvent<HTMLElement>) => {
-    state.dropLocation = state.getForBackground(e);
+    state.dropLocation = state.getDropLocationForBackground(e);
     if (state.dropLocation.canDropData(e, state.draggedItem, state.props)) {
       e.preventDefault();
       e.stopPropagation();
     }
   };
   const onDrop = (e: React.DragEvent<HTMLElement>) => {
-    const dropLocation = state.getForBackground(e);
+    const dropLocation = state.getDropLocationForBackground(e);
     if (dropLocation.handleDrop(e, state.draggedItem, state.props)) {
       e.preventDefault();
       e.stopPropagation();
