@@ -1,14 +1,25 @@
 {
   "name": "react-draggable-tree",
   "version": "0.5.0",
-  "type": "module",
-  "scripts": {
-    "build": "tsc && vite build",
-    "storybook": "NODE_OPTIONS=--openssl-legacy-provider start-storybook -p 6006",
-    "build-storybook": "NODE_OPTIONS=--openssl-legacy-provider build-storybook"
+  "description": "Draggable tree view for React",
+  "homepage": "https://github.com/seanchas116/react-draggable-tree#readme",
+  "bugs": {
+    "url": "https://github.com/seanchas116/react-draggable-tree/issues"
   },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/seanchas116/react-draggable-tree.git"
+  },
+  "license": "MIT",
+  "author": "Ryohei Ikegami",
+  "type": "module",
   "main": "dist/react-draggable-tree.js",
   "typings": "dist/react-draggable-tree.esm.js",
+  "scripts": {
+    "build": "tsc && vite build",
+    "build-storybook": "NODE_OPTIONS=--openssl-legacy-provider build-storybook",
+    "storybook": "NODE_OPTIONS=--openssl-legacy-provider start-storybook -p 6006"
+  },
   "devDependencies": {
     "@babel/core": "^7.19.1",
     "@storybook/addon-actions": "^6.5.12",
