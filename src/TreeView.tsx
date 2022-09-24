@@ -3,13 +3,7 @@ import React, { createRef, useEffect, useState } from "react";
 import { TreeViewItem } from "./TreeViewItem";
 import { defaultIndentation, defaultDropIndicatorOffset } from "./constants";
 import { TreeViewProps } from "./props";
-import {
-  DropLocationSolver,
-  DragState,
-  ItemRow,
-  DropLocation,
-  getItemRows,
-} from "./state";
+import { TreeViewState, ItemRow, DropLocation, getItemRows } from "./state";
 
 const DRAG_MIME = "application/x.react-draggable-tree-drag";
 
@@ -17,15 +11,13 @@ const DRAG_MIME = "application/x.react-draggable-tree-drag";
 
 function TreeRow<T extends TreeViewItem>({
   treeProps,
-  dropLocationSolver,
-  dragState,
+  state,
   rows,
   index,
   dragImageRef,
 }: {
   treeProps: TreeViewProps<T>;
-  dropLocationSolver: DropLocationSolver<T>;
-  dragState: DragState<T>;
+  state: TreeViewState<T>;
   rows: ItemRow<T>[];
   index: number;
   dragImageRef: React.RefObject<HTMLDivElement>;
@@ -40,7 +32,7 @@ function TreeRow<T extends TreeViewItem>({
 
     e.dataTransfer.effectAllowed = "copyMove";
     e.dataTransfer.setData(DRAG_MIME, "drag");
-    dragState.draggedItem = item;
+    state.draggedItem = item;
 
     if (dragImageRef.current) {
       e.dataTransfer.setDragImage(dragImageRef.current, 0, 0);
@@ -52,10 +44,10 @@ function TreeRow<T extends TreeViewItem>({
 
   const onDragOver = (e: React.DragEvent<HTMLElement>) => {
     const draggedItem = e.dataTransfer.types.includes(DRAG_MIME)
-      ? dragState.draggedItem
+      ? state.draggedItem
       : undefined;
 
-    dragState.dropLocation = dropLocationSolver.getForRow(
+    state.dropLocation = state.getForRow(
       rows,
       index,
       e,
@@ -63,7 +55,7 @@ function TreeRow<T extends TreeViewItem>({
       treeProps
     );
 
-    if (dragState.dropLocation) {
+    if (state.dropLocation) {
       e.preventDefault();
       e.stopPropagation();
     }
@@ -71,10 +63,10 @@ function TreeRow<T extends TreeViewItem>({
 
   const onDragEnter = (e: React.DragEvent<HTMLElement>) => {
     const draggedItem = e.dataTransfer.types.includes(DRAG_MIME)
-      ? dragState.draggedItem
+      ? state.draggedItem
       : undefined;
 
-    dragState.dropLocation = dropLocationSolver.getForRow(
+    state.dropLocation = state.getForRow(
       rows,
       index,
       e,
@@ -86,10 +78,10 @@ function TreeRow<T extends TreeViewItem>({
   };
   const onDrop = (e: React.DragEvent<HTMLElement>) => {
     const draggedItem = e.dataTransfer.types.includes(DRAG_MIME)
-      ? dragState.draggedItem
+      ? state.draggedItem
       : undefined;
 
-    const dropLocation = dropLocationSolver.getForRow(
+    const dropLocation = state.getForRow(
       rows,
       index,
       e,
@@ -100,13 +92,13 @@ function TreeRow<T extends TreeViewItem>({
       e.preventDefault();
       e.stopPropagation();
     }
-    dragState.dropLocation = undefined;
-    dragState.draggedItem = undefined;
+    state.dropLocation = undefined;
+    state.draggedItem = undefined;
   };
 
   return (
     <div
-      ref={(e) => e && dropLocationSolver.itemToDOM.set(item, e)}
+      ref={(e) => e && state.itemToDOM.set(item, e)}
       //draggable={!currentFocus.isTextInput}
       draggable
       onDragStart={onDragStart}
@@ -126,39 +118,35 @@ function TreeRow<T extends TreeViewItem>({
 // Background
 
 function Background<T extends TreeViewItem>({
-  dropLocationSolver,
-  dragState,
+  state,
   rows,
   treeProps,
 }: {
-  dropLocationSolver: DropLocationSolver<T>;
-  dragState: DragState<T>;
+  state: TreeViewState<T>;
   rows: ItemRow<T>[];
   onClick?: () => void;
   treeProps: TreeViewProps<T>;
 }) {
   const onDragEnter = (e: React.DragEvent<HTMLElement>) => {
-    dragState.dropLocation = dropLocationSolver.getForBackground(rows, e);
+    state.dropLocation = state.getForBackground(rows, e);
     e.preventDefault();
     e.stopPropagation();
   };
   const onDragLeave = (e: React.DragEvent<HTMLElement>) => {
-    dragState.dropLocation = undefined;
+    state.dropLocation = undefined;
     e.preventDefault();
     e.stopPropagation();
   };
   const onDragOver = (e: React.DragEvent<HTMLElement>) => {
-    dragState.dropLocation = dropLocationSolver.getForBackground(rows, e);
-    if (
-      dragState.dropLocation.canDropData(e, dragState.draggedItem, treeProps)
-    ) {
+    state.dropLocation = state.getForBackground(rows, e);
+    if (state.dropLocation.canDropData(e, state.draggedItem, treeProps)) {
       e.preventDefault();
       e.stopPropagation();
     }
   };
   const onDrop = (e: React.DragEvent<HTMLElement>) => {
-    const dropLocation = dropLocationSolver.getForBackground(rows, e);
-    if (dropLocation.handleDrop(e, dragState.draggedItem, treeProps)) {
+    const dropLocation = state.getForBackground(rows, e);
+    if (dropLocation.handleDrop(e, state.draggedItem, treeProps)) {
       e.preventDefault();
       e.stopPropagation();
       return;
@@ -187,20 +175,20 @@ function Background<T extends TreeViewItem>({
 
 function DropIndicator<T extends TreeViewItem>({
   treeProps,
-  dragState,
+  state,
 }: {
   treeProps: TreeViewProps<T>;
-  dragState: DragState<T>;
+  state: TreeViewState<T>;
 }) {
   const [dropLocation, setDropLocation] =
     useState<DropLocation<T> | undefined>();
 
   useEffect(() => {
-    dragState.addListener("dropLocationChange", setDropLocation);
+    state.addListener("dropLocationChange", setDropLocation);
     return () => {
-      dragState.removeListener("dropLocationChange", setDropLocation);
+      state.removeListener("dropLocationChange", setDropLocation);
     };
-  }, [dragState, setDropLocation]);
+  }, [state, setDropLocation]);
 
   const indicator = dropLocation?.indicator;
   if (!indicator) {
@@ -257,10 +245,8 @@ export function TreeView<T extends TreeViewItem>(
 ): JSX.Element | null {
   const dragImageRef = createRef<HTMLDivElement>();
 
-  const [dropLocationSolver] = useState(() => new DropLocationSolver(props));
-  dropLocationSolver.treeProps = props;
-
-  const [dragState] = useState(() => new DragState<T>());
+  const [state] = useState(() => new TreeViewState(props));
+  state.treeProps = props;
 
   const itemRows = props.rootItem.children.flatMap((item) =>
     getItemRows(item, 0)
@@ -272,7 +258,7 @@ export function TreeView<T extends TreeViewItem>(
       hidden={props.hidden}
       style={props.style}
       onMouseMove={() => {
-        dragState.dropLocation = undefined;
+        state.dropLocation = undefined;
       }}
     >
       <div
@@ -286,26 +272,20 @@ export function TreeView<T extends TreeViewItem>(
         }}
         ref={dragImageRef}
       />
-      <Background
-        dropLocationSolver={dropLocationSolver}
-        dragState={dragState}
-        treeProps={props}
-        rows={itemRows}
-      />
+      <Background state={state} treeProps={props} rows={itemRows} />
       <div
         style={{
           position: "relative",
         }}
       >
-        <div ref={(e) => (dropLocationSolver.headerDOM = e ?? undefined)}>
+        <div ref={(e) => (state.headerDOM = e ?? undefined)}>
           {props.header}
         </div>
         {itemRows.map((row, i) => (
           <TreeRow
             key={row.item.key}
             treeProps={props}
-            dropLocationSolver={dropLocationSolver}
-            dragState={dragState}
+            state={state}
             rows={itemRows}
             index={i}
             dragImageRef={dragImageRef}
@@ -313,7 +293,7 @@ export function TreeView<T extends TreeViewItem>(
         ))}
         {props.footer}
       </div>
-      <DropIndicator dragState={dragState} treeProps={props} />
+      <DropIndicator state={state} treeProps={props} />
     </TreeViewWrap>
   );
 }

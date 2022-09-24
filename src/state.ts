@@ -76,12 +76,19 @@ export class DropLocation<T extends TreeViewItem> {
   }
 }
 
-export class DragState<T extends TreeViewItem> extends TypedEmitter<{
+export class TreeViewState<T extends TreeViewItem> extends TypedEmitter<{
   dropLocationChange(location: DropLocation<T> | undefined): void;
-  draggedItemChange(item: T | undefined): void;
 }> {
+  constructor(treeProps: TreeViewProps<T>) {
+    super();
+    this.treeProps = treeProps;
+  }
+
   private _dropLocation: DropLocation<T> | undefined = undefined;
-  private _draggedItem: T | undefined = undefined;
+  draggedItem: T | undefined = undefined;
+  treeProps: TreeViewProps<T>;
+  readonly itemToDOM = new WeakMap<T, HTMLElement>();
+  headerDOM: HTMLElement | undefined;
 
   get dropLocation(): DropLocation<T> | undefined {
     return this._dropLocation;
@@ -94,28 +101,6 @@ export class DragState<T extends TreeViewItem> extends TypedEmitter<{
     this._dropLocation = dropLocation;
     this.emit("dropLocationChange", dropLocation);
   }
-
-  get draggedItem(): T | undefined {
-    return this._draggedItem;
-  }
-
-  set draggedItem(draggedItem: T | undefined) {
-    if (this._draggedItem === draggedItem) {
-      return;
-    }
-    this._draggedItem = draggedItem;
-    this.emit("draggedItemChange", draggedItem);
-  }
-}
-
-export class DropLocationSolver<T extends TreeViewItem> {
-  constructor(treeProps: TreeViewProps<T>) {
-    this.treeProps = treeProps;
-  }
-
-  treeProps: TreeViewProps<T>;
-  readonly itemToDOM = new WeakMap<T, HTMLElement>();
-  headerDOM: HTMLElement | undefined;
 
   private getHeaderBottom(): number {
     if (!this.headerDOM) {
