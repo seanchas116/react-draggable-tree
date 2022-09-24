@@ -2,9 +2,7 @@ import styled from "styled-components";
 import React, { createRef, useEffect, useState } from "react";
 import { TreeViewItem } from "./TreeViewItem";
 import { TreeViewProps } from "./props";
-import { TreeViewState, ItemRow, DropLocation, getItemRows } from "./state";
-
-const DRAG_MIME = "application/x.react-draggable-tree-drag";
+import { TreeViewState, DropLocation } from "./state";
 
 //// TreeRow
 

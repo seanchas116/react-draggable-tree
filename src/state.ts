@@ -13,7 +13,7 @@ export interface ItemRow<T extends TreeViewItem> {
   depth: number;
 }
 
-export function getItemRows<T extends TreeViewItem>(
+function getItemRows<T extends TreeViewItem>(
   item: T,
   depth: number
 ): ItemRow<T>[] {
