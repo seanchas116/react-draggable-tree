@@ -1,4 +1,3 @@
-import styled from "styled-components";
 import React, { createRef, useEffect, useState } from "react";
 import { TreeViewItem } from "./TreeViewItem";
 import { TreeViewProps } from "./props";
@@ -50,6 +49,7 @@ function Background<T extends TreeViewItem>({
         top: 0,
         right: 0,
         bottom: 0,
+        zIndex: "-1",
       }}
       onDragEnter={state.onBackgroundDragEnter.bind(state)}
       onDragLeave={state.onBackgroundDragLeave.bind(state)}
@@ -120,10 +120,6 @@ function DropIndicator<T extends TreeViewItem>({
 
 //// TreeView
 
-const TreeViewWrap = styled.div`
-  position: relative;
-`;
-
 export function TreeView<T extends TreeViewItem>(
   props: TreeViewProps<T>
 ): JSX.Element | null {
@@ -133,31 +129,37 @@ export function TreeView<T extends TreeViewItem>(
   state.setProps(props);
 
   return (
-    <TreeViewWrap
+    <div
       className={props.className}
       hidden={props.hidden}
-      style={props.style}
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        ...props.style,
+      }}
       onMouseMove={() => {
         state.dropLocation = undefined;
       }}
     >
       <div
         style={{
-          position: "fixed",
-          left: "-10000px",
-          top: "-10000px",
-          width: "1px",
-          height: "1px",
-          visibility: "hidden",
-        }}
-        ref={dragImageRef}
-      />
-      <Background state={state} />
-      <div
-        style={{
+          flex: "1",
           position: "relative",
+          zIndex: "0",
         }}
       >
+        <div
+          style={{
+            position: "fixed",
+            left: "-10000px",
+            top: "-10000px",
+            width: "1px",
+            height: "1px",
+            visibility: "hidden",
+          }}
+          ref={dragImageRef}
+        />
+        <Background state={state} />
         <div ref={(e) => (state.headerDOM = e ?? undefined)}>
           {props.header}
         </div>
@@ -170,8 +172,8 @@ export function TreeView<T extends TreeViewItem>(
           />
         ))}
         {props.footer}
+        <DropIndicator state={state} />
       </div>
-      <DropIndicator state={state} />
-    </TreeViewWrap>
+    </div>
   );
 }
