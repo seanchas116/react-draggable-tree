@@ -81,12 +81,12 @@ export class TreeViewState<T extends TreeViewItem> extends TypedEmitter<{
 }> {
   constructor(treeProps: TreeViewProps<T>) {
     super();
-    this.treeProps = treeProps;
+    this.props = treeProps;
   }
 
   private _dropLocation: DropLocation<T> | undefined = undefined;
   draggedItem: T | undefined = undefined;
-  treeProps: TreeViewProps<T>;
+  props: TreeViewProps<T>;
   readonly itemToDOM = new WeakMap<T, HTMLElement>();
   headerDOM: HTMLElement | undefined;
 
@@ -125,8 +125,8 @@ export class TreeViewState<T extends TreeViewItem> extends TypedEmitter<{
 
   private getDropDepth(e: React.DragEvent): number {
     const dropIndicatorOffset =
-      this.treeProps.dropIndicatorOffset ?? defaultDropIndicatorOffset;
-    const indentation = this.treeProps.indentation ?? defaultIndentation;
+      this.props.dropIndicatorOffset ?? defaultDropIndicatorOffset;
+    const indentation = this.props.indentation ?? defaultIndentation;
 
     const rect = e.currentTarget.getBoundingClientRect();
     return Math.max(
@@ -149,7 +149,7 @@ export class TreeViewState<T extends TreeViewItem> extends TypedEmitter<{
     dropDepth: number
   ): DropLocation<T> {
     if (rows.length === 0) {
-      return new DropLocation(this.treeProps.rootItem, undefined, {
+      return new DropLocation(this.props.rootItem, undefined, {
         type: "bar",
         top: 0,
         depth: 0,
@@ -237,8 +237,7 @@ export class TreeViewState<T extends TreeViewItem> extends TypedEmitter<{
     rows: readonly ItemRow<T>[],
     index: number,
     event: React.DragEvent,
-    draggedItem: T | undefined,
-    props: TreeViewProps<T>
+    draggedItem: T | undefined
   ): DropLocation<T> | undefined {
     const row = rows[index];
     const item = row.item;
@@ -259,16 +258,16 @@ export class TreeViewState<T extends TreeViewItem> extends TypedEmitter<{
       dropDepth
     );
 
-    if (!this.treeProps.nonReorderable) {
-      if (locationOver.canDropData(event, draggedItem, props)) {
+    if (!this.props.nonReorderable) {
+      if (locationOver.canDropData(event, draggedItem, this.props)) {
         if (
-          locationBefore.canDropData(event, draggedItem, props) &&
+          locationBefore.canDropData(event, draggedItem, this.props) &&
           dropPos < 1 / 4
         ) {
           return locationBefore;
         }
         if (
-          locationAfter.canDropData(event, draggedItem, props) &&
+          locationAfter.canDropData(event, draggedItem, this.props) &&
           3 / 4 < dropPos
         ) {
           return locationAfter;
@@ -276,20 +275,22 @@ export class TreeViewState<T extends TreeViewItem> extends TypedEmitter<{
         return locationOver;
       } else {
         if (
-          locationBefore.canDropData(event, draggedItem, props) &&
+          locationBefore.canDropData(event, draggedItem, this.props) &&
           dropPos < 1 / 2
         ) {
           return locationBefore;
         }
-        if (locationAfter.canDropData(event, draggedItem, props)) {
+        if (locationAfter.canDropData(event, draggedItem, this.props)) {
           return locationAfter;
         }
       }
     } else {
       const locationOverParent = this.getDropLocationOver(item.parent);
-      if (locationOver.canDropData(event, draggedItem, props)) {
+      if (locationOver.canDropData(event, draggedItem, this.props)) {
         return locationOver;
-      } else if (locationOverParent.canDropData(event, draggedItem, props)) {
+      } else if (
+        locationOverParent.canDropData(event, draggedItem, this.props)
+      ) {
         return locationOverParent;
       }
     }
@@ -303,7 +304,7 @@ export class TreeViewState<T extends TreeViewItem> extends TypedEmitter<{
     const top = e.clientY - rect.top;
 
     if (top <= this.getHeaderBottom()) {
-      return new DropLocation(this.treeProps.rootItem, first(rows)?.item, {
+      return new DropLocation(this.props.rootItem, first(rows)?.item, {
         type: "bar",
         top: this.getHeaderBottom(),
         depth: 0,

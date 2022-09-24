@@ -47,13 +47,7 @@ function TreeRow<T extends TreeViewItem>({
       ? state.draggedItem
       : undefined;
 
-    state.dropLocation = state.getForRow(
-      rows,
-      index,
-      e,
-      draggedItem,
-      treeProps
-    );
+    state.dropLocation = state.getForRow(rows, index, e, draggedItem);
 
     if (state.dropLocation) {
       e.preventDefault();
@@ -66,13 +60,7 @@ function TreeRow<T extends TreeViewItem>({
       ? state.draggedItem
       : undefined;
 
-    state.dropLocation = state.getForRow(
-      rows,
-      index,
-      e,
-      draggedItem,
-      treeProps
-    );
+    state.dropLocation = state.getForRow(rows, index, e, draggedItem);
     e.preventDefault();
     e.stopPropagation();
   };
@@ -81,13 +69,7 @@ function TreeRow<T extends TreeViewItem>({
       ? state.draggedItem
       : undefined;
 
-    const dropLocation = state.getForRow(
-      rows,
-      index,
-      e,
-      draggedItem,
-      treeProps
-    );
+    const dropLocation = state.getForRow(rows, index, e, draggedItem);
     if (dropLocation?.handleDrop(e, draggedItem, treeProps)) {
       e.preventDefault();
       e.stopPropagation();
@@ -246,7 +228,7 @@ export function TreeView<T extends TreeViewItem>(
   const dragImageRef = createRef<HTMLDivElement>();
 
   const [state] = useState(() => new TreeViewState(props));
-  state.treeProps = props;
+  state.props = props;
 
   const itemRows = props.rootItem.children.flatMap((item) =>
     getItemRows(item, 0)
