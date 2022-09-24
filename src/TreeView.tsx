@@ -51,10 +51,10 @@ function Background<T extends TreeViewItem>({
         right: 0,
         bottom: 0,
       }}
-      onDragEnter={state.onBackgroundDragEnter}
-      onDragLeave={state.onBackgroundDragLeave}
-      onDragOver={state.onBackgroundDragOver}
-      onDrop={state.onBackgroundDrop}
+      onDragEnter={state.onBackgroundDragEnter.bind(state)}
+      onDragLeave={state.onBackgroundDragLeave.bind(state)}
+      onDragOver={state.onBackgroundDragOver.bind(state)}
+      onDrop={state.onBackgroundDrop.bind(state)}
       onClick={state.props.onBackgroundClick}
     />
   );
