@@ -17,8 +17,8 @@
   "typings": "dist/react-draggable-tree.esm.js",
   "scripts": {
     "build": "tsc && vite build",
-    "build-storybook": "NODE_OPTIONS=--openssl-legacy-provider build-storybook",
-    "storybook": "NODE_OPTIONS=--openssl-legacy-provider start-storybook -p 6006"
+    "build-storybook": "build-storybook",
+    "storybook": "start-storybook -p 6006"
   },
   "devDependencies": {
     "@babel/core": "^7.19.1",
