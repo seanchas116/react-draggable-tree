@@ -1,9 +1,8 @@
 import { loremIpsum } from "lorem-ipsum";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import styled from "styled-components";
 import { TreeView, TreeViewItem } from "../lib";
 import { Node } from "./Node";
-import { TypedEmitter } from "tiny-typed-emitter";
 
 function generateExampleNode(
   depth: number,
@@ -34,10 +33,6 @@ function generateExampleNode(
   node.type = hasChild ? "branch" : "leaf";
   return node;
 }
-
-class Changes extends TypedEmitter<{
-  change(): void;
-}> {}
 
 export interface ExampleTreeViewItem extends TreeViewItem {
   readonly node: Node;
@@ -147,15 +142,15 @@ class ExampleTreeViewItem implements TreeViewItem {
 */
 
 const TreeRow: React.FC<{
-  changes: Changes;
   node: Node;
   depth: number;
   indentation: number;
-}> = ({ changes, node, depth, indentation }) => {
+  onChange: () => void;
+}> = ({ node, depth, indentation, onChange }) => {
   const onCollapseButtonClick = (e: React.MouseEvent<HTMLElement>) => {
     e.stopPropagation();
     node.collapsed = !node.collapsed;
-    changes.emit("change");
+    onChange();
   };
 
   const onClick = (event: React.MouseEvent<HTMLElement>) => {
@@ -165,7 +160,7 @@ const TreeRow: React.FC<{
       node.root.deselect();
     }
     node.select();
-    changes.emit("change");
+    onChange();
   };
 
   return (
@@ -237,19 +232,12 @@ const DropOverIndicator: React.FC = () => {
 };
 
 const BasicObserver: React.FC = () => {
-  const [changes] = useState(() => new Changes());
   const [root] = useState(() => generateExampleNode(4, 3, 5));
   const [item, setItem] = useState(() => createExampleTreeViewItem(root));
 
-  useEffect(() => {
-    const onStructureChanged = () => {
-      setItem(createExampleTreeViewItem(root));
-    };
-    changes.on("change", onStructureChanged);
-    return () => {
-      changes.off("change", onStructureChanged);
-    };
-  }, []);
+  const onChange = () => {
+    setItem(createExampleTreeViewItem(root));
+  };
 
   return (
     <Wrap>
@@ -264,7 +252,7 @@ const BasicObserver: React.FC = () => {
           if (!item.node.selected) {
             item.node.root.deselect();
             item.node.select();
-            changes.emit("change");
+            onChange();
           }
           return true;
         }}
@@ -288,14 +276,14 @@ const BasicObserver: React.FC = () => {
           for (const node of item.node.root.selectedDescendants) {
             item.node.insertBefore(node, before?.node);
           }
-          changes.emit("change");
+          onChange();
         }}
         renderRow={(item, { depth, indentation }) => (
           <TreeRow
-            changes={changes}
             node={item.node}
             depth={depth}
             indentation={indentation}
+            onChange={onChange}
           />
         )}
       />
