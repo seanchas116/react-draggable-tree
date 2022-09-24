@@ -248,7 +248,7 @@ export class TreeViewState<T extends TreeViewItem> extends TypedEmitter<{
     }
   }
 
-  getDropLocationForRow(
+  private getDropLocationForRow(
     index: number,
     event: React.DragEvent,
     draggedItem: T | undefined
@@ -306,7 +306,7 @@ export class TreeViewState<T extends TreeViewItem> extends TypedEmitter<{
     }
   }
 
-  getDropLocationForBackground(e: React.DragEvent<HTMLElement>) {
+  private getDropLocationForBackground(e: React.DragEvent<HTMLElement>) {
     const rect = e.currentTarget.getBoundingClientRect();
     const top = e.clientY - rect.top;
 
