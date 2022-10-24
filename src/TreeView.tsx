@@ -26,10 +26,7 @@ function TreeRow<T extends TreeViewItem>({
       onDrop={state.onRowDrop.bind(state, index)}
       onDragOver={state.onRowDragOver.bind(state, index)}
     >
-      {state.props.renderRow(item, {
-        depth,
-        indentation: state.indentation,
-      })}
+      {state.props.renderRow({ item, depth, indentation: state.indentation })}
     </div>
   );
 }
@@ -82,11 +79,17 @@ function DropIndicator<T extends TreeViewItem>({
     return null;
   }
 
-  return state.props.renderDropIndicator({
-    indication: indicator,
-    indentation: state.indentation,
-    dropIndicatorOffset: state.dropIndicatorOffset,
-  });
+  if (indicator.type === "between") {
+    return state.props.dropBetweenIndicator({
+      top: indicator.top,
+      left: indicator.depth * state.indentation + state.dropIndicatorOffset,
+    });
+  } else {
+    return state.props.dropOverIndicator({
+      top: indicator.top,
+      height: indicator.height,
+    });
+  }
 }
 
 //// TreeView

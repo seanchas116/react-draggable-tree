@@ -3,7 +3,6 @@ import { TypedEmitter } from "tiny-typed-emitter";
 import { TreeViewItem } from "./TreeViewItem";
 import { assertNonNull, first } from "./utils";
 import { TreeViewProps } from "./TreeViewProps";
-import { DropIndication } from "./DropIndication";
 
 const DRAG_MIME = "application/x.react-draggable-tree-drag";
 
@@ -23,6 +22,18 @@ function getItemRows<T extends TreeViewItem>(
     ...item.children.flatMap((child) => getItemRows(child, depth + 1)),
   ];
 }
+
+export type DropIndication =
+  | {
+      type: "between";
+      top: number;
+      depth: number;
+    }
+  | {
+      type: "over";
+      top: number;
+      height: number;
+    };
 
 export interface DropLocation<T extends TreeViewItem> {
   parent: T;
@@ -80,7 +91,8 @@ export class TreeViewState<T extends TreeViewItem> extends TypedEmitter<{
     draggedItem: T | undefined
   ): boolean {
     return (
-      this.props.canDropData?.(location.parent, {
+      this.props.canDropData?.({
+        item: location.parent,
         event,
         draggedItem,
       }) ?? false
@@ -95,7 +107,8 @@ export class TreeViewState<T extends TreeViewItem> extends TypedEmitter<{
     if (!this.canDropData(location, event, draggedItem)) {
       return false;
     }
-    this.props.handleDrop?.(location.parent, {
+    this.props.handleDrop?.({
+      item: location.parent,
       event,
       draggedItem,
       before: location.before,
@@ -329,7 +342,7 @@ export class TreeViewState<T extends TreeViewItem> extends TypedEmitter<{
   ) {
     const item = this.rows[index].item;
 
-    if (!this.props.handleDragStart?.(item, { event: e })) {
+    if (!this.props.handleDragStart?.({ item, event: e })) {
       e.preventDefault();
       return;
     }
@@ -346,7 +359,7 @@ export class TreeViewState<T extends TreeViewItem> extends TypedEmitter<{
   onRowDragEnd(index: number) {
     const item = this.rows[index].item;
 
-    this.props.handleDragEnd?.(item);
+    this.props.handleDragEnd?.({ item });
   }
 
   onRowDragOver(index: number, e: React.DragEvent<HTMLElement>) {
