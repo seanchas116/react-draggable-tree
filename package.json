@@ -10,11 +10,14 @@
     "type": "git",
     "url": "git+https://github.com/seanchas116/react-draggable-tree.git"
   },
+  "files": [
+    "dist"
+  ],
   "license": "MIT",
   "author": "Ryohei Ikegami",
   "type": "module",
   "main": "dist/react-draggable-tree.js",
-  "typings": "dist/react-draggable-tree.esm.js",
+  "typings": "dist/react-draggable-tree.d.ts",
   "scripts": {
     "build": "tsc && vite build",
     "build-storybook": "build-storybook",
