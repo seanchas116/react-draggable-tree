@@ -21,10 +21,11 @@ export interface TreeViewProps<T extends TreeViewItem> {
 
   onBackgroundClick?: () => void;
 
-  renderRow: (
-    item: T,
-    params: { depth: number; indentation: number }
-  ) => JSX.Element;
+  renderRow: (params: {
+    item: T;
+    depth: number;
+    indentation: number;
+  }) => JSX.Element;
 
   handleDragStart: (item: T, params: { event: React.DragEvent }) => boolean;
   handleDragEnd?: (item: T) => void;

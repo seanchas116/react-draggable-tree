@@ -182,7 +182,7 @@ export const Basic: React.FC = () => {
             update();
           }
         }}
-        renderRow={(item, { depth, indentation }) => (
+        renderRow={({ item, depth, indentation }) => (
           <TreeRow
             node={item.node}
             depth={depth}
@@ -230,7 +230,7 @@ export const NonReorderable: React.FC = () => {
             update();
           }
         }}
-        renderRow={(item, { depth, indentation }) => (
+        renderRow={({ item, depth, indentation }) => (
           <TreeRow
             node={item.node}
             depth={depth}
