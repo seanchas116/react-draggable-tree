@@ -158,7 +158,7 @@ export const Basic: React.FC = () => {
           }
           return true;
         }}
-        canDropData={({ item, draggedItem }) => {
+        canDrop={({ item, draggedItem }) => {
           return !!draggedItem && item.node.type === "branch";
         }}
         handleDrop={({ item, draggedItem, before }) => {
@@ -232,7 +232,7 @@ export const NonReorderable: React.FC = () => {
           }
           return true;
         }}
-        canDropData={({ item, draggedItem }) => {
+        canDrop={({ item, draggedItem }) => {
           return !!draggedItem && item.node.type === "branch";
         }}
         handleDrop={({ item, draggedItem, before }) => {

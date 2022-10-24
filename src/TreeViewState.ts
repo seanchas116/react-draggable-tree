@@ -91,7 +91,7 @@ export class TreeViewState<T extends TreeViewItem> extends TypedEmitter<{
     draggedItem: T | undefined
   ): boolean {
     return (
-      this.props.canDropData?.({
+      this.props.canDrop?.({
         item: location.parent,
         event,
         draggedItem,

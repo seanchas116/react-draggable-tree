@@ -25,7 +25,7 @@ export interface TreeViewProps<T extends TreeViewItem> {
 
   handleDragStart: (params: { item: T; event: React.DragEvent }) => boolean;
   handleDragEnd?: (params: { item: T }) => void;
-  canDropData?: (params: {
+  canDrop?: (params: {
     item: T;
     event: React.DragEvent;
     draggedItem: T | undefined; // undefined if the drag is not initiated from a tree view
