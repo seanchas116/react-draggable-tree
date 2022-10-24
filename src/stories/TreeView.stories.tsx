@@ -5,7 +5,7 @@ import { DropIndication } from "../DropIndication";
 import { TreeView, TreeViewItem } from "../react-draggable-tree";
 import { Node } from "./Node";
 
-function generateExampleNode(
+function generateNode(
   depth: number,
   minChildCount: number,
   maxChildCount: number
@@ -22,9 +22,7 @@ function generateExampleNode(
       Math.random() * (maxChildCount - minChildCount) + minChildCount
     );
     for (let i = 0; i < childCount; ++i) {
-      children.push(
-        generateExampleNode(depth - 1, minChildCount, maxChildCount)
-      );
+      children.push(generateNode(depth - 1, minChildCount, maxChildCount));
     }
   }
 
@@ -35,24 +33,19 @@ function generateExampleNode(
   return node;
 }
 
-interface ExampleTreeViewItem extends TreeViewItem {
+interface NodeTreeViewItem extends TreeViewItem {
   readonly node: Node;
 }
 
-function createExampleTreeViewItem(
-  node: Node,
-  parent?: ExampleTreeViewItem
-): ExampleTreeViewItem {
-  const item: ExampleTreeViewItem = {
+function createItem(node: Node, parent?: NodeTreeViewItem): NodeTreeViewItem {
+  const item: NodeTreeViewItem = {
     key: node.key,
     parent,
     children: [],
     node,
   };
   if (!node.collapsed) {
-    item.children = node.children.map((child) =>
-      createExampleTreeViewItem(child, item)
-    );
+    item.children = node.children.map((child) => createItem(child, item));
   }
   return item;
 }
@@ -156,10 +149,10 @@ const DropIndicator: React.FC<{
 };
 
 export const Basic: React.FC = () => {
-  const [root] = useState(() => generateExampleNode(5, 3, 5));
-  const [item, setItem] = useState(() => createExampleTreeViewItem(root));
+  const [root] = useState(() => generateNode(5, 3, 5));
+  const [item, setItem] = useState(() => createItem(root));
   const update = () => {
-    setItem(createExampleTreeViewItem(root));
+    setItem(createItem(root));
   };
 
   return (
@@ -203,10 +196,10 @@ export const Basic: React.FC = () => {
 };
 
 export const NonReorderable: React.FC = () => {
-  const [root] = useState(() => generateExampleNode(5, 3, 5));
-  const [item, setItem] = useState(() => createExampleTreeViewItem(root));
+  const [root] = useState(() => generateNode(5, 3, 5));
+  const [item, setItem] = useState(() => createItem(root));
   const update = () => {
-    setItem(createExampleTreeViewItem(root));
+    setItem(createItem(root));
   };
 
   return (
