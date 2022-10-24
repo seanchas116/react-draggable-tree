@@ -10,11 +10,8 @@ export interface TreeViewProps<T extends TreeViewItem> {
   indentation?: number;
   dropIndicatorOffset?: number;
   nonReorderable?: boolean;
-  renderDropIndicator: (props: {
-    indication: DropIndication;
-    indentation: number;
-    dropIndicatorOffset: number;
-  }) => JSX.Element;
+  dropBetweenIndicator: (props: { top: number; left: number }) => JSX.Element;
+  dropOverIndicator: (props: { top: number; height: number }) => JSX.Element;
   className?: string;
   hidden?: boolean;
   style?: React.CSSProperties;
