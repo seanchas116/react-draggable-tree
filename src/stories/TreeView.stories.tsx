@@ -150,7 +150,7 @@ export const Basic: React.FC = () => {
             }}
           />
         )}
-        handleDragStart={(item) => {
+        handleDragStart={({ item }) => {
           if (!item.node.selected) {
             item.node.root.deselect();
             item.node.select();
@@ -158,10 +158,10 @@ export const Basic: React.FC = () => {
           }
           return true;
         }}
-        canDropData={(item, { draggedItem }) => {
+        canDropData={({ item, draggedItem }) => {
           return !!draggedItem && item.node.type === "branch";
         }}
-        handleDrop={(item, { draggedItem, before }) => {
+        handleDrop={({ item, draggedItem, before }) => {
           if (draggedItem) {
             for (const node of item.node.root.selectedDescendants) {
               item.node.insertBefore(node, before?.node);
@@ -224,7 +224,7 @@ export const NonReorderable: React.FC = () => {
             }}
           />
         )}
-        handleDragStart={(item) => {
+        handleDragStart={({ item }) => {
           if (!item.node.selected) {
             item.node.root.deselect();
             item.node.select();
@@ -232,10 +232,10 @@ export const NonReorderable: React.FC = () => {
           }
           return true;
         }}
-        canDropData={(item, { draggedItem }) => {
+        canDropData={({ item, draggedItem }) => {
           return !!draggedItem && item.node.type === "branch";
         }}
-        handleDrop={(item, { draggedItem, before }) => {
+        handleDrop={({ item, draggedItem, before }) => {
           if (draggedItem) {
             for (const node of item.node.root.selectedDescendants) {
               item.node.insertBefore(node, before?.node);
