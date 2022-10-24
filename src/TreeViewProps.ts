@@ -1,5 +1,4 @@
 import React from "react";
-import { DropIndication } from "./DropIndication";
 import { TreeViewItem } from "./TreeViewItem";
 
 export interface TreeViewProps<T extends TreeViewItem> {
