@@ -1,6 +1,6 @@
 import React from "react";
 import { TreeViewItem } from "./TreeViewItem";
-import { ItemRow } from "./TreeViewState";
+import { ItemRow } from "./ItemRow";
 
 export interface TreeViewProps<T extends TreeViewItem> {
   rootItem: T;
