@@ -2,6 +2,7 @@ import { loremIpsum } from "lorem-ipsum";
 import React, { useState } from "react";
 import styled from "styled-components";
 import { TreeView, TreeViewItem } from "../react-draggable-tree";
+import { ItemRow } from "../ItemRow";
 import { Node } from "./Node";
 
 function generateNode(
@@ -50,11 +51,15 @@ function createItem(node: Node, parent?: NodeTreeViewItem): NodeTreeViewItem {
 }
 
 const TreeRow: React.FC<{
-  node: Node;
+  rows: readonly ItemRow<NodeTreeViewItem>[];
+  index: number;
+  item: NodeTreeViewItem;
   depth: number;
   indentation: number;
   onChange: () => void;
-}> = ({ node, depth, indentation, onChange }) => {
+}> = ({ rows, index, item, depth, indentation, onChange }) => {
+  const node = item.node;
+
   const onCollapseButtonClick = (e: React.MouseEvent<HTMLElement>) => {
     e.stopPropagation();
     node.collapsed = !node.collapsed;
@@ -62,12 +67,31 @@ const TreeRow: React.FC<{
   };
 
   const onClick = (event: React.MouseEvent<HTMLElement>) => {
-    // TODO: shift + click
+    if (event.metaKey) {
+      if (node.selected) {
+        node.deselect();
+      } else {
+        node.select();
+      }
+    } else if (event.shiftKey) {
+      let minSelectedIndex = index;
+      let maxSelectedIndex = index;
 
-    if (!(event.metaKey || event.shiftKey)) {
+      for (const [i, row] of rows.entries()) {
+        if (row.item.node.selected) {
+          minSelectedIndex = Math.min(minSelectedIndex, i);
+          maxSelectedIndex = Math.max(maxSelectedIndex, i);
+        }
+      }
+
+      for (let i = minSelectedIndex; i <= maxSelectedIndex; ++i) {
+        rows[i].item.node.select();
+      }
+    } else {
       node.root.deselect();
+      node.select();
     }
-    node.select();
+
     onChange();
   };
 
@@ -169,14 +193,7 @@ export const Basic: React.FC = () => {
             update();
           }
         }}
-        renderRow={({ item, depth, indentation }) => (
-          <TreeRow
-            node={item.node}
-            depth={depth}
-            indentation={indentation}
-            onChange={update}
-          />
-        )}
+        renderRow={(props) => <TreeRow {...props} onChange={update} />}
       />
     </Wrap>
   );
@@ -243,14 +260,7 @@ export const NonReorderable: React.FC = () => {
             update();
           }
         }}
-        renderRow={({ item, depth, indentation }) => (
-          <TreeRow
-            node={item.node}
-            depth={depth}
-            indentation={indentation}
-            onChange={update}
-          />
-        )}
+        renderRow={(props) => <TreeRow {...props} onChange={update} />}
       />
     </Wrap>
   );

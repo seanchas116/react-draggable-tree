@@ -3,25 +3,9 @@ import { TypedEmitter } from "tiny-typed-emitter";
 import { TreeViewItem } from "./TreeViewItem";
 import { assertNonNull, first } from "./utils";
 import { TreeViewProps } from "./TreeViewProps";
+import { getItemRows, ItemRow } from "./ItemRow";
 
 const DRAG_MIME = "application/x.react-draggable-tree-drag";
-
-//// ItemRow
-
-export interface ItemRow<T extends TreeViewItem> {
-  item: T;
-  depth: number;
-}
-
-function getItemRows<T extends TreeViewItem>(
-  item: T,
-  depth: number
-): ItemRow<T>[] {
-  return [
-    { item, depth },
-    ...item.children.flatMap((child) => getItemRows(child, depth + 1)),
-  ];
-}
 
 export type DropIndication =
   | {
