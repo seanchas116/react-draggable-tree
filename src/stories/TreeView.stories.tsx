@@ -65,7 +65,14 @@ const TreeRow: React.FC<{
   };
 
   const onClick = (event: React.MouseEvent<HTMLElement>) => {
-    if (event.shiftKey) {
+    if (event.metaKey) {
+      console.log("metaKey");
+      if (node.selected) {
+        node.deselect();
+      } else {
+        node.select();
+      }
+    } else if (event.shiftKey) {
       let minSelectedIndex = index;
       let maxSelectedIndex = index;
 
@@ -79,12 +86,11 @@ const TreeRow: React.FC<{
       for (let i = minSelectedIndex; i <= maxSelectedIndex; ++i) {
         rows[i].item.node.select();
       }
+    } else {
+      node.root.deselect();
+      node.select();
     }
 
-    if (!(event.metaKey || event.shiftKey)) {
-      node.root.deselect();
-    }
-    node.select();
     onChange();
   };
 
