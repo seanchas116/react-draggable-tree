@@ -1,5 +1,6 @@
 import React from "react";
 import { TreeViewItem } from "./TreeViewItem";
+import { ItemRow } from "./TreeViewState";
 
 export interface TreeViewProps<T extends TreeViewItem> {
   rootItem: T;
@@ -18,6 +19,8 @@ export interface TreeViewProps<T extends TreeViewItem> {
   onBackgroundClick?: () => void;
 
   renderRow: (params: {
+    rows: readonly ItemRow<T>[];
+    index: number;
     item: T;
     depth: number;
     indentation: number;
