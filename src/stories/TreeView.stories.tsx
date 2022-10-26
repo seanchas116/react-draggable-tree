@@ -53,11 +53,13 @@ function createItem(node: Node, parent?: NodeTreeViewItem): NodeTreeViewItem {
 const TreeRow: React.FC<{
   rows: readonly ItemRow<NodeTreeViewItem>[];
   index: number;
-  node: Node;
+  item: NodeTreeViewItem;
   depth: number;
   indentation: number;
   onChange: () => void;
-}> = ({ rows, index, node, depth, indentation, onChange }) => {
+}> = ({ rows, index, item, depth, indentation, onChange }) => {
+  const node = item.node;
+
   const onCollapseButtonClick = (e: React.MouseEvent<HTMLElement>) => {
     e.stopPropagation();
     node.collapsed = !node.collapsed;
@@ -192,16 +194,7 @@ export const Basic: React.FC = () => {
             update();
           }
         }}
-        renderRow={({ rows, index, item, depth, indentation }) => (
-          <TreeRow
-            rows={rows}
-            index={index}
-            node={item.node}
-            depth={depth}
-            indentation={indentation}
-            onChange={update}
-          />
-        )}
+        renderRow={(props) => <TreeRow {...props} onChange={update} />}
       />
     </Wrap>
   );
@@ -268,16 +261,7 @@ export const NonReorderable: React.FC = () => {
             update();
           }
         }}
-        renderRow={({ rows, index, item, depth, indentation }) => (
-          <TreeRow
-            rows={rows}
-            index={index}
-            node={item.node}
-            depth={depth}
-            indentation={indentation}
-            onChange={update}
-          />
-        )}
+        renderRow={(props) => <TreeRow {...props} onChange={update} />}
       />
     </Wrap>
   );
