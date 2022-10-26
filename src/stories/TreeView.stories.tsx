@@ -68,7 +68,6 @@ const TreeRow: React.FC<{
 
   const onClick = (event: React.MouseEvent<HTMLElement>) => {
     if (event.metaKey) {
-      console.log("metaKey");
       if (node.selected) {
         node.deselect();
       } else {
