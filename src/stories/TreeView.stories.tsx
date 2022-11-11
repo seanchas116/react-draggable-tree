@@ -2,7 +2,7 @@ import { loremIpsum } from "lorem-ipsum";
 import React, { useState } from "react";
 import styled from "styled-components";
 import { TreeView, TreeViewItem } from "../react-draggable-tree";
-import { ItemRow } from "../ItemRow";
+import { TreeViewItemRow } from "../TreeViewItemRow";
 import { Node } from "./Node";
 
 function generateNode(
@@ -51,7 +51,7 @@ function createItem(node: Node, parent?: NodeTreeViewItem): NodeTreeViewItem {
 }
 
 const TreeRow: React.FC<{
-  rows: readonly ItemRow<NodeTreeViewItem>[];
+  rows: readonly TreeViewItemRow<NodeTreeViewItem>[];
   index: number;
   item: NodeTreeViewItem;
   depth: number;

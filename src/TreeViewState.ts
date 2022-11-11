@@ -3,7 +3,7 @@ import { TypedEmitter } from "tiny-typed-emitter";
 import { TreeViewItem } from "./TreeViewItem";
 import { assertNonNull, first } from "./utils";
 import { TreeViewProps } from "./TreeViewProps";
-import { getItemRows, ItemRow } from "./ItemRow";
+import { getItemRows, TreeViewItemRow } from "./TreeViewItemRow";
 
 const DRAG_MIME = "application/x.react-draggable-tree-drag";
 
@@ -43,7 +43,7 @@ export class TreeViewState<T extends TreeViewItem> extends TypedEmitter<{
   }
 
   props: TreeViewProps<T>;
-  rows: readonly ItemRow<T>[];
+  rows: readonly TreeViewItemRow<T>[];
   draggedItem: T | undefined = undefined;
   private _dropLocation: DropLocation<T> | undefined = undefined;
   readonly itemToDOM = new WeakMap<T, HTMLElement>();
