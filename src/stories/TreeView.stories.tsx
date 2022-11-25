@@ -1,6 +1,5 @@
 import { loremIpsum } from "lorem-ipsum";
 import React, { useState } from "react";
-import styled from "styled-components";
 import { TreeView, TreeViewItem } from "../react-draggable-tree";
 import { TreeViewItemRow } from "../TreeViewItemRow";
 import { Node } from "./Node";
@@ -122,18 +121,6 @@ export default {
   component: TreeView,
 };
 
-const Wrap = styled.div`
-  width: 240px;
-  height: 80vh;
-  overflow-y: auto;
-  font-size: 16px;
-`;
-
-const StyledTreeView: typeof TreeView = styled(TreeView)`
-  min-height: 100%;
-  background: black;
-`;
-
 export const Basic: React.FC = () => {
   const [root] = useState(() => generateNode(5, 3, 5));
   const [item, setItem] = useState(() => createItem(root));
@@ -142,70 +129,73 @@ export const Basic: React.FC = () => {
   };
 
   return (
-    <Wrap>
-      <StyledTreeView
-        rootItem={item}
-        background={
-          <div
-            style={{
-              position: "absolute",
-              inset: 0,
-            }}
-            onClick={() => {
-              item.node.deselect();
-              update();
-            }}
-          />
+    <TreeView
+      style={{
+        width: "240px",
+        minHeight: "240px",
+        background: "black",
+      }}
+      rootItem={item}
+      background={
+        <div
+          style={{
+            position: "absolute",
+            inset: 0,
+          }}
+          onClick={() => {
+            item.node.deselect();
+            update();
+          }}
+        />
+      }
+      dropBetweenIndicator={({ top, left }) => (
+        <div
+          style={{
+            position: "absolute",
+            pointerEvents: "none",
+            left: `${left}px`,
+            right: "0",
+            top: `${top}px`,
+            height: "2px",
+            background: "red",
+          }}
+        />
+      )}
+      dropOverIndicator={({ top, height }) => (
+        <div
+          style={{
+            position: "absolute",
+            pointerEvents: "none",
+            top: `${top}px`,
+            left: 0,
+            right: 0,
+            height: `${height}px`,
+            boxSizing: "border-box",
+            border: "1px solid red",
+          }}
+        />
+      )}
+      handleDragStart={({ item }) => {
+        if (!item.node.selected) {
+          item.node.root.deselect();
+          item.node.select();
+          update();
         }
-        dropBetweenIndicator={({ top, left }) => (
-          <div
-            style={{
-              position: "absolute",
-              pointerEvents: "none",
-              left: `${left}px`,
-              right: "0",
-              top: `${top}px`,
-              height: "2px",
-              background: "red",
-            }}
-          />
-        )}
-        dropOverIndicator={({ top, height }) => (
-          <div
-            style={{
-              position: "absolute",
-              pointerEvents: "none",
-              top: `${top}px`,
-              left: 0,
-              right: 0,
-              height: `${height}px`,
-              boxSizing: "border-box",
-              border: "1px solid red",
-            }}
-          />
-        )}
-        handleDragStart={({ item }) => {
-          if (!item.node.selected) {
-            item.node.root.deselect();
-            item.node.select();
-            update();
+        return true;
+      }}
+      canDrop={({ item, draggedItem }) => {
+        return !!draggedItem && item.node.type === "branch";
+      }}
+      handleDrop={({ item, draggedItem, before }) => {
+        if (draggedItem) {
+          for (const node of item.node.root.selectedDescendants) {
+            item.node.insertBefore(node, before?.node);
           }
-          return true;
-        }}
-        canDrop={({ item, draggedItem }) => {
-          return !!draggedItem && item.node.type === "branch";
-        }}
-        handleDrop={({ item, draggedItem, before }) => {
-          if (draggedItem) {
-            for (const node of item.node.root.selectedDescendants) {
-              item.node.insertBefore(node, before?.node);
-            }
-            update();
-          }
-        }}
-        renderRow={(props) => <TreeRow {...props} onChange={update} />}
-      />
-    </Wrap>
+          update();
+        }
+      }}
+      renderRow={(props) => <TreeRow {...props} onChange={update} />}
+    />
   );
 };
 
@@ -217,70 +207,73 @@ export const NonReorderable: React.FC = () => {
   };
 
   return (
-    <Wrap>
-      <StyledTreeView
-        nonReorderable
-        rootItem={item}
-        background={
-          <div
-            style={{
-              position: "absolute",
-              inset: 0,
-            }}
-            onClick={() => {
-              item.node.deselect();
-              update();
-            }}
-          />
+    <TreeView
+      style={{
+        width: "240px",
+        minHeight: "240px",
+        background: "black",
+      }}
+      nonReorderable
+      rootItem={item}
+      background={
+        <div
+          style={{
+            position: "absolute",
+            inset: 0,
+          }}
+          onClick={() => {
+            item.node.deselect();
+            update();
+          }}
+        />
+      }
+      dropBetweenIndicator={({ top, left }) => (
+        <div
+          style={{
+            position: "absolute",
+            pointerEvents: "none",
+            left: `${left}px`,
+            right: "0",
+            top: `${top}px`,
+            height: "2px",
+            background: "red",
+          }}
+        />
+      )}
+      dropOverIndicator={({ top, height }) => (
+        <div
+          style={{
+            position: "absolute",
+            pointerEvents: "none",
+            top: `${top}px`,
+            left: 0,
+            right: 0,
+            height: `${height}px`,
+            boxSizing: "border-box",
+            border: "1px solid red",
+          }}
+        />
+      )}
+      handleDragStart={({ item }) => {
+        if (!item.node.selected) {
+          item.node.root.deselect();
+          item.node.select();
+          update();
         }
-        dropBetweenIndicator={({ top, left }) => (
-          <div
-            style={{
-              position: "absolute",
-              pointerEvents: "none",
-              left: `${left}px`,
-              right: "0",
-              top: `${top}px`,
-              height: "2px",
-              background: "red",
-            }}
-          />
-        )}
-        dropOverIndicator={({ top, height }) => (
-          <div
-            style={{
-              position: "absolute",
-              pointerEvents: "none",
-              top: `${top}px`,
-              left: 0,
-              right: 0,
-              height: `${height}px`,
-              boxSizing: "border-box",
-              border: "1px solid red",
-            }}
-          />
-        )}
-        handleDragStart={({ item }) => {
-          if (!item.node.selected) {
-            item.node.root.deselect();
-            item.node.select();
-            update();
+        return true;
+      }}
+      canDrop={({ item, draggedItem }) => {
+        return !!draggedItem && item.node.type === "branch";
+      }}
+      handleDrop={({ item, draggedItem, before }) => {
+        if (draggedItem) {
+          for (const node of item.node.root.selectedDescendants) {
+            item.node.insertBefore(node, before?.node);
           }
-          return true;
-        }}
-        canDrop={({ item, draggedItem }) => {
-          return !!draggedItem && item.node.type === "branch";
-        }}
-        handleDrop={({ item, draggedItem, before }) => {
-          if (draggedItem) {
-            for (const node of item.node.root.selectedDescendants) {
-              item.node.insertBefore(node, before?.node);
-            }
-            update();
-          }
-        }}
-        renderRow={(props) => <TreeRow {...props} onChange={update} />}
-      />
-    </Wrap>
+          update();
+        }
+      }}
+      renderRow={(props) => <TreeRow {...props} onChange={update} />}
+    />
   );
 };
