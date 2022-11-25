@@ -15,5 +15,5 @@ export default defineConfig({
       external: ["react", "react-dom"],
     },
   },
-  plugins: [react(), dts()],
+  plugins: [dts(), react()],
 });
