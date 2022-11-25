@@ -16,7 +16,7 @@ export interface TreeViewProps<T extends TreeViewItem> {
   hidden?: boolean;
   style?: React.CSSProperties;
 
-  onBackgroundClick?: () => void;
+  background?: React.ReactNode;
 
   renderRow: (params: {
     rows: readonly TreeViewItemRow<T>[];

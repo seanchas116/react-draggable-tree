@@ -131,6 +131,7 @@ const Wrap = styled.div`
 
 const StyledTreeView: typeof TreeView = styled(TreeView)`
   min-height: 100%;
+  background: black;
 `;
 
 export const Basic: React.FC = () => {
@@ -144,9 +145,18 @@ export const Basic: React.FC = () => {
     <Wrap>
       <StyledTreeView
         rootItem={item}
-        onBackgroundClick={() => {
-          item.node.deselect();
-        }}
+        background={
+          <div
+            style={{
+              position: "absolute",
+              inset: 0,
+            }}
+            onClick={() => {
+              item.node.deselect();
+              update();
+            }}
+          />
+        }
         dropBetweenIndicator={({ top, left }) => (
           <div
             style={{
@@ -211,9 +221,18 @@ export const NonReorderable: React.FC = () => {
       <StyledTreeView
         nonReorderable
         rootItem={item}
-        onBackgroundClick={() => {
-          item.node.deselect();
-        }}
+        background={
+          <div
+            style={{
+              position: "absolute",
+              inset: 0,
+            }}
+            onClick={() => {
+              item.node.deselect();
+              update();
+            }}
+          />
+        }
         dropBetweenIndicator={({ top, left }) => (
           <div
             style={{

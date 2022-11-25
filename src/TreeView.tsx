@@ -48,18 +48,16 @@ function Background<T extends TreeViewItem>({
     <div
       style={{
         position: "absolute",
-        left: 0,
-        top: 0,
-        right: 0,
-        bottom: 0,
+        inset: 0,
         zIndex: "-1",
       }}
       onDragEnter={state.onBackgroundDragEnter.bind(state)}
       onDragLeave={state.onBackgroundDragLeave.bind(state)}
       onDragOver={state.onBackgroundDragOver.bind(state)}
       onDrop={state.onBackgroundDrop.bind(state)}
-      onClick={state.props.onBackgroundClick}
-    />
+    >
+      {state.props.background}
+    </div>
   );
 }
 
